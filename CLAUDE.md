@@ -2,6 +2,22 @@
 
 This is Tommy's operational brain for his role as Supply Chain Manager at Michael Todd Beauty — an $80M beauty company managing 3 brands across multiple sales channels with international expansion on the horizon. This brain is built to organize chaos, track what matters, and make Claude an effective supply chain thinking partner.
 
+- **GitHub (private):** https://github.com/tjsapia91/supplychainbrain
+- **Syncs between:** Personal machine (Obsidian vault) ↔ Work machine (Claude Code)
+
+
+## ⚠️ SESSION SYNC RULE
+
+**At the end of every session, update this file's Current Status section with what changed.**
+
+This brain is used from both personal and work machines. Neither Claude instance shares memory — this file IS the shared memory. Before ending any session:
+
+1. Update "Current Status" with what was done
+2. Push changes: `git add . && git commit -m "description" && git push origin main`
+3. On the other machine: `git pull` to get the updates
+
+**If you are Claude and the user is ending the session, remind them to let you update this file and push first.**
+
 
 ## Claude's Role
 
