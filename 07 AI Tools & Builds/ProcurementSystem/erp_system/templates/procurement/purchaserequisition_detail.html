@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}PR-{{ requisition.pr_number }} - Michael Todd Beauty ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .header-card {
+        background: linear-gradient(135deg, #1f4788 0%, #2e5fa3 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f4788;
+        border-bottom: 2px solid #d4a574;
+        padding-bottom: 0.75rem;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .info-row {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1rem;
+    }
+    .info-item {
+        flex: 1;
+    }
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+    .info-value {
+        font-size: 1rem;
+        color: #1f4788;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="header-card">
+        <div class="row">
+            <div class="col-md-8">
+                <h2 style="margin-bottom: 1rem;">PR-{{ requisition.pr_number }}</h2>
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label" style="color: rgba(255,255,255,0.8);">Date</div>
+                        <div style="color: white;">{{ requisition.date|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label" style="color: rgba(255,255,255,0.8);">Requested By</div>
+                        <div style="color: white;">{{ requisition.requested_by.get_full_name|default:requisition.requested_by.username }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label" style="color: rgba(255,255,255,0.8);">Priority</div>
+                        <div>
+                            {% if requisition.priority == 'low' %}
+                                <span class="badge bg-light text-dark">Low</span>
+                            {% elif requisition.priority == 'medium' %}
+                                <span class="badge bg-light text-info">Medium</span>
+                            {% elif requisition.priority == 'high' %}
+                                <span class="badge bg-warning text-dark">High</span>
+                            {% elif requisition.priority == 'urgent' %}
+                                <span class="badge bg-danger">Urgent</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div>
+                    <h5 style="margin-bottom: 0.5rem;">Status</h5>
+                    {% if requisition.status == 'draft' %}
+                        <span class="badge bg-light text-dark" style="font-size: 1rem; padding: 0.5rem 1rem;">Draft</span>
+                    {% elif requisition.status == 'submitted' %}
+                        <span class="badge bg-light text-info" style="font-size: 1rem; padding: 0.5rem 1rem;">Submitted</span>
+                    {% elif requisition.status == 'approved' %}
+                        <span class="badge bg-light text-success" style="font-size: 1rem; padding: 0.5rem 1rem;">Approved</span>
+                    {% elif requisition.status == 'rejected' %}
+                        <span class="badge bg-light text-danger" style="font-size: 1rem; padding: 0.5rem 1rem;">Rejected</span>
+                    {% elif requisition.status == 'converted' %}
+                        <span class="badge bg-light text-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">Converted to PPO</span>
+                    {% elif requisition.status == 'cancelled' %}
+                        <span class="badge bg-dark" style="font-size: 1rem; padding: 0.5rem 1rem;">Cancelled</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Items -->
+    <div class="section-title">Requisition Items</div>
+    <div class="card mb-4">
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Suggested Vendor</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for line in requisition.lines.all %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <strong>{{ line.item.item_no }}</strong><br>
+                            <small class="text-muted">{{ line.item.description }}</small>
+                        </td>
+                        <td>{{ line.quantity }}</td>
+                        <td>{{ line.suggested_vendor.name|default:"-" }}</td>
+                        <td>{{ line.notes|truncatewords:5 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-3">No items in this requisition.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Notes Section -->
+    {% if requisition.notes %}
+    <div class="section-title">Notes</div>
+    <div class="card mb-4">
+        <div class="card-body">
+            {{ requisition.notes|linebreaks }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="{% url 'procurement:pr_list' %}" class="btn btn-outline-secondary">Back to List</a>
+                </div>
+                <div class="col-md-6 text-end">
+                    {% if requisition.status == 'draft' %}
+                        <button class="btn btn-secondary" disabled>Submit</button>
+                    {% elif requisition.status == 'submitted' %}
+                        {% if user.is_staff %}
+                            <form method="post" action="{% url 'procurement:pr_approve' requisition.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Approve</button>
+                            </form>
+                        {% endif %}
+                    {% elif requisition.status == 'approved' %}
+                        <a href="{% url 'procurement:ppo_create' %}" class="btn btn-primary">Convert to PPO</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

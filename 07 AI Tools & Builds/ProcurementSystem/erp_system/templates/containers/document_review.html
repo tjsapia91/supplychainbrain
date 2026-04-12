@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Review Extracted Data{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Review Extracted Data</h2>
+    <div>
+        <a href="{% url 'document_upload' %}" class="btn btn-outline-secondary btn-sm">Upload Different File</a>
+    </div>
+</div>
+
+<div class="alert alert-info d-flex align-items-center">
+    <strong class="me-2">Source:</strong> {{ filename }} ({{ doc_type|upper }})
+    {% if target == 'existing' and existing_container %}
+        &nbsp;→&nbsp; Adding to <strong>{{ existing_container.container_number|default:existing_container.plan_number }}</strong>
+    {% else %}
+        &nbsp;→&nbsp; Creating <strong>New Container Plan</strong>
+    {% endif %}
+    <span class="ms-auto badge bg-primary">{{ item_count }} item{{ item_count|pluralize }}</span>
+</div>
+
+<form method="post" action="{% url 'document_confirm' %}">
+    {% csrf_token %}
+    <input type="hidden" name="item_count" value="{{ item_count }}">
+
+    <!-- Container-Level Fields -->
+    <div class="card mb-3">
+        <div class="card-header" style="background-color: var(--primary-color); color: white;">
+            <strong>Container Details</strong>
+            <small class="ms-2">(auto-extracted — edit as needed)</small>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Container #</label>
+                    <input type="text" name="c_container_number" class="form-control"
+                           value="{{ container_fields.container_number|default:'' }}"
+                           placeholder="e.g. NYKU4749505">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Booking Reference</label>
+                    <input type="text" name="c_booking_reference" class="form-control"
+                           value="{{ container_fields.booking_reference|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Commercial Invoice</label>
+                    <input type="text" name="c_commercial_invoice" class="form-control"
+                           value="{{ container_fields.commercial_invoice|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">HBL #</label>
+                    <input type="text" name="c_hbl_number" class="form-control"
+                           value="{{ container_fields.hbl_number|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Forwarder</label>
+                    <input type="text" name="c_forwarder" class="form-control"
+                           value="{{ container_fields.forwarder|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Container Type</label>
+                    <select name="c_container_type" class="form-select">
+                        {% for val, label in container_type_choices %}
+                        <option value="{{ val }}" {% if container_fields.container_type == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Incoterms</label>
+                    <input type="text" name="c_incoterms" class="form-control"
+                           value="{{ container_fields.incoterms|default:'' }}"
+                           placeholder="DDP, FOB, CIF...">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="c_status" class="form-select">
+                        {% for val, label in status_choices %}
+                        <option value="{{ val }}" {% if val == 'planning' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Port of Loading</label>
+                    <input type="text" name="c_port_of_loading" class="form-control"
+                           value="{{ container_fields.port_of_loading|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Port of Discharge</label>
+                    <input type="text" name="c_port_of_discharge" class="form-control"
+                           value="{{ container_fields.port_of_discharge|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date Sailed</label>
+                    <input type="date" name="c_date_sailed" class="form-control"
+                           value="{{ container_fields.date_sailed|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">ETA Port</label>
+                    <input type="date" name="c_eta_port" class="form-control"
+                           value="{{ container_fields.eta_port|default:'' }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Receiving Warehouse</label>
+                    <input type="text" name="c_receiving_warehouse" class="form-control"
+                           value="{{ container_fields.receiving_warehouse|default:'' }}"
+                           placeholder="e.g. CHR, Amware">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Routing Notes</label>
+                    <input type="text" name="c_routing_notes" class="form-control"
+                           value="{{ container_fields.routing_notes|default:'' }}"
+                           placeholder="e.g. DDP - Transload at LA">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Warehouse Delivery Date</label>
+                    <input type="date" name="c_warehouse_delivery_date" class="form-control"
+                           value="{{ container_fields.warehouse_delivery_date|default:'' }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Items Table -->
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background-color: var(--primary-color); color: white;">
+            <div>
+                <strong>Line Items</strong>
+                <small class="ms-2">({{ item_count }} extracted — edit, remove, or add rows)</small>
+            </div>
+            <button type="button" class="btn btn-sm btn-light" onclick="addRow()">+ Add Row</button>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0" id="itemsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:30px;"></th>
+                            <th>Item #</th>
+                            <th>Match</th>
+                            <th>Description</th>
+                            <th>Destination</th>
+                            <th>HTS Code</th>
+                            <th>Qty</th>
+                            <th>Cartons</th>
+                            <th>CBM</th>
+                            <th>Weight</th>
+                            <th>Value</th>
+                            <th>Vendor Inv</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsBody">
+                        {% for item in items %}
+                        <tr id="row_{{ forloop.counter0 }}">
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeRow({{ forloop.counter0 }})" title="Remove">×</button>
+                            </td>
+                            <td>
+                                <input type="text" name="item_{{ forloop.counter0 }}_item_no" class="form-control form-control-sm"
+                                       value="{{ item.item_no|default:'' }}" style="min-width:90px;">
+                                <input type="hidden" name="item_{{ forloop.counter0 }}_item_id" value="{{ item.item_id|default:'' }}">
+                            </td>
+                            <td>
+                                <small class="{% if item.item_match == 'Not found' %}text-danger{% else %}text-success{% endif %}">
+                                    {{ item.item_match|default:'—' }}
+                                </small>
+                            </td>
+                            <td>
+                                <input type="text" name="item_{{ forloop.counter0 }}_description" class="form-control form-control-sm"
+                                       value="{{ item.description|default:'' }}" style="min-width:150px;">
+                            </td>
+                            <td>
+                                <input type="text" name="item_{{ forloop.counter0 }}_destination" class="form-control form-control-sm"
+                                       value="{{ item.destination|default:'' }}" style="min-width:80px;"
+                                       list="destList" placeholder="AMZ, SB...">
+                            </td>
+                            <td>
+                                <input type="text" name="item_{{ forloop.counter0 }}_hts_code" class="form-control form-control-sm"
+                                       value="{{ item.hts_code|default:'' }}" style="min-width:100px;">
+                            </td>
+                            <td>
+                                <input type="number" name="item_{{ forloop.counter0 }}_quantity" class="form-control form-control-sm"
+                                       value="{{ item.quantity|default:'0' }}" style="min-width:70px;">
+                            </td>
+                            <td>
+                                <input type="number" name="item_{{ forloop.counter0 }}_cartons" class="form-control form-control-sm"
+                                       value="{{ item.cartons|default:'0' }}" style="min-width:70px;">
+                            </td>
+                            <td>
+                                <input type="text" name="item_{{ forloop.counter0 }}_cbm" class="form-control form-control-sm"
+                                       value="{{ item.cbm|default:'0' }}" style="min-width:70px;">
+                            </td>
+                            <td>
+                                <input type="text" name="item_{{ forloop.counter0 }}_total_weight" class="form-control form-control-sm"
+                                       value="{{ item.total_weight|default:'0' }}" style="min-width:70px;">
+                            </td>
+                            <td>
+                                <input type="text" name="item_{{ forloop.counter0 }}_line_value" class="form-control form-control-sm"
+                                       value="{{ item.line_value|default:'0' }}" style="min-width:80px;">
+                            </td>
+                            <td>
+                                <input type="text" name="item_{{ forloop.counter0 }}_vendor_invoice_no" class="form-control form-control-sm"
+                                       value="{{ item.vendor_invoice_no|default:'' }}" style="min-width:90px;">
+                            </td>
+                            <td>
+                                <input type="text" name="item_{{ forloop.counter0 }}_notes" class="form-control form-control-sm"
+                                       value="{{ item.notes|default:'' }}" style="min-width:80px;">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <datalist id="destList">
+        {% for d in destinations %}
+        <option value="{{ d }}">
+        {% endfor %}
+    </datalist>
+
+    <div class="d-flex justify-content-between mb-4">
+        <a href="{% url 'document_upload' %}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-success btn-lg">
+            {% if target == 'existing' and existing_container %}
+                Save Items to {{ existing_container.container_number|default:existing_container.plan_number }}
+            {% else %}
+                Create Container & Save Items
+            {% endif %}
+        </button>
+    </div>
+</form>
+
+<script>
+var rowCount = {{ item_count }};
+
+function addRow() {
+    var idx = rowCount;
+    var tbody = document.getElementById('itemsBody');
+    var tr = document.createElement('tr');
+    tr.id = 'row_' + idx;
+    tr.innerHTML = `
+        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeRow(${idx})" title="Remove">×</button></td>
+        <td><input type="text" name="item_${idx}_item_no" class="form-control form-control-sm" style="min-width:90px;"><input type="hidden" name="item_${idx}_item_id" value=""></td>
+        <td><small class="text-muted">Manual</small></td>
+        <td><input type="text" name="item_${idx}_description" class="form-control form-control-sm" style="min-width:150px;"></td>
+        <td><input type="text" name="item_${idx}_destination" class="form-control form-control-sm" style="min-width:80px;" list="destList"></td>
+        <td><input type="text" name="item_${idx}_hts_code" class="form-control form-control-sm" style="min-width:100px;"></td>
+        <td><input type="number" name="item_${idx}_quantity" class="form-control form-control-sm" value="0" style="min-width:70px;"></td>
+        <td><input type="number" name="item_${idx}_cartons" class="form-control form-control-sm" value="0" style="min-width:70px;"></td>
+        <td><input type="text" name="item_${idx}_cbm" class="form-control form-control-sm" value="0" style="min-width:70px;"></td>
+        <td><input type="text" name="item_${idx}_total_weight" class="form-control form-control-sm" value="0" style="min-width:70px;"></td>
+        <td><input type="text" name="item_${idx}_line_value" class="form-control form-control-sm" value="0" style="min-width:80px;"></td>
+        <td><input type="text" name="item_${idx}_vendor_invoice_no" class="form-control form-control-sm" style="min-width:90px;"></td>
+        <td><input type="text" name="item_${idx}_notes" class="form-control form-control-sm" style="min-width:80px;"></td>
+    `;
+    tbody.appendChild(tr);
+    rowCount++;
+    document.querySelector('input[name="item_count"]').value = rowCount;
+}
+
+function removeRow(idx) {
+    var row = document.getElementById('row_' + idx);
+    if (row) {
+        row.style.display = 'none';
+        // Clear values so they're not submitted
+        row.querySelectorAll('input').forEach(function(inp) {
+            inp.value = '';
+            inp.name = '';
+        });
+    }
+}
+</script>
+{% endblock %}

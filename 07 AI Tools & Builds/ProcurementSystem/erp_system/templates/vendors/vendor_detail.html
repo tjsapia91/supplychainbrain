@@ -1,0 +1,407 @@
+{% extends 'base.html' %}
+{% block title %}{{ vendor.name }} - Supplier Account{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.25rem;
+        border: 1px solid #e9ecef;
+        text-align: center;
+    }
+    .stat-card .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f4788;
+    }
+    .stat-card .stat-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    .vendor-header {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem 2rem;
+        border: 1px solid #e9ecef;
+        margin-bottom: 1.5rem;
+    }
+    .vendor-header h1 {
+        color: #1f4788;
+        margin-bottom: 0.25rem;
+    }
+    .vendor-meta {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f4788;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #d4a574;
+    }
+    .info-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+        margin-bottom: 1.5rem;
+        height: 100%;
+    }
+    .info-label {
+        font-weight: 600;
+        color: #555;
+        font-size: 0.85rem;
+    }
+    .info-value {
+        color: #333;
+        margin-bottom: 0.75rem;
+    }
+    .status-draft { background-color: #6c757d; }
+    .status-sent { background-color: #17a2b8; }
+    .status-pending { background-color: #ffc107; color: #333; }
+    .status-approved { background-color: #28a745; }
+    .status-active { background-color: #28a745; }
+    .status-transit { background-color: #17a2b8; }
+    .status-received { background-color: #28a745; }
+    .status-cancelled { background-color: #dc3545; }
+    .ppo-row:hover {
+        background-color: #f0f4ff !important;
+        cursor: pointer;
+    }
+    .tab-content {
+        padding-top: 1.5rem;
+    }
+    .nav-tabs .nav-link {
+        color: #6c757d;
+        font-weight: 600;
+    }
+    .nav-tabs .nav-link.active {
+        color: #1f4788;
+        border-bottom: 2px solid #d4a574;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Vendor Header -->
+    <div class="vendor-header">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1>{{ vendor.name }}</h1>
+                <div class="vendor-meta">
+                    {% if vendor.code %}<span class="me-3">Code: <strong>{{ vendor.code }}</strong></span>{% endif %}
+                    {% if vendor.city or vendor.country %}<span class="me-3">{{ vendor.city }}{% if vendor.city and vendor.country %}, {% endif %}{{ vendor.country }}</span>{% endif %}
+                    {% if vendor.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'procurement:ppo_create' %}?vendor={{ vendor.pk }}" class="btn btn-primary me-2">+ New Purchase Order</a>
+                <a href="{% url 'vendors:vendor_edit' vendor.pk %}" class="btn btn-outline-secondary">Edit Supplier</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">{{ total_orders }}</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">{{ active_orders }}</div>
+                <div class="stat-label">Active Orders</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">${{ total_spend|floatformat:0|default:"0" }}</div>
+                <div class="stat-label">Total Spend</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">{{ avg_lead_time|floatformat:0|default:"—" }}</div>
+                <div class="stat-label">Avg Lead Time (days)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs: Orders / Info / Notes -->
+    <ul class="nav nav-tabs" id="vendorTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab">Purchase Orders ({{ total_orders }})</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Supplier Info</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="wire-tab" data-bs-toggle="tab" data-bs-target="#wire" type="button" role="tab">Wire / Payment</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="vendorTabContent">
+        <!-- ORDERS TAB -->
+        <div class="tab-pane fade show active" id="orders" role="tabpanel">
+
+            <!-- Batch Action Bar (vendor page) -->
+            <div class="batch-bar" id="vendor-batch-bar" style="display:none; background:#1f4788; color:white; border-radius:8px; padding:0.75rem 1.25rem; margin-bottom:1rem; align-items:center; justify-content:space-between;">
+                <div>
+                    <strong id="vendor-batch-count">0</strong> Draft PPOs selected
+                    <button type="button" class="btn btn-sm btn-outline-light ms-2" onclick="clearVendorBatch()">Clear</button>
+                </div>
+                <form method="post" action="{% url 'procurement:ppo_batch_send' %}" id="vendor-batch-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="ppo_ids" id="vendor-batch-ids" value="">
+                    <button type="submit" class="btn btn-sm" style="background:#d4a574; color:#1f4788; font-weight:600;">Batch Send to Vendor</button>
+                </form>
+            </div>
+
+            <!-- Active Orders -->
+            {% if active_ppos %}
+            <div class="section-title">Active Orders</div>
+            <div class="card mb-4">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:36px;"><input type="checkbox" id="vendor-select-all" style="width:18px;height:18px;cursor:pointer;accent-color:#1f4788;" title="Select all Draft PPOs"></th>
+                                <th>PPO #</th>
+                                <th>Date</th>
+                                <th>Branch</th>
+                                <th>Status</th>
+                                <th>Ship Date</th>
+                                <th>Transport</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ppo in active_ppos %}
+                            <tr class="ppo-row" onclick="window.location='{% url 'procurement:ppo_detail' ppo.pk %}'">
+                                <td onclick="event.stopPropagation();">
+                                    {% if ppo.status == 'draft' %}
+                                    <input type="checkbox" class="vendor-ppo-check" data-pk="{{ ppo.pk }}" style="width:18px;height:18px;cursor:pointer;accent-color:#1f4788;">
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ ppo.ppo_number }}</strong></td>
+                                <td>{{ ppo.date|date:"M d, Y" }}</td>
+                                <td>{{ ppo.branch.name|default:"—" }}</td>
+                                <td>
+                                    {% if ppo.status == 'draft' %}
+                                        <span class="badge bg-secondary">Draft</span>
+                                    {% elif ppo.status == 'sent_to_vendor' %}
+                                        <span class="badge bg-info">Sent to Vendor</span>
+                                    {% elif ppo.status == 'pi_received' %}
+                                        <span class="badge bg-primary">PI Received</span>
+                                    {% elif ppo.status == 'pending_ceo_approval' %}
+                                        <span class="badge bg-warning text-dark">Pending CEO</span>
+                                    {% elif ppo.status == 'ceo_approved' %}
+                                        <span class="badge bg-success">CEO Approved</span>
+                                    {% elif ppo.status == 'confirmed' %}
+                                        <span class="badge bg-success">Confirmed</span>
+                                    {% elif ppo.status == 'in_transit' %}
+                                        <span class="badge bg-info">In Transit</span>
+                                    {% elif ppo.status == 'partially_received' %}
+                                        <span class="badge bg-warning text-dark">Partial Receipt</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ ppo.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ ppo.estimated_ship_date|date:"M d, Y"|default:"—" }}</td>
+                                <td>{{ ppo.get_mode_of_transport_display|default:"—" }}</td>
+                                <td>${{ ppo.total|floatformat:2 }}</td>
+                                <td>
+                                    <a href="{% url 'procurement:ppo_detail' ppo.pk %}" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">View</a>
+                                    {% if ppo.status == 'draft' %}
+                                        <a href="{% url 'procurement:ppo_edit' ppo.pk %}" class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();">Edit</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Completed / Closed Orders -->
+            {% if completed_ppos %}
+            <div class="section-title">Completed Orders</div>
+            <div class="card mb-4">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>PPO #</th>
+                                <th>Date</th>
+                                <th>Branch</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ppo in completed_ppos %}
+                            <tr class="ppo-row" onclick="window.location='{% url 'procurement:ppo_detail' ppo.pk %}'">
+                                <td><strong>{{ ppo.ppo_number }}</strong></td>
+                                <td>{{ ppo.date|date:"M d, Y" }}</td>
+                                <td>{{ ppo.branch.name|default:"—" }}</td>
+                                <td>
+                                    {% if ppo.status == 'fully_received' %}
+                                        <span class="badge bg-success">Fully Received</span>
+                                    {% elif ppo.status == 'closed' %}
+                                        <span class="badge bg-dark">Closed</span>
+                                    {% elif ppo.status == 'cancelled' %}
+                                        <span class="badge bg-danger">Cancelled</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ ppo.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>${{ ppo.total|floatformat:2 }}</td>
+                                <td>
+                                    <a href="{% url 'procurement:ppo_detail' ppo.pk %}" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if not active_ppos and not completed_ppos %}
+            <div class="text-center text-muted py-5">
+                <p style="font-size: 1.2rem;">No purchase orders yet for this supplier.</p>
+                <a href="{% url 'procurement:ppo_create' %}?vendor={{ vendor.pk }}" class="btn btn-primary">Create First Purchase Order</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- SUPPLIER INFO TAB -->
+        <div class="tab-pane fade" id="info" role="tabpanel">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <div class="section-title">Contact Information</div>
+                        {% if vendor.contact_name %}
+                        <div class="info-label">Primary Contact</div>
+                        <div class="info-value">{{ vendor.contact_name }}</div>
+                        {% endif %}
+
+                        {% if vendor.contact_email %}
+                        <div class="info-label">Contact Email</div>
+                        <div class="info-value"><a href="mailto:{{ vendor.contact_email }}">{{ vendor.contact_email }}</a></div>
+                        {% endif %}
+
+                        {% if vendor.email %}
+                        <div class="info-label">Company Email</div>
+                        <div class="info-value"><a href="mailto:{{ vendor.email }}">{{ vendor.email }}</a></div>
+                        {% endif %}
+
+                        {% if vendor.phone %}
+                        <div class="info-label">Phone</div>
+                        <div class="info-value">{{ vendor.phone }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <div class="section-title">Address & Details</div>
+                        {% if vendor.address %}
+                        <div class="info-label">Address</div>
+                        <div class="info-value">
+                            {{ vendor.address }}<br>
+                            {% if vendor.city %}{{ vendor.city }}, {% endif %}{{ vendor.state }} {{ vendor.postal_code }}<br>
+                            {{ vendor.country }}
+                        </div>
+                        {% endif %}
+
+                        {% if vendor.lead_time_days %}
+                        <div class="info-label">Default Lead Time</div>
+                        <div class="info-value">{{ vendor.lead_time_days }} days</div>
+                        {% endif %}
+
+                        {% if vendor.payment_terms %}
+                        <div class="info-label">Payment Terms</div>
+                        <div class="info-value">{{ vendor.payment_terms }}</div>
+                        {% endif %}
+
+                        <div class="info-label">Currency</div>
+                        <div class="info-value">{{ vendor.currency }}</div>
+                    </div>
+                </div>
+            </div>
+            {% if vendor.notes %}
+            <div class="info-card">
+                <div class="section-title">Notes</div>
+                <p>{{ vendor.notes|linebreaksbr }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- WIRE / PAYMENT TAB -->
+        <div class="tab-pane fade" id="wire" role="tabpanel">
+            <div class="info-card">
+                <div class="section-title">Wire / Bank Transfer Info</div>
+                {% if vendor.wire_info %}
+                    <pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">{{ vendor.wire_info }}</pre>
+                {% else %}
+                    <p class="text-muted">No wire transfer information on file. <a href="{% url 'vendors:vendor_edit' vendor.pk %}">Add it now</a>.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var bar = document.getElementById('vendor-batch-bar');
+    var countEl = document.getElementById('vendor-batch-count');
+    var idsInput = document.getElementById('vendor-batch-ids');
+    var selectAll = document.getElementById('vendor-select-all');
+    var checks = document.querySelectorAll('.vendor-ppo-check');
+
+    function update() {
+        var sel = document.querySelectorAll('.vendor-ppo-check:checked');
+        var ids = [];
+        sel.forEach(function(cb) { ids.push(cb.dataset.pk); });
+        idsInput.value = ids.join(',');
+        countEl.textContent = ids.length;
+        bar.style.display = ids.length > 0 ? 'flex' : 'none';
+        if (checks.length > 0) {
+            selectAll.checked = sel.length === checks.length;
+            selectAll.indeterminate = sel.length > 0 && sel.length < checks.length;
+        }
+    }
+
+    checks.forEach(function(cb) { cb.addEventListener('change', update); });
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checks.forEach(function(cb) { cb.checked = selectAll.checked; });
+            update();
+        });
+    }
+
+    window.clearVendorBatch = function() {
+        checks.forEach(function(cb) { cb.checked = false; });
+        if (selectAll) selectAll.checked = false;
+        update();
+    };
+})();
+</script>
+{% endblock %}

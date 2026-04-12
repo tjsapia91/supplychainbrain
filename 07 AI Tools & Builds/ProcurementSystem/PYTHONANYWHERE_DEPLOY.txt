@@ -1,0 +1,217 @@
+==============================================================================
+  PYTHONANYWHERE DEPLOYMENT GUIDE
+  Michael Todd Beauty - ERP Procurement System
+==============================================================================
+
+This guide will get your procurement system live at:
+  https://YOURUSERNAME.pythonanywhere.com
+
+Total time: ~15 minutes
+
+
+STEP 1: CREATE A FREE PYTHONANYWHERE ACCOUNT
+==============================================================================
+1. Go to https://www.pythonanywhere.com
+2. Click "Pricing & signup" -> "Create a Beginner account" (free)
+3. Pick a username (this becomes your URL, e.g., mtbprocurement.pythonanywhere.com)
+4. Confirm your email
+
+
+STEP 2: UPLOAD YOUR PROJECT
+==============================================================================
+Option A: ZIP Upload (Easiest)
+  1. On your computer, ZIP the entire "ProcurementSystem" folder
+  2. In PythonAnywhere, go to the "Files" tab
+  3. Click "Upload a file" and upload the ZIP
+  4. Open a Bash console (Consoles tab -> "Bash")
+  5. Run:
+       cd ~
+       unzip ProcurementSystem.zip
+       mv ProcurementSystem/erp_system ~/erp_system
+
+Option B: GitHub (Better for ongoing updates)
+  1. Push your project to a private GitHub repo
+  2. In PythonAnywhere Bash console:
+       cd ~
+       git clone https://github.com/YOURUSER/ProcurementSystem.git
+       mv ProcurementSystem/erp_system ~/erp_system
+
+
+STEP 3: SET UP PYTHON ENVIRONMENT
+==============================================================================
+In the PythonAnywhere Bash console, run these commands:
+
+  mkvirtualenv erp --python=python3.10
+
+  cd ~/erp_system
+  pip install -r requirements.txt
+
+
+STEP 4: SET UP THE DATABASE
+==============================================================================
+Still in the Bash console:
+
+  cd ~/erp_system
+  python manage.py migrate
+  python manage.py collectstatic --noinput
+
+Create team user accounts:
+
+  python manage.py shell < create_team_users.py
+
+Or create just your admin account:
+
+  python manage.py createsuperuser
+  (Username: tom, Email: tom@michaeltoddbeauty.com, Password: your choice)
+
+
+STEP 5: CONFIGURE THE WEB APP
+==============================================================================
+1. Go to the "Web" tab in PythonAnywhere
+2. Click "Add a new web app"
+3. Choose "Manual configuration" (NOT Django)
+4. Select Python 3.10
+5. On the web app config page, set:
+
+   Source code:       /home/YOURUSERNAME/erp_system
+   Working directory: /home/YOURUSERNAME/erp_system
+
+6. In the "Virtualenv" section, enter:
+   /home/YOURUSERNAME/.virtualenvs/erp
+
+7. Click on the WSGI configuration file link (something like
+   /var/www/YOURUSERNAME_pythonanywhere_com_wsgi.py)
+
+   DELETE everything in that file and replace with:
+
+   ---------------------------------------------------------------
+   import os
+   import sys
+
+   # Add project to path
+   path = '/home/YOURUSERNAME/erp_system'
+   if path not in sys.path:
+       sys.path.append(path)
+
+   os.environ['DJANGO_SETTINGS_MODULE'] = 'erp.settings'
+
+   # Production settings
+   os.environ['DJANGO_DEBUG'] = 'False'
+   os.environ['DJANGO_SECRET_KEY'] = 'GENERATE-A-RANDOM-KEY-HERE-40-CHARS-LONG'
+   os.environ['DJANGO_ALLOWED_HOSTS'] = 'YOURUSERNAME.pythonanywhere.com'
+   os.environ['DJANGO_CSRF_ORIGINS'] = 'https://YOURUSERNAME.pythonanywhere.com'
+   os.environ['SITE_URL'] = 'https://YOURUSERNAME.pythonanywhere.com'
+
+   # Uncomment and fill in when Azure email is ready:
+   # os.environ['AZURE_TENANT_ID'] = 'your-tenant-id'
+   # os.environ['AZURE_CLIENT_ID'] = 'your-client-id'
+   # os.environ['AZURE_CLIENT_SECRET'] = 'your-client-secret'
+   # os.environ['CEO_EMAIL'] = 'ceo@michaeltoddbeauty.com'
+
+   from django.core.wsgi import get_wsgi_application
+   application = get_wsgi_application()
+   ---------------------------------------------------------------
+
+   IMPORTANT: Replace YOURUSERNAME with your actual PythonAnywhere username
+   IMPORTANT: Generate a real secret key. Run this in a Python console:
+     import secrets; print(secrets.token_urlsafe(50))
+
+
+STEP 6: CONFIGURE STATIC FILES
+==============================================================================
+On the Web tab, scroll to "Static files" and add:
+
+   URL:       /static/
+   Directory: /home/YOURUSERNAME/erp_system/staticfiles
+
+   URL:       /media/
+   Directory: /home/YOURUSERNAME/erp_system/media
+
+
+STEP 7: RELOAD AND TEST
+==============================================================================
+1. Click the green "Reload" button on the Web tab
+2. Visit https://YOURUSERNAME.pythonanywhere.com
+3. You should see the login page
+4. Log in with the accounts created in Step 4
+
+
+==============================================================================
+  TEAM LOGIN ACCOUNTS
+==============================================================================
+If you ran create_team_users.py, these accounts are ready:
+
+  Username: tom       Password: MTB2024!   Role: Admin (full access)
+  Username: augusto   Password: MTB2024!   Role: Supply Chain Manager
+  Username: donna     Password: MTB2024!   Role: Supply Chain Manager
+
+  ** Have everyone change their password after first login **
+  ** To change: Django Admin at /admin/ -> Users -> select user -> change password **
+
+
+==============================================================================
+  MANAGING USERS (Adding/Removing Team Members)
+==============================================================================
+1. Log in as tom (admin)
+2. Go to https://YOURUSERNAME.pythonanywhere.com/admin/
+3. Click "Users" -> "Add user"
+4. Set username, password, then on the next screen set their role
+
+Roles:
+  admin                - Full access to everything
+  supply_chain_manager - Create PPOs, approve PRs, receive goods
+  buyer                - Create PPOs
+  warehouse            - Receive goods
+  finance              - Manage invoices
+  viewer               - Read-only access
+
+
+==============================================================================
+  UPDATING THE SITE (After Making Changes)
+==============================================================================
+If you make code changes locally and want to update the live site:
+
+  Option A (ZIP): Upload new ZIP, extract, reload web app
+  Option B (Git): In PythonAnywhere console:
+    cd ~/erp_system
+    git pull
+    python manage.py migrate          (if models changed)
+    python manage.py collectstatic    (if CSS/JS changed)
+    -> Then click "Reload" on the Web tab
+
+
+==============================================================================
+  FREE TIER LIMITS (What to Know)
+==============================================================================
+- Your site URL: YOURUSERNAME.pythonanywhere.com (no custom domain on free)
+- Storage: 512 MB (plenty for this app)
+- CPU: Shared (fine for a small team)
+- Your site stays up 24/7 but PythonAnywhere asks you to click a button
+  every 3 months to confirm you still want it running
+- SQLite works fine for a team of 5-10 people
+- File uploads (PI documents, attachments) count toward the 512 MB limit
+
+
+==============================================================================
+  TROUBLESHOOTING
+==============================================================================
+Problem: "Something went wrong" / 500 error
+  -> Check the error log: Web tab -> "Error log" link
+  -> Most common: typo in WSGI file or missing package
+
+Problem: Static files not loading (page looks broken)
+  -> Make sure you ran: python manage.py collectstatic
+  -> Check the static files path in Web tab matches /home/USER/erp_system/staticfiles
+
+Problem: "CSRF verification failed"
+  -> Make sure DJANGO_CSRF_ORIGINS is set correctly in WSGI file
+  -> Must include https:// prefix
+
+Problem: Can't log in
+  -> Open Bash console and run:
+     cd ~/erp_system
+     workon erp
+     python manage.py createsuperuser
+
+Problem: Media files (uploaded PIs) not showing
+  -> Check the media path in Web tab: /home/USER/erp_system/media

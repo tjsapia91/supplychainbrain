@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Michael Todd Beauty ERP{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 style="color: #1f4788; font-weight: 700;">Procurement Dashboard</h1>
+        <p style="color: #6c757d;">Michael Todd Beauty Supply Chain Management System</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'procurement:ppo_create' %}" class="btn btn-primary">
+            + New PPO
+        </a>
+        <a href="{% url 'procurement:pr_create' %}" class="btn btn-outline-primary">
+            + New Requisition
+        </a>
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<!-- KPI Cards -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-start border-primary border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-muted mb-1">Active PPOs</h6>
+                        <h2 class="mb-0" style="color: #1f4788;">{{ active_ppos }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <span style="font-size: 2rem; color: #d4a574;">&#128230;</span>
+                    </div>
+                </div>
+                <small class="text-muted">{{ draft_ppos }} draft</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-start border-warning border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-muted mb-1">Pending CEO Approval</h6>
+                        <h2 class="mb-0" style="color: #ffc107;">{{ pending_ceo_ppos }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <span style="font-size: 2rem;">&#9997;</span>
+                    </div>
+                </div>
+                <a href="{% url 'procurement:ppo_list' %}?status=pending_ceo_approval" class="small text-warning">Review now</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-start border-success border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-muted mb-1">Item Master</h6>
+                        <h2 class="mb-0" style="color: #28a745;">{{ active_items }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <span style="font-size: 2rem;">&#128218;</span>
+                    </div>
+                </div>
+                <small class="text-muted">{{ total_items }} total (incl. inactive)</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-start border-info border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-muted mb-1">Open PRs</h6>
+                        <h2 class="mb-0" style="color: #17a2b8;">{{ pending_prs }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <span style="font-size: 2rem;">&#128203;</span>
+                    </div>
+                </div>
+                <small class="text-muted">{{ pending_invoices }} pending invoices</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Overview -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header" style="background-color: #1f4788; color: white;">
+                <h5 class="mb-0">Procurement Workflow</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between text-center flex-wrap">
+                    <div class="p-2">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #e9ecef;">1</div>
+                        <p class="mt-2 mb-0 small fw-bold">Purchase<br>Requisition</p>
+                    </div>
+                    <div class="p-2 align-self-center" style="color: #d4a574;">&rarr;</div>
+                    <div class="p-2">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #cce5ff;">2</div>
+                        <p class="mt-2 mb-0 small fw-bold">Create<br>PPO</p>
+                    </div>
+                    <div class="p-2 align-self-center" style="color: #d4a574;">&rarr;</div>
+                    <div class="p-2">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #d4edda;">3</div>
+                        <p class="mt-2 mb-0 small fw-bold">Send to<br>Vendor</p>
+                    </div>
+                    <div class="p-2 align-self-center" style="color: #d4a574;">&rarr;</div>
+                    <div class="p-2">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #fff3cd;">4</div>
+                        <p class="mt-2 mb-0 small fw-bold">Receive<br>PI</p>
+                    </div>
+                    <div class="p-2 align-self-center" style="color: #d4a574;">&rarr;</div>
+                    <div class="p-2">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #ffc107;">5</div>
+                        <p class="mt-2 mb-0 small fw-bold">CEO<br>Approval</p>
+                    </div>
+                    <div class="p-2 align-self-center" style="color: #d4a574;">&rarr;</div>
+                    <div class="p-2">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #28a745; color: white;">6</div>
+                        <p class="mt-2 mb-0 small fw-bold">Confirmed<br>Order</p>
+                    </div>
+                    <div class="p-2 align-self-center" style="color: #d4a574;">&rarr;</div>
+                    <div class="p-2">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #17a2b8; color: white;">7</div>
+                        <p class="mt-2 mb-0 small fw-bold">Goods<br>Receipt</p>
+                    </div>
+                    <div class="p-2 align-self-center" style="color: #d4a574;">&rarr;</div>
+                    <div class="p-2">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #1f4788; color: white;">8</div>
+                        <p class="mt-2 mb-0 small fw-bold">Invoice<br>Match</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent PPOs Table -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0" style="color: #1f4788;">Recent Purchase Orders</h5>
+                <a href="{% url 'procurement:ppo_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead style="background-color: #1f4788; color: white;">
+                        <tr>
+                            <th>PPO #</th>
+                            <th>Date</th>
+                            <th>Vendor</th>
+                            <th>Status</th>
+                            <th>Cartons</th>
+                            <th>CBM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ppo in recent_ppos %}
+                        <tr>
+                            <td><a href="{% url 'procurement:ppo_detail' ppo.pk %}"><strong>{{ ppo.ppo_number }}</strong></a></td>
+                            <td>{{ ppo.date|date:"M d, Y" }}</td>
+                            <td>{{ ppo.vendor.name|truncatewords:4 }}</td>
+                            <td>
+                                {% if ppo.status == 'draft' %}
+                                    <span class="badge bg-secondary">Draft</span>
+                                {% elif ppo.status == 'sent_to_vendor' %}
+                                    <span class="badge bg-info">Sent to Vendor</span>
+                                {% elif ppo.status == 'pi_received' %}
+                                    <span class="badge bg-primary">PI Received</span>
+                                {% elif ppo.status == 'pending_ceo_approval' %}
+                                    <span class="badge bg-warning text-dark">Pending CEO</span>
+                                {% elif ppo.status == 'ceo_approved' or ppo.status == 'confirmed' %}
+                                    <span class="badge bg-success">{{ ppo.get_status_display }}</span>
+                                {% elif ppo.status == 'in_transit' %}
+                                    <span class="badge bg-info">In Transit</span>
+                                {% elif ppo.status == 'fully_received' %}
+                                    <span class="badge bg-success">Received</span>
+                                {% elif ppo.status == 'cancelled' %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% else %}
+                                    <span class="badge bg-dark">{{ ppo.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ppo.total_cartons }}</td>
+                            <td>{{ ppo.total_cbm|floatformat:3 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                No purchase orders yet. <a href="{% url 'procurement:ppo_create' %}">Create your first PPO</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0" style="color: #1f4788;">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'procurement:ppo_create' %}" class="btn btn-primary">Create New PPO</a>
+                    <a href="{% url 'procurement:pr_create' %}" class="btn btn-outline-primary">New Purchase Requisition</a>
+                    <a href="{% url 'procurement:pi_create' %}" class="btn btn-outline-primary">Upload Proforma Invoice</a>
+                    <a href="{% url 'receiving:grpo_create' %}" class="btn btn-outline-primary">Receive Goods (GRPO)</a>
+                    <a href="{% url 'invoicing:invoice_create' %}" class="btn btn-outline-primary">Create AP Invoice</a>
+                    <hr>
+                    <a href="{% url 'items:item_list' %}" class="btn btn-outline-secondary btn-sm">Browse Items ({{ total_items }})</a>
+                    <a href="{% url 'vendors:vendor_list' %}" class="btn btn-outline-secondary btn-sm">Manage Vendors ({{ total_vendors }})</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0" style="color: #1f4788;">Your Info</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>User:</strong> {{ user.get_full_name|default:user.username }}</p>
+                <p class="mb-1"><strong>Role:</strong> {{ user.get_role_display }}</p>
+                <p class="mb-0"><strong>Department:</strong> {{ user.department|default:"Supply Chain" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

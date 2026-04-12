@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}INV-{{ invoice.invoice_number }}{% endblock %}
+{% block content %}
+<h2>INV-{{ invoice.invoice_number }}</h2>
+<p><strong>Vendor:</strong> {{ invoice.vendor }}</p>
+<p><strong>Amount:</strong> {{ invoice.currency }} {{ invoice.total_amount }}</p>
+<p><strong>Status:</strong> {{ invoice.get_status_display }}</p>
+<p><strong>3-Way Match:</strong> {% if invoice.three_way_match %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-danger">No</span>{% endif %}</p>
+<a href="{% url 'invoicing:invoice_edit' invoice.pk %}" class="btn btn-secondary">Edit</a>
+<a href="{% url 'invoicing:invoice_list' %}" class="btn btn-outline-secondary">Back</a>
+{% endblock %}

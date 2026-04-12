@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Demand Forecasts{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Demand Forecasts</h2>
+    <div>
+        <a href="{% url 'forecast_create' %}" class="btn btn-primary btn-sm">+ New Forecast</a>
+        <a href="{% url 'forecast_bulk_upload' %}" class="btn btn-outline-secondary btn-sm ms-1">Bulk Upload</a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Item</label>
+                <select name="item" class="form-select form-select-sm">
+                    <option value="">All Items</option>
+                    {% for item in forecast_items %}
+                    <option value="{{ item.item_no }}" {% if item.item_no == current_item %}selected{% endif %}>{{ item.item_no }} - {{ item.description|truncatechars:30 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Channel</label>
+                <select name="channel" class="form-select form-select-sm">
+                    <option value="">All Channels</option>
+                    {% for val, label in channel_choices %}
+                    <option value="{{ val }}" {% if val == current_channel %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Upcoming Summary -->
+{% if upcoming_summary %}
+<div class="card mb-3">
+    <div class="card-header" style="background-color: var(--primary-color); color: white;">
+        <strong>Next 6 Months - Forecast Summary by SKU</strong>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-sm table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Description</th>
+                    <th>Total Forecast</th>
+                    <th>Total Actual</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in upcoming_summary %}
+                <tr>
+                    <td><a href="{% url 'forecast_item_detail' row.item__item_no %}"><strong>{{ row.item__item_no }}</strong></a></td>
+                    <td>{{ row.item__description|truncatechars:40 }}</td>
+                    <td>{{ row.total_forecast|default:0 }}</td>
+                    <td>{{ row.total_actual|default:0 }}</td>
+                    <td><a href="{% url 'forecast_item_detail' row.item__item_no %}" class="btn btn-outline-primary btn-sm">Detail</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- All Forecasts -->
+<div class="card">
+    <div class="card-header"><strong>Forecast Entries</strong></div>
+    <div class="card-body p-0">
+        <table class="table table-sm table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Channel</th>
+                    <th>Month</th>
+                    <th>Forecast</th>
+                    <th>Actual</th>
+                    <th>Variance</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fc in forecasts %}
+                <tr>
+                    <td><a href="{% url 'forecast_item_detail' fc.item.item_no %}">{{ fc.item.item_no }}</a></td>
+                    <td>{{ fc.get_channel_display }}</td>
+                    <td>{{ fc.month|date:"M Y" }}</td>
+                    <td>{{ fc.forecast_qty }}</td>
+                    <td>{{ fc.actual_qty|default:"--" }}</td>
+                    <td>
+                        {% if fc.variance is not None %}
+                        <span class="{% if fc.variance < 0 %}text-danger{% else %}text-success{% endif %}">{{ fc.variance }}</span>
+                        {% else %}--{% endif %}
+                    </td>
+                    <td><small>{{ fc.source|default:"--" }}</small></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-muted text-center py-4">No forecast data yet. Add entries or upload a CSV.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

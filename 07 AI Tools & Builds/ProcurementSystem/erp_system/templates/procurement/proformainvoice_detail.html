@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}PI-{{ invoice.pi_number }} - Michael Todd Beauty ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .header-card {
+        background: linear-gradient(135deg, #1f4788 0%, #2e5fa3 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f4788;
+        border-bottom: 2px solid #d4a574;
+        padding-bottom: 0.75rem;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .info-row {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1rem;
+    }
+    .info-item {
+        flex: 1;
+    }
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+    .info-value {
+        font-size: 1rem;
+        color: #1f4788;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="header-card">
+        <div class="row">
+            <div class="col-md-8">
+                <h2 style="margin-bottom: 1rem;">PI-{{ invoice.pi_number }}</h2>
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label" style="color: rgba(255,255,255,0.8);">Date</div>
+                        <div style="color: white;">{{ invoice.date|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label" style="color: rgba(255,255,255,0.8);">PPO #</div>
+                        <div style="color: white;">
+                            <a href="{% url 'procurement:ppo_detail' invoice.ppo.pk %}" style="color: white; text-decoration: underline;">{{ invoice.ppo.ppo_number }}</a>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label" style="color: rgba(255,255,255,0.8);">Vendor</div>
+                        <div style="color: white;">{{ invoice.vendor.name }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div>
+                    <h5 style="margin-bottom: 0.5rem;">Status</h5>
+                    {% if invoice.status == 'received' %}
+                        <span class="badge bg-light text-info" style="font-size: 1rem; padding: 0.5rem 1rem;">Received</span>
+                    {% elif invoice.status == 'under_review' %}
+                        <span class="badge bg-warning text-dark" style="font-size: 1rem; padding: 0.5rem 1rem;">Under Review</span>
+                    {% elif invoice.status == 'approved' %}
+                        <span class="badge bg-light text-success" style="font-size: 1rem; padding: 0.5rem 1rem;">Approved</span>
+                    {% elif invoice.status == 'rejected' %}
+                        <span class="badge bg-light text-danger" style="font-size: 1rem; padding: 0.5rem 1rem;">Rejected</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Details -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Invoice Information</h5>
+                    <div class="info-row">
+                        <div class="info-item">
+                            <div class="info-label">PI Number</div>
+                            <div class="info-value">{{ invoice.pi_number }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Total Amount</div>
+                            <div class="info-value">{{ invoice.currency }} {{ invoice.total_amount|floatformat:2 }}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Reviewed By</div>
+                        <div class="info-value">
+                            {% if invoice.reviewed_by %}
+                                {{ invoice.reviewed_by.get_full_name|default:invoice.reviewed_by.username }}
+                            {% else %}
+                                Not yet reviewed
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            {% if invoice.notes %}
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Notes</h6>
+                </div>
+                <div class="card-body">
+                    {{ invoice.notes|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <!-- File Section -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Invoice Document</h6>
+                </div>
+                <div class="card-body">
+                    {% if invoice.file %}
+                        <p class="text-muted">File attached</p>
+                        <a href="{{ invoice.file.url }}" class="btn btn-primary w-100" download>
+                            <i class="bi bi-download"></i> Download PI Document
+                        </a>
+                    {% else %}
+                        <p class="text-muted">No document uploaded</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="{% url 'procurement:pi_list' %}" class="btn btn-outline-secondary">Back to List</a>
+                </div>
+                <div class="col-md-6 text-end">
+                    {% if invoice.status == 'received' or invoice.status == 'under_review' %}
+                        <button type="button" class="btn btn-outline-success" disabled>Approve</button>
+                        <button type="button" class="btn btn-outline-danger" disabled>Reject</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}GRPO-{{ grpo.grpo_number }} - Michael Todd Beauty ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-section {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        border: 1px solid #e9ecef;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f4788;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #d4a574;
+    }
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem 2rem;
+    }
+    @media (max-width: 768px) {
+        .detail-grid { grid-template-columns: 1fr; }
+    }
+    .detail-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .detail-value {
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 0.75rem;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .status-draft { background: #fff3cd; color: #856404; }
+    .status-posted { background: #d4edda; color: #155724; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+    .lines-table { font-size: 0.9rem; }
+    .lines-table thead th {
+        font-size: 0.8rem;
+        background: #f8f9fa;
+        white-space: nowrap;
+        padding: 8px 10px;
+    }
+    .lines-table tbody td { padding: 6px 10px; vertical-align: middle; }
+    .variance-positive { color: #198754; font-weight: 600; }
+    .variance-negative { color: #dc3545; font-weight: 600; }
+    .variance-zero { color: #6c757d; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 style="color: #1f4788;">GRPO-{{ grpo.grpo_number }}{% if grpo.ppo %} <small style="font-size: 0.5em; color: #6c757d;">for PPO-{{ grpo.ppo.ppo_number }}</small>{% endif %}</h1>
+        <div>
+            {% if grpo.status == 'draft' %}
+            <a href="{% url 'receiving:grpo_edit' grpo.pk %}" class="btn btn-primary">Edit</a>
+            {% endif %}
+            <a href="{% url 'receiving:grpo_list' %}" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+    </div>
+
+    <!-- Header Details -->
+    <div class="detail-section">
+        <div class="section-title">Receipt Details</div>
+        <div class="detail-grid">
+            <div>
+                <div class="detail-label">GRPO Number</div>
+                <div class="detail-value"><strong>GRPO-{{ grpo.grpo_number }}</strong></div>
+            </div>
+            <div>
+                <div class="detail-label">Status</div>
+                <div class="detail-value">
+                    <span class="status-badge status-{{ grpo.status }}">{{ grpo.get_status_display }}</span>
+                </div>
+            </div>
+            <div>
+                <div class="detail-label">Purchase Order</div>
+                <div class="detail-value">
+                    {% if grpo.ppo %}
+                    <a href="{% url 'procurement:ppo_detail' grpo.ppo.pk %}">PPO-{{ grpo.ppo.ppo_number }}</a>
+                    {% else %}—{% endif %}
+                </div>
+            </div>
+            <div>
+                <div class="detail-label">Supplier</div>
+                <div class="detail-value">{{ grpo.vendor.name|default:"—" }}</div>
+            </div>
+            <div>
+                <div class="detail-label">Receipt Date</div>
+                <div class="detail-value">{{ grpo.receipt_date|date:"M d, Y" }}</div>
+            </div>
+            <div>
+                <div class="detail-label">Posting Date</div>
+                <div class="detail-value">{{ grpo.posting_date|date:"M d, Y" }}</div>
+            </div>
+            <div>
+                <div class="detail-label">Receiving 3PL</div>
+                <div class="detail-value">{{ grpo.warehouse|default:"—" }}</div>
+            </div>
+            <div>
+                <div class="detail-label">AWB/BL / Reference</div>
+                <div class="detail-value">{{ grpo.reference|default:"—" }}</div>
+            </div>
+            <div>
+                <div class="detail-label">Received By</div>
+                <div class="detail-value">{{ grpo.received_by|default:"—" }}</div>
+            </div>
+            <div>
+                <div class="detail-label">Created</div>
+                <div class="detail-value">{{ grpo.created_at|date:"M d, Y H:i" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Items -->
+    <div class="detail-section">
+        <div class="section-title">Line Items</div>
+        {% if lines %}
+        <div class="table-responsive">
+            <table class="table table-hover lines-table mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Item #</th>
+                        <th>Description</th>
+                        <th>Destination</th>
+                        <th class="text-center">Expected</th>
+                        <th class="text-center">Received</th>
+                        <th class="text-center">Damaged</th>
+                        <th class="text-center">Accepted</th>
+                        <th class="text-center">Variance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for line in lines %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td><strong>{{ line.item.item_no }}</strong></td>
+                        <td>{{ line.description|default:line.item.description }}</td>
+                        <td>{{ line.destination|default:"—" }}</td>
+                        <td class="text-center">{{ line.quantity_expected }}</td>
+                        <td class="text-center">{{ line.quantity_received }}</td>
+                        <td class="text-center">{% if line.quantity_damaged %}{{ line.quantity_damaged }}{% else %}0{% endif %}</td>
+                        <td class="text-center">{{ line.quantity_accepted }}</td>
+                        <td class="text-center {% if line.variance > 0 %}variance-positive{% elif line.variance < 0 %}variance-negative{% else %}variance-zero{% endif %}">
+                            {% if line.variance > 0 %}+{% endif %}{{ line.variance }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr style="font-weight: 700; background: #f8f9fa;">
+                        <td colspan="4" class="text-end">Totals:</td>
+                        <td class="text-center" id="foot-expected">0</td>
+                        <td class="text-center" id="foot-received">0</td>
+                        <td class="text-center" id="foot-damaged">0</td>
+                        <td class="text-center" id="foot-accepted">0</td>
+                        <td class="text-center" id="foot-variance">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No line items recorded.</p>
+        {% endif %}
+    </div>
+
+    <!-- Notes -->
+    {% if grpo.notes %}
+    <div class="detail-section">
+        <div class="section-title">Notes</div>
+        <p>{{ grpo.notes|linebreaksbr }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Calculate footer totals from the table rows
+(function() {
+    var rows = document.querySelectorAll('.lines-table tbody tr');
+    var totals = {expected: 0, received: 0, damaged: 0, accepted: 0, variance: 0};
+    rows.forEach(function(row) {
+        var cells = row.querySelectorAll('td');
+        totals.expected += parseInt(cells[4].textContent) || 0;
+        totals.received += parseInt(cells[5].textContent) || 0;
+        totals.damaged += parseInt(cells[6].textContent) || 0;
+        totals.accepted += parseInt(cells[7].textContent) || 0;
+        totals.variance += parseInt(cells[8].textContent) || 0;
+    });
+    document.getElementById('foot-expected').textContent = totals.expected;
+    document.getElementById('foot-received').textContent = totals.received;
+    document.getElementById('foot-damaged').textContent = totals.damaged;
+    document.getElementById('foot-accepted').textContent = totals.accepted;
+    var $v = document.getElementById('foot-variance');
+    $v.textContent = (totals.variance > 0 ? '+' : '') + totals.variance;
+    if (totals.variance > 0) $v.className = 'text-center variance-positive';
+    else if (totals.variance < 0) $v.className = 'text-center variance-negative';
+    else $v.className = 'text-center variance-zero';
+})();
+</script>
+{% endblock %}

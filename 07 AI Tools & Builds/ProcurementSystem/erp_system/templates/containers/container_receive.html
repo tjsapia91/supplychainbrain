@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Receive - {{ container.container_number|default:container.plan_number }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2>Record Receiving</h2>
+        <small class="text-muted">{{ container.container_number|default:container.plan_number }} &middot; {{ container.receiving_warehouse|default:"No warehouse set" }}</small>
+    </div>
+    <a href="{% url 'container_detail' container.pk %}" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Destination</th>
+                        <th>Shipped</th>
+                        <th>Qty Received</th>
+                        <th>Receive Date</th>
+                        <th>Variance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ci in items %}
+                    <tr>
+                        <td>
+                            <strong>{{ ci.item.item_no|default:"" }}</strong>
+                            <br><small>{{ ci.description|truncatechars:40 }}</small>
+                        </td>
+                        <td>{{ ci.destination }}</td>
+                        <td>{{ ci.quantity }}</td>
+                        <td>
+                            <input type="number" name="qty_received_{{ ci.pk }}" value="{{ ci.qty_received }}" class="form-control form-control-sm" style="width: 100px;" onchange="updateVariance(this, {{ ci.quantity }})">
+                        </td>
+                        <td>
+                            <input type="date" name="receive_date_{{ ci.pk }}" value="{{ ci.receive_date|date:'Y-m-d' }}" class="form-control form-control-sm" style="width: 140px;">
+                        </td>
+                        <td class="variance-cell">{{ ci.variance }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-success">Save Receiving Data</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateVariance(input, shipped) {
+    var received = parseInt(input.value) || 0;
+    var variance = received - shipped;
+    var cell = input.closest('tr').querySelector('.variance-cell');
+    cell.textContent = variance;
+    cell.style.color = variance < 0 ? 'red' : (variance > 0 ? 'green' : '');
+}
+</script>
+{% endblock %}

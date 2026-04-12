@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Michael Todd Beauty ERP - Procurement System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1f4788;
+            --secondary-color: #d4a574;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+        .navbar a {
+            color: #fff !important;
+            margin: 0 0.5rem;
+        }
+        .sidebar {
+            background-color: white;
+            border-right: 1px solid #e9ecef;
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .sidebar a {
+            color: #495057;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            display: block;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .sidebar a:hover {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            border-left-color: var(--secondary-color);
+        }
+        .sidebar a.active {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            border-left-color: var(--secondary-color);
+            font-weight: 600;
+        }
+        .main-content {
+            padding: 2rem;
+        }
+        .card {
+            border: 1px solid #e9ecef;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .btn-primary:hover {
+            background-color: #163555;
+            border-color: #163555;
+        }
+        .badge-success {
+            background-color: #28a745;
+        }
+        .badge-warning {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .badge-danger {
+            background-color: #dc3545;
+        }
+        .table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Michael Todd Beauty ERP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/accounts/profile/">{{ user.get_full_name|default:user.username }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout/">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login/">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% if user.is_authenticated %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 sidebar">
+                <h5 style="padding: 0 1.5rem; margin-bottom: 1.5rem; color: var(--primary-color);">Menu</h5>
+                <a href="/" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+
+                <div style="margin-top: 1.5rem; padding: 0 1.5rem; color: #6c757d; font-size: 0.85rem; font-weight: 600;">SUPPLIERS</div>
+                <a href="/vendors/" class="{% if request.path == '/vendors/' %}active{% endif %}">Supplier Accounts</a>
+
+                <div style="margin-top: 1.5rem; padding: 0 1.5rem; color: #6c757d; font-size: 0.85rem; font-weight: 600;">PROCUREMENT</div>
+                <a href="/procurement/ppos/" class="{% if 'ppos' in request.path %}active{% endif %}">All Purchase Orders</a>
+                <a href="/procurement/requisitions/" class="{% if 'requisitions' in request.path %}active{% endif %}">Requisitions</a>
+                <a href="/procurement/proforma-invoices/" class="{% if 'proforma' in request.path %}active{% endif %}">Proforma Invoices</a>
+
+                <div style="margin-top: 1.5rem; padding: 0 1.5rem; color: #6c757d; font-size: 0.85rem; font-weight: 600;">CONTAINER PLANNING</div>
+                <a href="/containers/" class="{% if request.path == '/containers/' %}active{% endif %}">Container Dashboard</a>
+                <a href="/containers/list/" class="{% if 'containers/list' in request.path %}active{% endif %}">All Containers</a>
+                <a href="/containers/in-transit/" class="{% if 'in-transit' in request.path %}active{% endif %}">In-Transit Log</a>
+                <a href="/containers/forecast/" class="{% if 'forecast' in request.path %}active{% endif %}">Demand Forecasts</a>
+
+                <div style="margin-top: 1.5rem; padding: 0 1.5rem; color: #6c757d; font-size: 0.85rem; font-weight: 600;">OPERATIONS</div>
+                <a href="/receiving/" class="{% if 'receiving' in request.path %}active{% endif %}">Goods Receipt</a>
+                <a href="/inventory/stock-levels/" class="{% if 'stock' in request.path %}active{% endif %}">Stock Levels</a>
+                <a href="/invoicing/" class="{% if 'invoicing' in request.path %}active{% endif %}">AP Invoices</a>
+                <a href="/landed-costs/" class="{% if 'landed-costs' in request.path %}active{% endif %}">Landed Costs</a>
+
+                <div style="margin-top: 1.5rem; padding: 0 1.5rem; color: #6c757d; font-size: 0.85rem; font-weight: 600;">REPORTS</div>
+                <a href="/reports/" class="{% if 'reports' in request.path and 'upload' not in request.path and 'compare' not in request.path and 'alerts' not in request.path %}active{% endif %}">Reports Hub</a>
+                <a href="/reports/upload/" class="{% if 'reports/upload' in request.path %}active{% endif %}">Upload Data</a>
+                <a href="/reports/data/" class="{% if 'reports/data' in request.path %}active{% endif %}">All Data</a>
+                <a href="/reports/compare/" class="{% if 'reports/compare' in request.path %}active{% endif %}">SKU Compare</a>
+                <a href="/reports/alerts/" class="{% if 'reports/alerts' in request.path %}active{% endif %}">Reorder Alerts</a>
+
+                <div style="margin-top: 1.5rem; padding: 0 1.5rem; color: #6c757d; font-size: 0.85rem; font-weight: 600;">MASTER DATA</div>
+                <a href="/items/" class="{% if 'items' in request.path %}active{% endif %}">Items</a>
+                <a href="/vendors/branches/" class="{% if 'branches' in request.path %}active{% endif %}">Branches</a>
+                <a href="/vendors/3pl/" class="{% if '3pl' in request.path %}active{% endif %}">3PL Providers</a>
+                <a href="/inventory/warehouses/" class="{% if 'inventory' in request.path %}active{% endif %}">Warehouses</a>
+
+                {% if user.is_admin_user %}
+                <div style="margin-top: 1.5rem; padding: 0 1.5rem; color: #6c757d; font-size: 0.85rem; font-weight: 600;">ADMIN</div>
+                <a href="/accounts/users/" class="{% if 'accounts/users' in request.path %}active{% endif %}">User Management</a>
+                <a href="/admin/">Django Admin</a>
+                {% endif %}
+            </div>
+
+            <div class="col-md-10 main-content">
+                {% if messages %}
+                <div class="alert alert-dismissible fade show" role="alert">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="container mt-5">
+        {% block login_content %}{% endblock %}
+    </div>
+    {% endif %}
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

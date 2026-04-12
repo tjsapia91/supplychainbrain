@@ -1,0 +1,658 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.pk %}Edit GRPO-{{ form.instance.grpo_number }}{% else %}Create Goods Receipt{% endif %} - Michael Todd Beauty ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        border: 1px solid #e9ecef;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f4788;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #d4a574;
+    }
+    .two-column-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    @media (max-width: 768px) {
+        .two-column-form { grid-template-columns: 1fr; }
+    }
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.3rem;
+    }
+    .vendor-display {
+        padding: 0.5rem 0.75rem;
+        background: #f0f4ff;
+        border: 1px solid #1f4788;
+        border-radius: 4px;
+        font-weight: 600;
+        color: #1f4788;
+        min-height: 38px;
+    }
+    .vendor-display.empty {
+        background: #f8f9fa;
+        border-color: #ced4da;
+        color: #999;
+        font-weight: 400;
+    }
+    /* Spreadsheet-style line items table */
+    #ppo-lines-table {
+        font-size: 0.9rem;
+    }
+    #ppo-lines-table thead th {
+        font-size: 0.8rem;
+        padding: 8px 4px;
+        white-space: nowrap;
+        background: #f8f9fa;
+    }
+    #ppo-lines-table tbody td {
+        padding: 2px 4px;
+        vertical-align: middle;
+    }
+    #ppo-lines-table tbody tr:nth-child(odd) {
+        background-color: #f8f9fa;
+    }
+    /* Excel-like input cells */
+    #ppo-lines-table .qty-input {
+        width: 80px;
+        text-align: center;
+        border: 1px solid transparent;
+        background: transparent;
+        border-radius: 2px;
+        padding: 4px 6px;
+        font-size: 0.9rem;
+    }
+    #ppo-lines-table .qty-input:focus {
+        border-color: #1f4788;
+        background: #fff;
+        box-shadow: 0 0 0 2px rgba(31,71,136,0.15);
+    }
+    #ppo-lines-table .qty-input:hover {
+        border-color: #ced4da;
+        background: #fff;
+    }
+    /* Cell selection highlighting */
+    #ppo-lines-table td.cell-selected {
+        background-color: rgba(31, 71, 136, 0.08) !important;
+        outline: 2px solid #1f4788;
+        outline-offset: -2px;
+    }
+    #ppo-lines-table td.cell-selected .qty-input {
+        background: transparent;
+    }
+    #ppo-lines-table td.cell-anchor {
+        outline: 2px solid #d4a574 !important;
+        outline-offset: -2px;
+    }
+    .variance-positive { color: #198754; font-weight: 600; }
+    .variance-negative { color: #dc3545; font-weight: 600; }
+    .ppo-lookup-error {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+    .ppo-lookup-ok {
+        color: #198754;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1>{% if form.instance.pk %}Edit GRPO-{{ form.instance.grpo_number }}{% else %}Create Goods Receipt{% endif %}</h1>
+
+    <form method="post" id="grpo-form">
+        {% csrf_token %}
+
+        <!-- Hidden fields for PPO and Vendor FKs -->
+        {{ form.ppo }}
+        {{ form.vendor }}
+
+        <!-- Header Section -->
+        <div class="form-section">
+            <div class="section-title">Receipt Header</div>
+            <div class="two-column-form">
+                <div>
+                    <label class="form-label">PO # <span class="text-danger">*</span></label>
+                    {{ form.ppo_number_input }}
+                    <div id="ppo-lookup-status"></div>
+                </div>
+                <div>
+                    <label class="form-label">Supplier</label>
+                    <div class="vendor-display empty" id="vendor-display">Auto-populated from PO</div>
+                </div>
+                <div>
+                    <label for="{{ form.receipt_date.id_for_label }}" class="form-label">Receipt Date</label>
+                    {{ form.receipt_date }}
+                </div>
+                <div>
+                    <label for="{{ form.posting_date.id_for_label }}" class="form-label">Posting Date</label>
+                    {{ form.posting_date }}
+                </div>
+                <div>
+                    <label for="{{ form.warehouse.id_for_label }}" class="form-label">{{ form.warehouse.label }}</label>
+                    {{ form.warehouse }}
+                    <small class="text-muted">
+                        <a href="{% url 'vendors:threepl_create' %}" target="_blank">+ Add new 3PL</a>
+                    </small>
+                </div>
+                <div>
+                    <label for="{{ form.reference.id_for_label }}" class="form-label">{{ form.reference.label }}</label>
+                    {{ form.reference }}
+                </div>
+                <div>
+                    <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                    {{ form.status }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Line Items Section (populated by JS from PPO lookup) -->
+        <div class="form-section" id="line-items-section" style="display: none;">
+            <div class="section-title">Line Items — Receiving</div>
+            <p class="text-muted" style="font-size: 0.9rem;">
+                Enter quantities received. Paste from Excel — select a Qty Received cell and paste a column or block of data.
+                Tab through cells like a spreadsheet. Click to select, Shift+Click to select a range.
+            </p>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered mb-0" id="ppo-lines-table">
+                    <thead>
+                        <tr>
+                            <th width="4%" class="text-center">#</th>
+                            <th width="14%">Item #</th>
+                            <th width="22%">Description</th>
+                            <th width="14%">Destination</th>
+                            <th width="10%" class="text-center">PO Qty</th>
+                            <th width="12%" class="text-center">Qty Received</th>
+                            <th width="12%" class="text-center">Damaged</th>
+                            <th width="12%" class="text-center">Variance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ppo-lines-body">
+                        <!-- Filled by JS -->
+                    </tbody>
+                    <tfoot>
+                        <tr style="font-weight: 700; background: #f0f4ff;">
+                            <td colspan="4" class="text-end" style="color: #1f4788;">Totals:</td>
+                            <td class="text-center" style="color: #1f4788;" id="total-expected">0</td>
+                            <td class="text-center" style="color: #1f4788;" id="total-received">0</td>
+                            <td class="text-center" style="color: #1f4788;" id="total-damaged">0</td>
+                            <td class="text-center" style="color: #1f4788;" id="total-variance">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-section">
+            <div class="section-title">Notes</div>
+            <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+            {{ form.notes }}
+        </div>
+
+        <!-- Buttons -->
+        <div class="form-section d-flex justify-content-between">
+            <a href="{% url 'receiving:grpo_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary px-4">Save</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const PPO_LOOKUP_URL = "{% url 'receiving:ppo_lookup_api' %}";
+    const $ppoInput = $('#{{ form.ppo_number_input.id_for_label }}');
+    const $ppoHidden = $('#id_ppo');
+    const $vendorHidden = $('#id_vendor');
+    const $vendorDisplay = $('#vendor-display');
+    const $lookupStatus = $('#ppo-lookup-status');
+    const $lineSection = $('#line-items-section');
+    const $linesBody = $('#ppo-lines-body');
+    let lookupTimeout = null;
+
+    // =========================================================================
+    // COLUMN MAP — ordered list of editable field classes in column order
+    // =========================================================================
+    const COL_FIELDS = [
+        'qty-received',   // col 0 — Qty Received
+        'qty-damaged'     // col 1 — Damaged
+    ];
+
+    function getColIndex($input) {
+        for (let i = 0; i < COL_FIELDS.length; i++) {
+            if ($input.hasClass(COL_FIELDS[i])) return i;
+        }
+        return -1;
+    }
+
+    function getFieldInRow($row, colIdx) {
+        return $row.find('.' + COL_FIELDS[colIdx]);
+    }
+
+    function getRowCol($input) {
+        const $row = $input.closest('tr');
+        const $allRows = $('#ppo-lines-body tr');
+        return { row: $allRows.index($row), col: getColIndex($input) };
+    }
+
+    // =========================================================================
+    // CELL SELECTION — click to select, shift+click to select range
+    // =========================================================================
+    let selAnchor = null;
+    let selEnd = null;
+
+    function clearSelection() {
+        $('#ppo-lines-table td.cell-selected, #ppo-lines-table td.cell-anchor').removeClass('cell-selected cell-anchor');
+        selAnchor = null;
+        selEnd = null;
+    }
+
+    function highlightSelection() {
+        $('#ppo-lines-table td.cell-selected, #ppo-lines-table td.cell-anchor').removeClass('cell-selected cell-anchor');
+        if (!selAnchor) return;
+
+        const $allRows = $('#ppo-lines-body tr');
+        const end = selEnd || selAnchor;
+        const r1 = Math.min(selAnchor.row, end.row);
+        const r2 = Math.max(selAnchor.row, end.row);
+        const c1 = Math.min(selAnchor.col, end.col);
+        const c2 = Math.max(selAnchor.col, end.col);
+
+        for (let r = r1; r <= r2; r++) {
+            const $row = $allRows.eq(r);
+            for (let c = c1; c <= c2; c++) {
+                const $field = getFieldInRow($row, c);
+                if ($field.length) {
+                    $field.closest('td').addClass('cell-selected');
+                }
+            }
+        }
+        const $anchorField = getFieldInRow($allRows.eq(selAnchor.row), selAnchor.col);
+        if ($anchorField.length) $anchorField.closest('td').addClass('cell-anchor');
+    }
+
+    // Click handler for cell selection
+    $(document).on('focus', '.qty-received, .qty-damaged', function(e) {
+        var $input = $(this);
+        var pos = getRowCol($input);
+        if (pos.col < 0) return;
+
+        if (e.shiftKey && selAnchor) {
+            selEnd = pos;
+        } else {
+            selAnchor = pos;
+            selEnd = null;
+        }
+        highlightSelection();
+    });
+
+    // Shift+click for range selection
+    $(document).on('click', '.qty-received, .qty-damaged', function(e) {
+        if (e.shiftKey && selAnchor) {
+            var pos = getRowCol($(this));
+            if (pos.col >= 0) {
+                selEnd = pos;
+                highlightSelection();
+            }
+        }
+    });
+
+    // Tab / Enter navigation between cells
+    $(document).on('keydown', '.qty-received, .qty-damaged', function(e) {
+        if (e.key === 'Tab' || e.key === 'Enter') {
+            e.preventDefault();
+            var $input = $(this);
+            var pos = getRowCol($input);
+            var $allRows = $('#ppo-lines-body tr');
+            var nextCol, nextRow;
+
+            if (e.shiftKey) {
+                // Shift+Tab goes backward
+                nextCol = pos.col - 1;
+                nextRow = pos.row;
+                if (nextCol < 0) {
+                    nextCol = COL_FIELDS.length - 1;
+                    nextRow = pos.row - 1;
+                }
+            } else {
+                // Tab goes forward
+                nextCol = pos.col + 1;
+                nextRow = pos.row;
+                if (nextCol >= COL_FIELDS.length) {
+                    nextCol = 0;
+                    nextRow = pos.row + 1;
+                }
+            }
+
+            if (nextRow >= 0 && nextRow < $allRows.length) {
+                var $nextField = getFieldInRow($allRows.eq(nextRow), nextCol);
+                if ($nextField.length) {
+                    $nextField.focus().select();
+                }
+            }
+        }
+        // Arrow key navigation
+        else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            var $input = $(this);
+            var pos = getRowCol($input);
+            var $allRows = $('#ppo-lines-body tr');
+            var targetRow = e.key === 'ArrowDown' ? pos.row + 1 : pos.row - 1;
+
+            if (targetRow >= 0 && targetRow < $allRows.length) {
+                var $target = getFieldInRow($allRows.eq(targetRow), pos.col);
+                if ($target.length) $target.focus().select();
+            }
+        }
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            // Only navigate if at start/end of input value
+            var $input = $(this);
+            var val = $input.val();
+            var cursorPos = this.selectionStart;
+            var pos = getRowCol($input);
+            var $allRows = $('#ppo-lines-body tr');
+
+            if (e.key === 'ArrowLeft' && cursorPos === 0) {
+                e.preventDefault();
+                var nextCol = pos.col - 1;
+                var nextRow = pos.row;
+                if (nextCol < 0) { nextCol = COL_FIELDS.length - 1; nextRow = pos.row - 1; }
+                if (nextRow >= 0) {
+                    var $target = getFieldInRow($allRows.eq(nextRow), nextCol);
+                    if ($target.length) $target.focus().select();
+                }
+            }
+            else if (e.key === 'ArrowRight' && cursorPos === val.length) {
+                e.preventDefault();
+                var nextCol = pos.col + 1;
+                var nextRow = pos.row;
+                if (nextCol >= COL_FIELDS.length) { nextCol = 0; nextRow = pos.row + 1; }
+                if (nextRow < $allRows.length) {
+                    var $target = getFieldInRow($allRows.eq(nextRow), nextCol);
+                    if ($target.length) $target.focus().select();
+                }
+            }
+        }
+    });
+
+    // =========================================================================
+    // UNIFIED PASTE — handles ALL paste operations on the line items table.
+    // Bound as a native capture-phase listener so it fires BEFORE any jQuery
+    // handlers and can reliably intercept multi-value pastes from Excel.
+    // =========================================================================
+    function masterPaste(e) {
+        var target = e.target;
+        if (!target || target.tagName !== 'INPUT') return;
+        if (!target.closest('#ppo-lines-body')) return;
+
+        var clip = e.clipboardData || window.clipboardData;
+        if (!clip) return;
+
+        var text = clip.getData('text');
+        if (!text || !text.trim()) return;
+
+        // Parse clipboard: rows by newline, columns by tab
+        var lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+        var grid = [];
+        for (var i = 0; i < lines.length; i++) {
+            var cols = lines[i].split('\t');
+            var hasContent = false;
+            for (var j = 0; j < cols.length; j++) {
+                if (cols[j].trim()) { hasContent = true; break; }
+            }
+            if (hasContent) grid.push(cols);
+        }
+
+        // Single cell, single value → let normal browser paste handle it
+        if (grid.length <= 1 && (!grid[0] || grid[0].length <= 1)) return;
+
+        // Multi-value paste — we handle this
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        var $input = $(target);
+        var pos = getRowCol($input);
+        if (pos.col < 0) return;
+
+        var startRow = pos.row;
+        var startCol = pos.col;
+        var $allRows = $('#ppo-lines-body tr');
+
+        for (var r = 0; r < grid.length; r++) {
+            var rowIdx = startRow + r;
+            if (rowIdx >= $allRows.length) break;  // Can't add rows in GRPO — fixed from PPO
+
+            var $row = $allRows.eq(rowIdx);
+
+            for (var c = 0; c < grid[r].length; c++) {
+                var colIdx = startCol + c;
+                if (colIdx >= COL_FIELDS.length) continue;
+
+                var val = grid[r][c].trim();
+                var fieldClass = COL_FIELDS[colIdx];
+                var $field = $row.find('.' + fieldClass);
+
+                if ($field.length) {
+                    $field.val(val).trigger('input');
+                }
+            }
+        }
+
+        updateTotals();
+
+        // Highlight pasted range
+        selAnchor = { row: startRow, col: startCol };
+        var lastGridRow = grid.length - 1;
+        var lastGridCol = grid[0] ? grid[0].length - 1 : 0;
+        selEnd = {
+            row: Math.min(startRow + lastGridRow, $allRows.length - 1),
+            col: Math.min(startCol + lastGridCol, COL_FIELDS.length - 1)
+        };
+        highlightSelection();
+    }
+
+    // Bind paste in CAPTURE phase on the table
+    document.addEventListener('DOMContentLoaded', function() {
+        var table = document.getElementById('ppo-lines-table');
+        if (table) {
+            table.addEventListener('paste', masterPaste, true);
+        }
+    });
+
+    // =========================================================================
+    // PPO LOOKUP
+    // =========================================================================
+    function lookupPPO(ppoNumber) {
+        if (!ppoNumber) {
+            clearPPOData();
+            return;
+        }
+        $lookupStatus.html('<span class="text-muted">Looking up...</span>');
+
+        $.getJSON(PPO_LOOKUP_URL, { ppo_number: ppoNumber }, function(data) {
+            $ppoHidden.val(data.ppo_id);
+            $vendorHidden.val(data.vendor_id);
+            $vendorDisplay.text(data.vendor_name).removeClass('empty');
+
+            if (!$('#id_reference').val() && data.awb_bl) {
+                $('#id_reference').val(data.awb_bl);
+            }
+
+            $lookupStatus.html('<span class="ppo-lookup-ok">&#10003; PO #' + data.ppo_number + ' found</span>');
+            buildLineItems(data.lines);
+
+        }).fail(function(xhr) {
+            clearPPOData();
+            var msg = xhr.responseJSON ? xhr.responseJSON.error : 'Lookup failed';
+            $lookupStatus.html('<span class="ppo-lookup-error">' + msg + '</span>');
+        });
+    }
+
+    function clearPPOData() {
+        $ppoHidden.val('');
+        $vendorHidden.val('');
+        $vendorDisplay.text('Auto-populated from PO').addClass('empty');
+        $lookupStatus.html('');
+        $linesBody.empty();
+        $lineSection.hide();
+    }
+
+    function buildLineItems(lines) {
+        $linesBody.empty();
+        if (!lines || !lines.length) {
+            $lineSection.hide();
+            return;
+        }
+
+        lines.forEach(function(line, idx) {
+            var existingQty = 0;
+            var existingDmg = 0;
+
+            {% if form.instance.pk %}
+            {% for gl in grpo_lines %}
+            if (line.ppo_line_id === {{ gl.ppo_line_id }}) {
+                existingQty = {{ gl.quantity_received }};
+                existingDmg = {{ gl.quantity_damaged }};
+            }
+            {% endfor %}
+            {% endif %}
+
+            var row = '<tr>' +
+                '<td class="text-center">' + (idx + 1) + '</td>' +
+                '<td><strong>' + escapeHtml(line.item_no) + '</strong></td>' +
+                '<td>' + escapeHtml(line.description) + '</td>' +
+                '<td>' + escapeHtml(line.destination || '\u2014') + '</td>' +
+                '<td class="text-center">' + line.quantity + '</td>' +
+                '<td class="text-center">' +
+                    '<input type="number" name="qty_received_' + line.ppo_line_id + '" ' +
+                    'class="form-control form-control-sm qty-input qty-received" ' +
+                    'value="' + existingQty + '" min="0" data-expected="' + line.quantity + '" tabindex="0">' +
+                '</td>' +
+                '<td class="text-center">' +
+                    '<input type="number" name="qty_damaged_' + line.ppo_line_id + '" ' +
+                    'class="form-control form-control-sm qty-input qty-damaged" ' +
+                    'value="' + existingDmg + '" min="0" tabindex="0">' +
+                '</td>' +
+                '<td class="text-center variance-cell">0</td>' +
+                '</tr>';
+            $linesBody.append(row);
+        });
+
+        $lineSection.show();
+        updateTotals();
+    }
+
+    // =========================================================================
+    // LIVE TOTALS & VARIANCE
+    // =========================================================================
+    function updateTotals() {
+        var totalExpected = 0, totalReceived = 0, totalDamaged = 0;
+
+        $('#ppo-lines-body tr').each(function() {
+            var $row = $(this);
+            var expected = parseInt($row.find('.qty-received').data('expected')) || 0;
+            var received = parseInt($row.find('.qty-received').val()) || 0;
+            var damaged = parseInt($row.find('.qty-damaged').val()) || 0;
+            var variance = received - expected;
+
+            totalExpected += expected;
+            totalReceived += received;
+            totalDamaged += damaged;
+
+            var $vc = $row.find('.variance-cell');
+            $vc.text(variance);
+            $vc.removeClass('variance-positive variance-negative');
+            if (variance > 0) $vc.addClass('variance-positive');
+            else if (variance < 0) $vc.addClass('variance-negative');
+        });
+
+        $('#total-expected').text(totalExpected);
+        $('#total-received').text(totalReceived);
+        $('#total-damaged').text(totalDamaged);
+        var totalVariance = totalReceived - totalExpected;
+        var $tv = $('#total-variance');
+        $tv.text(totalVariance);
+        $tv.removeClass('variance-positive variance-negative');
+        if (totalVariance > 0) $tv.addClass('variance-positive');
+        else if (totalVariance < 0) $tv.addClass('variance-negative');
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // =========================================================================
+    // EVENT BINDINGS
+    // =========================================================================
+
+    // PPO input — lookup on change / enter / delayed input
+    $ppoInput.on('change', function() {
+        lookupPPO($(this).val().trim());
+    });
+
+    $ppoInput.on('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            lookupPPO($(this).val().trim());
+        }
+    });
+
+    $ppoInput.on('input', function() {
+        clearTimeout(lookupTimeout);
+        var val = $(this).val().trim();
+        if (val.length >= 3) {
+            lookupTimeout = setTimeout(function() {
+                lookupPPO(val);
+            }, 500);
+        }
+    });
+
+    // Live variance on input
+    $(document).on('input', '.qty-received, .qty-damaged', function() {
+        updateTotals();
+    });
+
+    // Clear selection on click outside table
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('#ppo-lines-table').length) {
+            clearSelection();
+        }
+    });
+
+    // On page load — if editing, trigger PPO lookup to populate lines
+    {% if form.instance.pk and form.instance.ppo %}
+    $(document).ready(function() {
+        lookupPPO('{{ form.instance.ppo.ppo_number }}');
+    });
+    {% else %}
+    // Auto-populate from URL ?ppo=XXXX parameter (e.g. from PPO detail page link)
+    $(document).ready(function() {
+        var params = new URLSearchParams(window.location.search);
+        var ppoPre = params.get('ppo');
+        if (ppoPre) {
+            $ppoInput.val(ppoPre);
+            lookupPPO(ppoPre);
+        }
+    });
+    {% endif %}
+})();
+</script>
+{% endblock %}

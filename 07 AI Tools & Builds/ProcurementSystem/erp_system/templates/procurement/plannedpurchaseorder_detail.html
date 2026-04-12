@@ -1,0 +1,801 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ppo.ppo_number }} - Michael Todd Beauty ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ppo-header {
+        background: linear-gradient(135deg, #1f4788 0%, #2e5fa3 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+    .ppo-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f4788;
+        border-bottom: 2px solid #d4a574;
+        padding-bottom: 0.75rem;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .info-row {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+    .info-item {
+        flex: 1;
+    }
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+    .info-value {
+        font-size: 1rem;
+        color: #1f4788;
+        font-weight: 500;
+    }
+    .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+    @media (max-width: 768px) {
+        .two-column {
+            grid-template-columns: 1fr;
+        }
+    }
+    .address-block {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+    .summary-box {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-left: 4px solid #d4a574;
+        margin-bottom: 1rem;
+    }
+    .totals-table {
+        width: 100%;
+    }
+    .totals-table tr:last-child {
+        font-weight: 700;
+        font-size: 1.1rem;
+        background-color: #1f4788;
+        color: white;
+    }
+    .totals-table tr:nth-child(2n) {
+        background-color: #f8f9fa;
+    }
+    .totals-table td {
+        padding: 0.75rem;
+        border: 1px solid #e9ecef;
+    }
+    .line-items-table {
+        font-size: 0.9rem;
+    }
+    .line-items-table thead {
+        background-color: #1f4788;
+        color: white;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+    .timeline {
+        position: relative;
+        padding: 1rem 0;
+    }
+    .timeline-item {
+        padding: 1rem;
+        border-left: 3px solid #d4a574;
+        margin-bottom: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+    }
+    .timeline-item.last {
+        border-left-color: #1f4788;
+    }
+    .attachment-item {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        margin-bottom: 0.75rem;
+        border-left: 3px solid #d4a574;
+    }
+    /* Receiving progress */
+    .receiving-progress {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .receiving-bar {
+        flex: 1;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        min-width: 60px;
+    }
+    .receiving-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s;
+    }
+    .receiving-bar-fill.full { background: #198754; }
+    .receiving-bar-fill.partial { background: #ffc107; }
+    .receiving-bar-fill.over { background: #dc3545; }
+    .receiving-bar-fill.none { background: #e9ecef; }
+    .receiving-summary-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1.25rem 1.5rem;
+        text-align: center;
+    }
+    .receiving-summary-card .big-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .receiving-summary-card .label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb" style="font-size: 0.9rem;">
+            <li class="breadcrumb-item"><a href="{% url 'vendors:vendor_detail' ppo.vendor.pk %}" style="color: #1f4788;">{{ ppo.vendor.name }}</a></li>
+            <li class="breadcrumb-item active">{{ ppo.ppo_number }}</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="ppo-header">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="ppo-number">{{ ppo.ppo_number }}</div>
+                <div class="info-row" style="color: rgba(255,255,255,0.9); gap: 3rem;">
+                    <div class="info-item">
+                        <div class="info-label" style="color: rgba(255,255,255,0.8);">Branch</div>
+                        <div class="info-value" style="color: white;">{{ ppo.branch.name|default:"Not specified" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label" style="color: rgba(255,255,255,0.8);">Date</div>
+                        <div class="info-value" style="color: white;">{{ ppo.date|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label" style="color: rgba(255,255,255,0.8);">Status</div>
+                        <div>
+                            {% if ppo.status == 'draft' %}
+                                <span class="badge bg-light text-dark">Draft</span>
+                            {% elif ppo.status == 'sent_to_vendor' %}
+                                <span class="badge bg-light text-info">Sent to Vendor</span>
+                            {% elif ppo.status == 'pi_received' %}
+                                <span class="badge bg-light">PI Received</span>
+                            {% elif ppo.status == 'pending_ceo_approval' %}
+                                <span class="badge bg-warning text-dark">Pending CEO Approval</span>
+                            {% elif ppo.status == 'ceo_approved' %}
+                                <span class="badge bg-light text-success">CEO Approved</span>
+                            {% elif ppo.status == 'confirmed' %}
+                                <span class="badge bg-light text-success">Confirmed</span>
+                            {% elif ppo.status == 'in_transit' %}
+                                <span class="badge bg-light text-info">In Transit</span>
+                            {% elif ppo.status == 'partially_received' %}
+                                <span class="badge bg-warning text-dark">Partially Received</span>
+                            {% elif ppo.status == 'fully_received' %}
+                                <span class="badge bg-light text-success">Fully Received</span>
+                            {% elif ppo.status == 'cancelled' %}
+                                <span class="badge bg-light text-danger">Cancelled</span>
+                            {% elif ppo.status == 'closed' %}
+                                <span class="badge bg-dark">Closed</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="action-buttons" style="justify-content: flex-end;">
+                    {% if ppo.status == 'draft' %}
+                        <a href="{% url 'procurement:ppo_edit' ppo.pk %}" class="btn btn-light">Edit</a>
+                        <div class="dropdown" style="display:inline;">
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">Send to Vendor</button>
+                            <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 280px;">
+                                <form method="post" action="{% url 'procurement:ppo_send_to_vendor' ppo.pk %}">
+                                    {% csrf_token %}
+                                    <label class="form-label mb-1" style="font-weight:600; font-size:0.8rem; color:#555;">Send from:</label>
+                                    <select name="sender" class="form-select form-select-sm mb-2">
+                                        <option value="tom">Tom Sapia (tom@michaeltoddbeauty.com)</option>
+                                        <option value="augusto">Augusto (augusto@michaeltoddbeauty.com)</option>
+                                        <option value="donna">Donna (donna@michaeltoddbeauty.com)</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary btn-sm w-100">Send</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% elif ppo.status == 'sent_to_vendor' %}
+                        <a href="{% url 'procurement:ppo_mark_pi_received' ppo.pk %}" class="btn btn-light">Record Proforma Invoice</a>
+                    {% elif ppo.status == 'pi_received' %}
+                        <a href="{% url 'procurement:ppo_upload_attachment' ppo.pk %}" class="btn btn-light">Upload PI</a>
+                        <form method="post" action="{% url 'procurement:ppo_request_ceo_approval' ppo.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-light">Request CEO Approval</button>
+                        </form>
+                    {% elif ppo.status == 'pending_ceo_approval' %}
+                        {% if user.is_staff %}
+                        <a href="{% url 'procurement:ppo_ceo_approve' ppo.pk %}" class="btn btn-success">Approve/Reject</a>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Awaiting CEO Review</span>
+                        {% endif %}
+                    {% elif ppo.status == 'ceo_approved' %}
+                        <span class="badge bg-success">CEO Approved</span>
+                    {% elif ppo.status == 'confirmed' %}
+                        <form method="post" action="{% url 'procurement:ppo_mark_in_transit' ppo.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-light">Mark In Transit</button>
+                        </form>
+                        <a href="{% url 'receiving:grpo_create' %}?ppo={{ ppo.ppo_number }}" class="btn btn-outline-light">Record Goods Receipt</a>
+                    {% elif ppo.status == 'in_transit' %}
+                        <a href="{% url 'receiving:grpo_create' %}?ppo={{ ppo.ppo_number }}" class="btn btn-light">Record Goods Receipt</a>
+                    {% elif ppo.status == 'partially_received' %}
+                        <a href="{% url 'receiving:grpo_create' %}?ppo={{ ppo.ppo_number }}" class="btn btn-light">Record Additional Receipt</a>
+                    {% elif ppo.status == 'fully_received' %}
+                        <form method="post" action="{% url 'procurement:ppo_close' ppo.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-light">Close PPO</button>
+                        </form>
+                    {% endif %}
+
+                    {% if ppo.status not in 'closed,cancelled,fully_received' %}
+                        <a href="#" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancel</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="two-column">
+        <!-- Left Column -->
+        <div>
+            <!-- Bill To Section -->
+            <div class="section-title">Bill To</div>
+            {% if ppo.bill_to %}
+            <div class="address-block">
+                <strong>{{ ppo.bill_to.branch }}</strong><br>
+                {{ ppo.bill_to.address|linebreaksbr }}<br>
+                {% if ppo.bill_to.phone %}Phone: {{ ppo.bill_to.phone }}<br>{% endif %}
+                {% if ppo.bill_to.contact %}Contact: {{ ppo.bill_to.contact }}{% endif %}
+            </div>
+            {% else %}
+            <div class="address-block text-muted">Not specified</div>
+            {% endif %}
+
+            <!-- Seller/Exporter Section -->
+            <div class="section-title">Seller / Exporter</div>
+            <div class="address-block">
+                <strong>{{ ppo.vendor.name }}</strong><br>
+                {% if ppo.vendor.address %}{{ ppo.vendor.address }}<br>{% endif %}
+                {% if ppo.vendor.city %}{{ ppo.vendor.city }}, {% endif %}
+                {% if ppo.vendor.state %}{{ ppo.vendor.state }} {% endif %}
+                {% if ppo.vendor.postal_code %}{{ ppo.vendor.postal_code }}<br>{% endif %}
+                {% if ppo.vendor.country %}{{ ppo.vendor.country }}<br>{% endif %}
+                {% if ppo.vendor.phone %}Phone: {{ ppo.vendor.phone }}<br>{% endif %}
+                {% if ppo.vendor.contact_name %}Contact: {{ ppo.vendor.contact_name }}{% endif %}
+            </div>
+
+            <!-- Ship To (3PL) Section -->
+            <div class="section-title">Ship To (3PL)</div>
+            {% if ppo.ship_to_3pl %}
+            <div class="address-block">
+                <strong>{{ ppo.ship_to_3pl.name }}</strong> <span class="badge bg-secondary">{{ ppo.ship_to_3pl.code }}</span><br>
+                {% if ppo.ship_to_3pl.address %}{{ ppo.ship_to_3pl.address }}<br>{% endif %}
+                {% if ppo.ship_to_3pl.city %}{{ ppo.ship_to_3pl.city }}, {% endif %}
+                {% if ppo.ship_to_3pl.state %}{{ ppo.ship_to_3pl.state }} {% endif %}
+                {% if ppo.ship_to_3pl.zip_code %}{{ ppo.ship_to_3pl.zip_code }}<br>{% endif %}
+                {% if ppo.ship_to_3pl.country %}{{ ppo.ship_to_3pl.country }}<br>{% endif %}
+                {% if ppo.ship_to_3pl.contact_name %}Contact: {{ ppo.ship_to_3pl.contact_name }}{% endif %}
+            </div>
+            {% else %}
+            <div class="address-block text-muted">Not specified</div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column -->
+        <div>
+            <!-- PPO Details -->
+            <div class="section-title">PPO Details</div>
+            <div class="summary-box">
+                <div class="info-row" style="gap: 2rem;">
+                    <div class="info-item">
+                        <div class="info-label">PPO Number</div>
+                        <div class="info-value">{{ ppo.ppo_number }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Date</div>
+                        <div class="info-value">{{ ppo.date|date:"F d, Y" }}</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Vendor PI #</div>
+                    <div class="info-value">{{ ppo.vendor_pi_number|default:"Not yet received" }}</div>
+                </div>
+            </div>
+
+            <!-- Shipment Info -->
+            <div class="section-title">Shipment Information</div>
+            <div class="summary-box">
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label">Requested Ship Date</div>
+                        <div class="info-value">{{ ppo.requested_ship_date|date:"F d, Y"|default:"-" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Est. Ship Date</div>
+                        <div class="info-value">{{ ppo.estimated_ship_date|date:"F d, Y"|default:"-" }}</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label">Payment Terms</div>
+                        <div class="info-value">{{ ppo.payment_terms|default:"-" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Mode of Transport</div>
+                        <div class="info-value">{{ ppo.get_mode_of_transport_display }}</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label">Incoterms</div>
+                        <div class="info-value">{{ ppo.incoterms }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Lead Time (Days)</div>
+                        <div class="info-value">{{ ppo.lead_time_days|default:"-" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="section-title">Additional Information</div>
+            <div class="summary-box">
+                <div class="info-item">
+                    <div class="info-label">Port of Loading</div>
+                    <div class="info-value">{{ ppo.port_of_loading|default:"-" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Port of Discharge</div>
+                    <div class="info-value">{{ ppo.port_of_discharge|default:"-" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Country of Origin</div>
+                    <div class="info-value">{{ ppo.country_of_origin|default:"-" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">AWB/BL #</div>
+                    <div class="info-value">{{ ppo.awb_bl_number|default:"-" }}</div>
+                </div>
+            </div>
+
+            <!-- Totals Summary -->
+            <div class="section-title">Order Summary</div>
+            <table class="totals-table">
+                <tr>
+                    <td>Total Cartons:</td>
+                    <td class="text-end"><strong>{{ ppo.total_cartons }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Total CBM:</td>
+                    <td class="text-end"><strong>{{ ppo.total_cbm|floatformat:4 }}</strong></td>
+                </tr>
+                {% if ppo.total_cbm %}
+                <tr>
+                    <td>Est. Containers (20ft / 40ft / 40HQ):</td>
+                    <td class="text-end"><strong>{{ ppo.estimated_containers_20ft }} / {{ ppo.estimated_containers_40ft }} / {{ ppo.estimated_containers_40hq }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Container Utilization (40ft):</td>
+                    <td class="text-end"><strong>{{ ppo.container_utilization_pct }}%</strong></td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td>Total Weight (kg):</td>
+                    <td class="text-end"><strong>{{ ppo.total_weight|floatformat:2 }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Subtotal:</td>
+                    <td class="text-end"><strong>{{ ppo.currency }} {{ ppo.subtotal|floatformat:2 }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Deposit:</td>
+                    <td class="text-end"><strong>{{ ppo.currency }} {{ ppo.deposit|floatformat:2 }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Balance Due:</td>
+                    <td class="text-end"><strong>{{ ppo.currency }} {{ ppo.balance_due|floatformat:2 }}</strong></td>
+                </tr>
+                <tr>
+                    <td>TOTAL:</td>
+                    <td class="text-end"><strong>{{ ppo.currency }} {{ ppo.total|floatformat:2 }}</strong></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Receiving Status -->
+    {% if ppo.status in 'confirmed,in_transit,partially_received,fully_received,closed' %}
+    <div class="section-title" style="margin-top: 2rem;">Receiving Status</div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="receiving-summary-card">
+                <div class="big-number" style="color: #1f4788;" id="rx-total-ordered">0</div>
+                <div class="label">Total Ordered</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="receiving-summary-card">
+                <div class="big-number" style="color: #198754;" id="rx-total-received">0</div>
+                <div class="label">Total Received</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="receiving-summary-card">
+                <div class="big-number" style="color: #dc3545;" id="rx-total-remaining">0</div>
+                <div class="label">Remaining</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="receiving-summary-card">
+                <div class="big-number" id="rx-pct">0%</div>
+                <div class="label">Received</div>
+                <div class="receiving-bar mt-2" style="height: 10px;">
+                    <div class="receiving-bar-fill none" id="rx-pct-bar" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if ppo.goods_receipts.exists %}
+    <div class="card mb-4">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Goods Receipts</h6>
+            <a href="{% url 'receiving:grpo_create' %}?ppo={{ ppo.ppo_number }}" class="btn btn-sm btn-primary">+ New GRPO</a>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-sm mb-0" style="font-size: 0.85rem;">
+                <thead style="background: #f8f9fa;">
+                    <tr>
+                        <th>GRPO #</th>
+                        <th>Date</th>
+                        <th>3PL</th>
+                        <th>Status</th>
+                        <th class="text-end">Qty Received</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for gr in ppo.goods_receipts.all %}
+                    <tr>
+                        <td><strong>GRPO-{{ gr.grpo_number }}</strong></td>
+                        <td>{{ gr.receipt_date|date:"M d, Y" }}</td>
+                        <td>{{ gr.warehouse|default:"—" }}</td>
+                        <td>
+                            <span class="badge {% if gr.status == 'posted' %}bg-success{% elif gr.status == 'draft' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                {{ gr.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="text-end">{{ gr.lines.all|length }} lines</td>
+                        <td><a href="{% url 'receiving:grpo_detail' gr.pk %}" class="btn btn-sm btn-outline-primary">View</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info d-flex justify-content-between align-items-center">
+        <span>No goods receipts recorded yet.</span>
+        <a href="{% url 'receiving:grpo_create' %}?ppo={{ ppo.ppo_number }}" class="btn btn-sm btn-primary">+ Create GRPO</a>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- Line Items Table -->
+    <div class="section-title" style="margin-top: 2rem;">Order Line Items</div>
+    <div class="card mb-4">
+        <div class="table-responsive">
+            <table class="table table-sm line-items-table mb-0">
+                <thead>
+                    <tr>
+                        <th width="4%">#</th>
+                        <th width="9%">MT/SS Item #</th>
+                        <th width="16%">Description</th>
+                        <th width="6%" class="text-end">QTY</th>
+                        <th width="10%" class="text-end">Unit Price</th>
+                        <th width="6%" class="text-end">CTNS</th>
+                        <th width="7%" class="text-end">CBM</th>
+                        <th width="10%">Notes</th>
+                        <th width="10%">Destination</th>
+                        <th width="10%" class="text-end">Line Total</th>
+                        {% if ppo.status in 'confirmed,in_transit,partially_received,fully_received,closed' %}
+                        <th width="12%" class="text-center">Received</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for line in lines %}
+                    <tr>
+                        <td>{{ line.line_number }}</td>
+                        <td>{{ line.item.item_no }}</td>
+                        <td>{{ line.description }}</td>
+                        <td class="text-end rx-ordered">{{ line.quantity|default_if_none:"—" }}</td>
+                        <td class="text-end">{% if line.unit_price %}${{ line.unit_price|floatformat:2 }}{% else %}—{% endif %}</td>
+                        <td class="text-end">{{ line.cartons|default:"—" }}</td>
+                        <td class="text-end">{% if line.cbm %}{{ line.cbm|floatformat:4 }}{% else %}—{% endif %}</td>
+                        <td><small>{{ line.notes|truncatewords:3 }}</small></td>
+                        <td>{{ line.destination|default:"—" }}</td>
+                        <td class="text-end"><strong>{% if line.line_total %}${{ line.line_total|floatformat:2 }}{% else %}—{% endif %}</strong></td>
+                        {% if ppo.status in 'confirmed,in_transit,partially_received,fully_received,closed' %}
+                        <td class="text-center">
+                            <div class="receiving-progress">
+                                <span class="rx-received" style="font-weight:600; font-size:0.85rem;">{{ line.qty_received }}</span>
+                                <span style="color:#6c757d; font-size:0.8rem;">/ {{ line.quantity }}</span>
+                            </div>
+                            {% with ordered=line.quantity|default:0 received=line.qty_received|default:0 %}
+                            <div class="receiving-bar mt-1">
+                                {% if ordered > 0 %}
+                                    {% widthratio received ordered 100 as pct %}
+                                    <div class="receiving-bar-fill {% if received >= ordered %}full{% elif received > 0 %}partial{% else %}none{% endif %}"
+                                         style="width: {% widthratio received ordered 100 %}%;"></div>
+                                {% else %}
+                                    <div class="receiving-bar-fill none" style="width: 0%;"></div>
+                                {% endif %}
+                            </div>
+                            {% endwith %}
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr style="background-color: #f8f9fa;">
+                        <td colspan="9" class="text-end"><strong>Subtotal:</strong></td>
+                        <td class="text-end"><strong>{{ ppo.currency }} {{ ppo.subtotal|floatformat:2 }}</strong></td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td colspan="9" class="text-end"><strong>Deposit:</strong></td>
+                        <td class="text-end"><strong>{{ ppo.currency }} {{ ppo.deposit|floatformat:2 }}</strong></td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td colspan="9" class="text-end"><strong>Balance Due:</strong></td>
+                        <td class="text-end"><strong>{{ ppo.currency }} {{ ppo.balance_due|floatformat:2 }}</strong></td>
+                    </tr>
+                    <tr style="background-color: #1f4788; color: white;">
+                        <td colspan="9" class="text-end"><strong>TOTAL:</strong></td>
+                        <td class="text-end"><strong>{{ ppo.currency }} {{ ppo.total|floatformat:2 }}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Attachments Section -->
+    {% if attachments or ppo.status not in 'closed,cancelled' %}
+    <div class="section-title">Attachments</div>
+    <div class="card mb-4">
+        <div class="card-body">
+            {% if attachments %}
+            <div class="mb-4">
+                <h6 class="mb-3">Uploaded Files:</h6>
+                {% for attachment in attachments %}
+                <div class="attachment-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <strong>{{ attachment.get_file_type_display }}</strong>
+                            {% if attachment.description %}<br><small class="text-muted">{{ attachment.description }}</small>{% endif %}
+                            <br><small class="text-muted">Uploaded by {{ attachment.uploaded_by.get_full_name|default:attachment.uploaded_by.username }} on {{ attachment.uploaded_at|date:"F d, Y H:i" }}</small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="{{ attachment.file.url }}" class="btn btn-sm btn-outline-primary" download>Download</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if ppo.status not in 'closed,cancelled' %}
+            <div>
+                <a href="{% url 'procurement:ppo_upload_attachment' ppo.pk %}" class="btn btn-sm btn-outline-primary">Upload New Attachment</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Special Notes and Wire Info -->
+    <div class="two-column">
+        {% if ppo.special_notes %}
+        <div class="card">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">Special Notes</h6>
+            </div>
+            <div class="card-body">
+                {{ ppo.special_notes|linebreaks }}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if ppo.wire_info %}
+        <div class="card">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">Wire Information</h6>
+            </div>
+            <div class="card-body">
+                <small>{{ ppo.wire_info|linebreaks }}</small>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- CEO Approval & Signature -->
+    {% if ppo.ceo_approved_by %}
+    <div class="section-title" style="margin-top: 2rem;">CEO Approval</div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="info-label">Approved By</div>
+                    <div class="info-value">{{ ppo.ceo_approved_by.get_full_name|default:ppo.ceo_approved_by.username }}</div>
+                    <div class="text-muted mt-1" style="font-size: 0.85rem;">{{ ppo.ceo_approval_date|date:"F d, Y H:i" }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-label">Signature</div>
+                    {% if ppo.ceo_signature_type == 'typed' and ppo.ceo_signature_text %}
+                        <div style="font-family: 'Brush Script MT', 'Segoe Script', 'Dancing Script', cursive; font-size: 2rem; color: #1f4788; border-bottom: 2px solid #1f4788; display: inline-block; padding: 0.25rem 0; min-width: 200px;">
+                            {{ ppo.ceo_signature_text }}
+                        </div>
+                    {% elif ppo.ceo_signature_type == 'image' and ppo.ceo_signature_image %}
+                        <img src="{{ ppo.ceo_signature_image.url }}" alt="CEO Signature" style="max-height: 80px; border-bottom: 2px solid #1f4788; padding-bottom: 4px;">
+                    {% else %}
+                        <span class="text-muted">Approved (no signature on file)</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Status History / Audit Trail -->
+    {% if status_logs %}
+    <div class="section-title" style="margin-top: 2rem;">Status History</div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="timeline">
+                {% for log in status_logs %}
+                <div class="timeline-item {% if forloop.last %}last{% endif %}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <strong>{{ log.from_status|title }}</strong> &rarr; <strong>{{ log.to_status|title }}</strong>
+                            {% if log.notes %}<br><small>{{ log.notes }}</small>{% endif %}
+                        </div>
+                        <div class="col-md-4 text-end text-muted">
+                            <small>
+                                {{ log.changed_by.get_full_name|default:log.changed_by.username }}<br>
+                                {{ log.timestamp|date:"F d, Y H:i" }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons at Bottom -->
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="{% url 'procurement:ppo_list' %}" class="btn btn-outline-secondary">Back to List</a>
+                </div>
+                <div class="col-md-6 text-end">
+                    {% if ppo.status == 'draft' %}
+                        <a href="{% url 'procurement:ppo_edit' ppo.pk %}" class="btn btn-primary">Edit PPO</a>
+                    {% endif %}
+                    <a href="{% url 'procurement:ppo_duplicate' ppo.pk %}" class="btn btn-outline-success" title="Create a new draft PPO with all the same info">Duplicate PPO</a>
+                    <a href="{% url 'procurement:ppo_generate_pdf' ppo.pk %}" class="btn btn-outline-primary">Download PDF</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel PPO</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'procurement:ppo_cancel' ppo.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <label for="cancel_reason" class="form-label">Cancellation Reason</label>
+                    <textarea name="cancel_reason" id="cancel_reason" class="form-control" rows="4" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Cancel PPO</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Calculate receiving summary totals from the line items table
+(function() {
+    var orderedCells = document.querySelectorAll('.rx-ordered');
+    var receivedCells = document.querySelectorAll('.rx-received');
+    if (!orderedCells.length) return;
+
+    var totalOrdered = 0, totalReceived = 0;
+    orderedCells.forEach(function(cell) {
+        var v = parseInt(cell.textContent);
+        if (!isNaN(v)) totalOrdered += v;
+    });
+    receivedCells.forEach(function(cell) {
+        var v = parseInt(cell.textContent);
+        if (!isNaN(v)) totalReceived += v;
+    });
+
+    var remaining = Math.max(0, totalOrdered - totalReceived);
+    var pct = totalOrdered > 0 ? Math.round((totalReceived / totalOrdered) * 100) : 0;
+
+    var elO = document.getElementById('rx-total-ordered');
+    var elR = document.getElementById('rx-total-received');
+    var elRem = document.getElementById('rx-total-remaining');
+    var elPct = document.getElementById('rx-pct');
+    var elBar = document.getElementById('rx-pct-bar');
+
+    if (elO) elO.textContent = totalOrdered.toLocaleString();
+    if (elR) elR.textContent = totalReceived.toLocaleString();
+    if (elRem) elRem.textContent = remaining.toLocaleString();
+    if (elPct) {
+        elPct.textContent = pct + '%';
+        elPct.style.color = pct >= 100 ? '#198754' : pct > 0 ? '#d4a574' : '#6c757d';
+    }
+    if (elBar) {
+        elBar.style.width = Math.min(pct, 100) + '%';
+        elBar.className = 'receiving-bar-fill ' + (pct >= 100 ? 'full' : pct > 0 ? 'partial' : 'none');
+    }
+})();
+</script>
+{% endblock extra_js %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ title }}</h2>
+    {% if container %}
+    <a href="{% url 'container_detail' container.pk %}" class="btn btn-outline-secondary btn-sm">Back to Detail</a>
+    {% else %}
+    <a href="{% url 'container_dashboard' %}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Container Number</label>
+                    <input type="text" name="container_number" value="{{ form.container_number.value|default:'' }}" class="form-control" placeholder="e.g. NYKU4749505">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Booking Reference</label>
+                    <input type="text" name="booking_reference" value="{{ form.booking_reference.value|default:'' }}" class="form-control" placeholder="e.g. 2026Dream007">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Commercial Invoice</label>
+                    <input type="text" name="commercial_invoice" value="{{ form.commercial_invoice.value|default:'' }}" class="form-control">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label class="form-label">Container Type</label>
+                    <select name="container_type" class="form-select">
+                        {% for val, label in form.container_type.field.choices %}
+                        <option value="{{ val }}" {% if form.container_type.value == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Max CBM</label>
+                    <input type="number" name="max_cbm" value="{{ form.max_cbm.value|default:'67.5' }}" class="form-control" step="0.01">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Max Weight (kg)</label>
+                    <input type="number" name="max_weight_kg" value="{{ form.max_weight_kg.value|default:'26000' }}" class="form-control" step="0.01">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Transport Mode</label>
+                    <select name="transport_mode" class="form-select">
+                        {% for val, label in form.transport_mode.field.choices %}
+                        <option value="{{ val }}" {% if form.transport_mode.value == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label class="form-label">Forwarder</label>
+                    <input type="text" name="forwarder" value="{{ form.forwarder.value|default:'' }}" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">HBL Number</label>
+                    <input type="text" name="hbl_number" value="{{ form.hbl_number.value|default:'' }}" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Incoterms</label>
+                    <input type="text" name="incoterms" value="{{ form.incoterms.value|default:'' }}" class="form-control" placeholder="DDP, FOB, CIF...">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Routing Notes</label>
+                    <input type="text" name="routing_notes" value="{{ form.routing_notes.value|default:'' }}" class="form-control" placeholder="e.g. DDP - Transload at LA">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Port of Loading</label>
+                    <input type="text" name="port_of_loading" value="{{ form.port_of_loading.value|default:'' }}" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Port of Discharge</label>
+                    <input type="text" name="port_of_discharge" value="{{ form.port_of_discharge.value|default:'' }}" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Receiving Warehouse</label>
+                    <input type="text" name="receiving_warehouse" value="{{ form.receiving_warehouse.value|default:'' }}" class="form-control" placeholder="e.g. CHR, Amware">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Target Load Date</label>
+                    <input type="date" name="target_load_date" value="{{ form.target_load_date.value|date:'Y-m-d' }}" class="form-control">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Notes</label>
+                <textarea name="notes" class="form-control" rows="3">{{ form.notes.value|default:'' }}</textarea>
+            </div>
+
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                {% for field, errors in form.errors.items %}
+                <p><strong>{{ field }}:</strong> {{ errors|join:", " }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">{% if container %}Save Changes{% else %}Create Container Plan{% endif %}</button>
+            {% if container %}
+            <a href="{% url 'container_detail' container.pk %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+            {% else %}
+            <a href="{% url 'container_dashboard' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

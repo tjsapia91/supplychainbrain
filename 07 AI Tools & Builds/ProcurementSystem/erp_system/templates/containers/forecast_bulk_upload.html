@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Bulk Upload Forecasts{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Bulk Upload Forecasts</h2>
+    <a href="{% url 'forecast_dashboard' %}" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">Upload CSV File</label>
+                <input type="file" name="file" class="form-control" accept=".csv" required>
+                <small class="text-muted">CSV with columns: item_no, channel, month (YYYY-MM-DD), forecast_qty, source (optional)</small>
+            </div>
+
+            <div class="alert alert-info">
+                <strong>Expected Format:</strong>
+                <pre class="mb-0 mt-1">item_no,channel,month,forecast_qty,source
+SS-001,amazon,2026-04-01,1500,SoStocked
+SS-001,shopify,2026-04-01,300,Manual
+NF-001,walmart,2026-04-01,800,Valogix</pre>
+                <small class="mt-1 d-block">
+                    Channels: amazon, shopify, walmart, amz_canada, shipbob, awd, floship, wholesale, other.
+                    Month should be the first day of the month. Existing entries for the same item/channel/month will be updated.
+                </small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Upload & Import</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

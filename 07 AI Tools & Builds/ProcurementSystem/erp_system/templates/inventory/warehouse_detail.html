@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}{{ warehouse }}{% endblock %}
+{% block content %}
+<h2>{{ warehouse }}</h2>
+<p><strong>Code:</strong> {{ warehouse.code }}</p>
+<p><strong>Address:</strong> {{ warehouse.address }}</p>
+<a href="{% url 'inventory:warehouse_edit' warehouse.pk %}" class="btn btn-secondary">Edit</a>
+{% endblock %}

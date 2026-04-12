@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Stock Movements{% endblock %}
+{% block content %}
+<div class="row mb-4">
+<div class="col-md-8"><h2 style="color: #1f4788;">Stock Movements</h2></div>
+<div class="col-md-4 text-end"><a href="{% url 'inventory:movement_create' %}" class="btn btn-primary">Create Movement</a></div>
+</div>
+<div class="card">
+<table class="table"><thead><tr><th>Item</th><th>Warehouse</th><th>Type</th><th>Quantity</th><th>Date</th></tr></thead><tbody>
+{% for move in movements %}
+<tr><td>{{ move.item.item_no }}</td><td>{{ move.warehouse.code }}</td><td>{{ move.get_movement_type_display }}</td><td>{{ move.quantity }}</td><td>{{ move.created_at }}</td></tr>
+{% empty %}<tr><td colspan="5" class="text-center">No movements</td></tr>{% endfor %}
+</tbody></table>
+</div>
+{% endblock %}

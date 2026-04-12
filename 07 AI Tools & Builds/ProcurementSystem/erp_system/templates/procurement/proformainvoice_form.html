@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Proforma Invoice - Michael Todd Beauty ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        border: 1px solid #e9ecef;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f4788;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #d4a574;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    .upload-area {
+        border: 2px dashed #d4a574;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .upload-area:hover {
+        border-color: #1f4788;
+        background-color: #f0f4f8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1>Upload Proforma Invoice</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- PPO Selection -->
+        <div class="form-section">
+            <div class="section-title">Select Purchase Order</div>
+            {% if ppo %}
+                <div class="alert alert-info">
+                    <strong>{{ ppo.ppo_number }}</strong><br>
+                    Vendor: {{ ppo.vendor.name }}<br>
+                    Date: {{ ppo.date|date:"F d, Y" }}
+                </div>
+                <input type="hidden" name="ppo_id" value="{{ ppo.pk }}">
+            {% else %}
+                <label for="ppo_id" class="form-label">Purchase Order <span class="text-danger">*</span></label>
+                <select name="ppo_id" id="ppo_id" class="form-select" required>
+                    <option value="">Select a PPO...</option>
+                    <!-- Options will be populated by the view -->
+                </select>
+            {% endif %}
+        </div>
+
+        <!-- Invoice Details -->
+        <div class="form-section">
+            <div class="section-title">Invoice Details</div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="{{ form.pi_number.id_for_label }}" class="form-label">{{ form.pi_number.label }} <span class="text-danger">*</span></label>
+                    {{ form.pi_number }}
+                    {% if form.pi_number.errors %}<div class="text-danger small mt-1">{{ form.pi_number.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.date.id_for_label }}" class="form-label">{{ form.date.label }} <span class="text-danger">*</span></label>
+                    {{ form.date }}
+                    {% if form.date.errors %}<div class="text-danger small mt-1">{{ form.date.errors }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label for="{{ form.total_amount.id_for_label }}" class="form-label">{{ form.total_amount.label }} <span class="text-danger">*</span></label>
+                    {{ form.total_amount }}
+                    {% if form.total_amount.errors %}<div class="text-danger small mt-1">{{ form.total_amount.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.currency.id_for_label }}" class="form-label">{{ form.currency.label }}</label>
+                    {{ form.currency }}
+                    {% if form.currency.errors %}<div class="text-danger small mt-1">{{ form.currency.errors }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- File Upload -->
+        <div class="form-section">
+            <div class="section-title">Upload PI Document</div>
+            <label for="{{ form.file.id_for_label }}" class="form-label">{{ form.file.label }} <span class="text-danger">*</span></label>
+            <div class="upload-area" id="upload-area">
+                <i class="bi bi-cloud-arrow-up" style="font-size: 3rem; color: #d4a574;"></i>
+                <h5 class="mt-2">Drag and drop your file here or click to select</h5>
+                <p class="text-muted">PDF, Excel, Word, or image files</p>
+                {{ form.file }}
+            </div>
+            {% if form.file.errors %}<div class="text-danger small mt-1">{{ form.file.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Notes -->
+        <div class="form-section">
+            <div class="section-title">Additional Information</div>
+            <label for="{{ form.notes.id_for_label }}" class="form-label">{{ form.notes.label }}</label>
+            {{ form.notes }}
+            {% if form.notes.errors %}<div class="text-danger small mt-1">{{ form.notes.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Submit Section -->
+        <div class="form-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="{% url 'procurement:pi_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="submit" class="btn btn-primary">Upload PI</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Make upload area clickable
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.querySelector('input[type="file"]');
+
+    if (uploadArea && fileInput) {
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#1f4788';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#d4a574';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileInput.files = e.dataTransfer.files;
+            uploadArea.style.borderColor = '#d4a574';
+        });
+    }
+</script>
+{% endblock %}

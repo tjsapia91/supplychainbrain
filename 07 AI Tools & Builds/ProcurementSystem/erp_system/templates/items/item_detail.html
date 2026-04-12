@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}{{ item }} - Items{% endblock %}
+{% block content %}
+<h2>{{ item }}</h2>
+<div class="row">
+    <div class="col-md-8">
+        <p><strong>Item #:</strong> {{ item.item_no }}</p>
+        <p><strong>Description:</strong> {{ item.description }}</p>
+        <p><strong>In Stock:</strong> {{ item.in_stock }}</p>
+        <p><strong>Branch:</strong> {{ item.branch }}</p>
+    </div>
+</div>
+<a href="{% url 'items:item_edit' item.pk %}" class="btn btn-secondary">Edit</a>
+<a href="{% url 'items:item_list' %}" class="btn btn-outline-secondary">Back</a>
+{% endblock %}
