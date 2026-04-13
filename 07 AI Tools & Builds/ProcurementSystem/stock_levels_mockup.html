@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Levels - Michael Todd Beauty ERP</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --sidebar-bg: #1e293b;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --surface: #0f172a;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gold: #d4a574;
+            --navy: #1f4788;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        .sidebar-brand {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .sidebar-brand h1 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .sidebar-brand span {
+            color: var(--gold);
+        }
+
+        .sidebar-brand .subtitle {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .sidebar-nav {
+            padding: 16px 12px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 20px;
+        }
+
+        .nav-section-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0 12px;
+            margin-bottom: 6px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text);
+        }
+
+        .sidebar-nav a.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .sidebar-nav a i {
+            width: 18px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .sidebar-user {
+            padding: 16px 20px;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-user .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .sidebar-user .user-info {
+            flex: 1;
+        }
+
+        .sidebar-user .user-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .sidebar-user .user-role {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 28px 32px;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .page-header h2 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .page-header .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover { background: var(--accent-hover); }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover { background: rgba(255,255,255,0.05); }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .summary-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card .card-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin-bottom: 14px;
+        }
+
+        .summary-card .card-icon.blue { background: rgba(59,130,246,0.15); color: var(--accent); }
+        .summary-card .card-icon.green { background: rgba(34,197,94,0.15); color: var(--success); }
+        .summary-card .card-icon.yellow { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .summary-card .card-icon.red { background: rgba(239,68,68,0.15); color: var(--danger); }
+        .summary-card .card-icon.purple { background: rgba(168,85,247,0.15); color: #a855f7; }
+
+        .summary-card .card-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
+        }
+
+        .summary-card .card-value {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .summary-card .card-detail {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 240px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 14px 10px 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .search-box input:focus { border-color: var(--accent); }
+
+        .search-box input::placeholder { color: var(--text-dim); }
+
+        .filter-select {
+            padding: 10px 14px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+            min-width: 140px;
+        }
+
+        /* Source Pills */
+        .source-pills {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .source-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text-muted);
+            transition: all 0.15s;
+        }
+
+        .source-pill:hover { border-color: var(--accent); color: var(--text); }
+
+        .source-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+        .source-pill.active.all { background: var(--accent); }
+        .source-pill.active.sostocked { background: #1f4788; border-color: #1f4788; }
+        .source-pill.active.amazon { background: #ff9900; border-color: #ff9900; color: #111; }
+        .source-pill.active.shopify { background: #96bf48; border-color: #96bf48; color: #111; }
+        .source-pill.active.valogix { background: #6366f1; border-color: #6366f1; }
+        .source-pill.active.tiktok { background: #ff2d55; border-color: #ff2d55; }
+        .source-pill.active.walmart { background: #0071dc; border-color: #0071dc; }
+
+        /* Data Table */
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-dim);
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--card-border);
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .data-table th:hover { color: var(--text); }
+
+        .data-table th .sort-icon {
+            margin-left: 4px;
+            opacity: 0.3;
+        }
+
+        .data-table th.sorted .sort-icon { opacity: 1; color: var(--accent); }
+
+        .data-table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr { transition: background 0.1s; }
+
+        .data-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+        .data-table tbody tr.row-critical { background: rgba(239,68,68,0.06); }
+        .data-table tbody tr.row-critical:hover { background: rgba(239,68,68,0.1); }
+
+        .sku-cell {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .product-name {
+            font-weight: 500;
+            max-width: 280px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .source-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .source-badge.sostocked { background: rgba(31,71,136,0.2); color: #5b9cf6; }
+        .source-badge.amazon { background: rgba(255,153,0,0.15); color: #ffb84d; }
+        .source-badge.shopify { background: rgba(150,191,72,0.15); color: #b5d76a; }
+        .source-badge.valogix { background: rgba(99,102,241,0.15); color: #818cf8; }
+        .source-badge.tiktok { background: rgba(255,45,85,0.15); color: #ff6b8a; }
+        .source-badge.walmart { background: rgba(0,113,220,0.15); color: #4da3ff; }
+
+        .stock-bar-wrap {
+            width: 80px;
+            height: 6px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .stock-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-badge.ok { background: rgba(34,197,94,0.12); color: var(--success); }
+        .status-badge.low { background: rgba(245,158,11,0.12); color: var(--warning); }
+        .status-badge.critical { background: rgba(239,68,68,0.12); color: var(--danger); }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .status-dot.ok { background: var(--success); }
+        .status-dot.low { background: var(--warning); }
+        .status-dot.critical { background: var(--danger); }
+
+        .num-cell {
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+        }
+
+        /* Pagination */
+        .table-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-top: 1px solid var(--card-border);
+            background: rgba(0,0,0,0.1);
+        }
+
+        .record-count {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .page-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .page-controls button {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .page-controls button:hover { border-color: var(--accent); color: var(--text); }
+        .page-controls button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .page-controls button:disabled { opacity: 0.3; cursor: default; }
+
+        .per-page-select {
+            padding: 6px 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-size: 12px;
+            outline: none;
+        }
+
+        /* Alert banner */
+        .alert-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-banner i { color: var(--danger); font-size: 18px; }
+        .alert-banner .alert-text { font-size: 13px; font-weight: 500; }
+        .alert-banner .alert-text strong { color: var(--danger); }
+        .alert-banner a { color: var(--accent); text-decoration: none; font-weight: 600; margin-left: auto; white-space: nowrap; }
+        .alert-banner a:hover { text-decoration: underline; }
+
+        /* View Tabs */
+        .view-tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.2);
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            width: fit-content;
+        }
+
+        .view-tab {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            border: none;
+            background: none;
+        }
+
+        .view-tab:hover { color: var(--text); }
+        .view-tab.active { background: var(--accent); color: #fff; }
+
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
+
+        /* Warehouse breakdown grid */
+        .warehouse-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .warehouse-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .warehouse-card .wh-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .warehouse-card .wh-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .warehouse-card .wh-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .warehouse-card .wh-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 13px;
+        }
+
+        .warehouse-card .wh-stat:last-child { border-bottom: none; }
+        .warehouse-card .wh-stat .label { color: var(--text-muted); }
+        .warehouse-card .wh-stat .value { font-weight: 600; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .summary-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; padding: 20px 16px; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-brand">
+        <h1>Michael Todd <span>Beauty</span></h1>
+        <div class="subtitle">ERP System</div>
+    </div>
+    <div class="sidebar-nav">
+        <div class="nav-section">
+            <div class="nav-section-label">Main</div>
+            <a href="/"><i class="fas fa-th-large"></i> Dashboard</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-label">Suppliers</div>
+            <a href="/vendors/"><i class="fas fa-building"></i> Supplier Accounts</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-label">Procurement</div>
+            <a href="/procurement/ppos/"><i class="fas fa-file-invoice"></i> Purchase Orders</a>
+            <a href="/procurement/requisitions/"><i class="fas fa-clipboard-list"></i> Requisitions</a>
+            <a href="/procurement/proforma-invoices/"><i class="fas fa-file-alt"></i> Proforma Invoices</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-label">Operations</div>
+            <a href="/receiving/"><i class="fas fa-truck-loading"></i> Goods Receipt</a>
+            <a href="/inventory/stock-levels/" class="active"><i class="fas fa-boxes-stacked"></i> Stock Levels</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-label">Finance</div>
+            <a href="/invoicing/"><i class="fas fa-money-check-alt"></i> AP Invoices</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-label">Reports</div>
+            <a href="/reports/mockup/"><i class="fas fa-chart-bar"></i> Reports Hub</a>
+        </div>
+    </div>
+    <div class="sidebar-user">
+        <div class="avatar">TS</div>
+        <div class="user-info">
+            <div class="user-name">Tom Sapia</div>
+            <div class="user-role">Administrator</div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+    <div class="page-header">
+        <div>
+            <h2>Stock Levels</h2>
+            <div class="subtitle">Real-time inventory across all channels &middot; Last synced: Today 9:45 AM</div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="downloadCSV()"><i class="fas fa-download"></i> Export CSV</button>
+            <button class="btn btn-primary" onclick="location.reload()"><i class="fas fa-sync-alt"></i> Sync Now</button>
+        </div>
+    </div>
+
+    <!-- Alert Banner -->
+    <div class="alert-banner" id="alertBanner">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span class="alert-text"><strong id="alertCount">0</strong> SKUs below reorder threshold across your channels</span>
+        <a href="javascript:void(0)" onclick="filterStatus('critical'); filterStatus('low');">View alerts &rarr;</a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid" id="summaryCards">
+        <div class="summary-card">
+            <div class="card-icon blue"><i class="fas fa-barcode"></i></div>
+            <div class="card-label">Total SKUs</div>
+            <div class="card-value" id="statSkus">--</div>
+            <div class="card-detail" id="statSkuDetail">across all sources</div>
+        </div>
+        <div class="summary-card">
+            <div class="card-icon green"><i class="fas fa-cubes"></i></div>
+            <div class="card-label">Total Inventory</div>
+            <div class="card-value" id="statInv">--</div>
+            <div class="card-detail">units across all channels</div>
+        </div>
+        <div class="summary-card">
+            <div class="card-icon purple"><i class="fas fa-tachometer-alt"></i></div>
+            <div class="card-label">Avg Velocity</div>
+            <div class="card-value" id="statVel">--</div>
+            <div class="card-detail">units/day (30-day avg)</div>
+        </div>
+        <div class="summary-card">
+            <div class="card-icon yellow"><i class="fas fa-exclamation-circle"></i></div>
+            <div class="card-label">Low Stock</div>
+            <div class="card-value" id="statLow">--</div>
+            <div class="card-detail">need attention soon</div>
+        </div>
+        <div class="summary-card">
+            <div class="card-icon red"><i class="fas fa-times-circle"></i></div>
+            <div class="card-label">Critical</div>
+            <div class="card-value" id="statCrit">--</div>
+            <div class="card-detail">immediate reorder needed</div>
+        </div>
+    </div>
+
+    <!-- View Tabs -->
+    <div class="view-tabs">
+        <button class="view-tab active" onclick="switchView('table', this)">All Stock</button>
+        <button class="view-tab" onclick="switchView('warehouse', this)">By Warehouse</button>
+    </div>
+
+    <!-- Table View -->
+    <div class="view-panel active" id="view-table">
+        <!-- Source Pills -->
+        <div class="source-pills">
+            <span class="source-pill all active" onclick="filterSource(this, 'all')">All Sources</span>
+            <span class="source-pill sostocked" onclick="filterSource(this, 'sostocked')">SoStocked</span>
+            <span class="source-pill amazon" onclick="filterSource(this, 'amazon')">Amazon</span>
+            <span class="source-pill shopify" onclick="filterSource(this, 'shopify')">Shopify</span>
+            <span class="source-pill valogix" onclick="filterSource(this, 'valogix')">Valogix</span>
+            <span class="source-pill tiktok" onclick="filterSource(this, 'tiktok')">TikTok Shop</span>
+            <span class="source-pill walmart" onclick="filterSource(this, 'walmart')">Walmart</span>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by SKU or product name..." oninput="filterTable()">
+            </div>
+            <select class="filter-select" id="statusFilter" onchange="filterTable()">
+                <option value="">All Statuses</option>
+                <option value="ok">In Stock</option>
+                <option value="low">Low Stock</option>
+                <option value="critical">Critical</option>
+            </select>
+            <select class="filter-select" id="classFilter" onchange="filterTable()">
+                <option value="">All Classes</option>
+                <option value="A">A - High Volume</option>
+                <option value="C">C - Low Volume</option>
+                <option value="D">D - Phase-In</option>
+            </select>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">SKU <span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                        <th onclick="sortTable(1)">Product <span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                        <th onclick="sortTable(2)">Source <span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                        <th onclick="sortTable(3)" style="text-align:right">Inventory <span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                        <th>Stock Level</th>
+                        <th onclick="sortTable(5)" style="text-align:right">Velocity <span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                        <th onclick="sortTable(6)" style="text-align:right">30d Forecast <span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                        <th onclick="sortTable(7)" style="text-align:right">Reorder Qty <span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                        <th onclick="sortTable(8)" style="text-align:right">Days Left <span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div class="table-footer">
+                <div style="display:flex;align-items:center;gap:16px;">
+                    <span class="record-count" id="recordCount">--</span>
+                    <select class="per-page-select" onchange="changePerPage(this.value)">
+                        <option value="25">25 / page</option>
+                        <option value="50" selected>50 / page</option>
+                        <option value="100">100 / page</option>
+                        <option value="0">Show all</option>
+                    </select>
+                </div>
+                <div class="page-controls" id="pageBtns"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warehouse View -->
+    <div class="view-panel" id="view-warehouse">
+        <div class="warehouse-grid" id="warehouseGrid"></div>
+    </div>
+</div>
+
+<script>
+    // ===== Product Data =====
+    const products = [
+        // SONICSMOOTH PRO+ (A-class, flagship)
+        {sku:'811573031359', name:'SONICSMOOTH PRO+ with lights PINK DEVICE (2024)', source:'sostocked', inv:33193, vel:287, forecast:8610, reorder:10000, days:116, status:'ok', abc:'A'},
+        {sku:'811573031359', name:'SONICSMOOTH PRO+ with lights PINK DEVICE (2024)', source:'amazon', inv:21400, vel:198, forecast:5940, reorder:0, days:108, status:'ok', abc:'A'},
+        {sku:'811573031359', name:'SONICSMOOTH PRO+ with lights PINK DEVICE (2024)', source:'tiktok', inv:3150, vel:34, forecast:1020, reorder:0, days:93, status:'ok', abc:'A'},
+
+        // SIMA - Replacement Blade Kit (A-class)
+        {sku:'850003115078', name:'SIMA - Replacement Blade Kit', source:'sostocked', inv:24297, vel:312, forecast:9360, reorder:10000, days:78, status:'ok', abc:'A'},
+        {sku:'850003115078', name:'SIMA - Replacement Blade Kit', source:'amazon', inv:15800, vel:224, forecast:6720, reorder:0, days:71, status:'ok', abc:'A'},
+        {sku:'850003115078', name:'SIMA - Replacement Blade Kit', source:'shopify', inv:3420, vel:38, forecast:1140, reorder:0, days:90, status:'ok', abc:'A'},
+        {sku:'850003115078', name:'SIMA - Replacement Blade Kit', source:'walmart', inv:1890, vel:18, forecast:540, reorder:0, days:105, status:'ok', abc:'A'},
+
+        // Sonicsmooth - Lavender (A-class)
+        {sku:'811573031090', name:'Sonicsmooth - Lavender - New', source:'sostocked', inv:23464, vel:198, forecast:5940, reorder:7000, days:118, status:'ok', abc:'A'},
+        {sku:'811573031090', name:'Sonicsmooth - Lavender - New', source:'amazon', inv:14200, vel:142, forecast:4260, reorder:0, days:100, status:'ok', abc:'A'},
+        {sku:'811573031090', name:'Sonicsmooth - Lavender - New', source:'shopify', inv:2830, vel:21, forecast:630, reorder:0, days:135, status:'ok', abc:'A'},
+
+        // SIMA - Pink - w/USB (A-class)
+        {sku:'860021001123', name:'SIMA - Pink - w/USB', source:'sostocked', inv:16679, vel:245, forecast:7350, reorder:8000, days:68, status:'ok', abc:'A'},
+        {sku:'860021001123', name:'SIMA - Pink - w/USB', source:'amazon', inv:10200, vel:178, forecast:5340, reorder:0, days:57, status:'ok', abc:'A'},
+        {sku:'860021001123', name:'SIMA - Pink - w/USB', source:'tiktok', inv:1840, vel:28, forecast:840, reorder:0, days:66, status:'ok', abc:'A'},
+
+        // KNU Anti-aging Serum (A-class)
+        {sku:'811573031250', name:'KNU Anti-aging Serum - 30ml', source:'sostocked', inv:8541, vel:156, forecast:4680, reorder:5000, days:55, status:'ok', abc:'A'},
+        {sku:'811573031250', name:'KNU Anti-aging Serum - 30ml', source:'amazon', inv:5120, vel:112, forecast:3360, reorder:0, days:46, status:'low', abc:'A'},
+        {sku:'811573031250', name:'KNU Anti-aging Serum - 30ml', source:'shopify', inv:1680, vel:18, forecast:540, reorder:0, days:93, status:'ok', abc:'A'},
+        {sku:'811573031250', name:'KNU Anti-aging Serum - 30ml', source:'valogix', inv:8600, vel:160, forecast:4800, reorder:5500, days:54, status:'ok', abc:'A'},
+
+        // KNU Anti-aging Cream (A-class)
+        {sku:'811573031243', name:'KNU Anti-aging Cream - 50ml', source:'sostocked', inv:8169, vel:134, forecast:4020, reorder:5000, days:61, status:'ok', abc:'A'},
+        {sku:'811573031243', name:'KNU Anti-aging Cream - 50ml', source:'amazon', inv:4980, vel:98, forecast:2940, reorder:0, days:51, status:'ok', abc:'A'},
+
+        // Lumos At Home IPL (A-class)
+        {sku:'811573031397', name:'Lumos At Home IPL System - Lavender', source:'sostocked', inv:5826, vel:89, forecast:2670, reorder:3000, days:65, status:'ok', abc:'A'},
+        {sku:'811573031397', name:'Lumos At Home IPL System - Lavender', source:'amazon', inv:3410, vel:62, forecast:1860, reorder:0, days:55, status:'ok', abc:'A'},
+        {sku:'811573031397', name:'Lumos At Home IPL System - Lavender', source:'tiktok', inv:780, vel:14, forecast:420, reorder:0, days:56, status:'ok', abc:'A'},
+
+        // LELA - Skin Spatula (A-class)
+        {sku:'850003115948', name:'LELA - Skin Spatula - Pink', source:'sostocked', inv:9225, vel:168, forecast:5040, reorder:6000, days:55, status:'ok', abc:'A'},
+        {sku:'850003115948', name:'LELA - Skin Spatula - Pink', source:'amazon', inv:5800, vel:124, forecast:3720, reorder:0, days:47, status:'low', abc:'A'},
+        {sku:'850003115948', name:'LELA - Skin Spatula - Pink', source:'shopify', inv:1240, vel:16, forecast:480, reorder:0, days:78, status:'ok', abc:'A'},
+        {sku:'850003115948', name:'LELA - Skin Spatula - Pink', source:'walmart', inv:620, vel:8, forecast:240, reorder:0, days:78, status:'ok', abc:'A'},
+
+        // AIVA - Black (A-class)
+        {sku:'850003115634', name:'AIVA - Black - Facial Hair Remover & Eyebrow Trimmer', source:'sostocked', inv:9543, vel:145, forecast:4350, reorder:5000, days:66, status:'ok', abc:'A'},
+        {sku:'850003115634', name:'AIVA - Black - Facial Hair Remover & Eyebrow Trimmer', source:'amazon', inv:6200, vel:108, forecast:3240, reorder:0, days:57, status:'ok', abc:'A'},
+        {sku:'850003115634', name:'AIVA - Black - Facial Hair Remover & Eyebrow Trimmer', source:'tiktok', inv:890, vel:18, forecast:540, reorder:0, days:49, status:'low', abc:'A'},
+
+        // BELLA - Marble (A-class)
+        {sku:'850003115597', name:'BELLA - Marble - Wet/Dry Sonic Microdermabrasion System', source:'sostocked', inv:8430, vel:112, forecast:3360, reorder:4000, days:75, status:'ok', abc:'A'},
+        {sku:'850003115597', name:'BELLA - Marble - Wet/Dry Sonic Microdermabrasion System', source:'amazon', inv:5240, vel:82, forecast:2460, reorder:0, days:64, status:'ok', abc:'A'},
+        {sku:'850003115597', name:'BELLA - Marble - Wet/Dry Sonic Microdermabrasion System', source:'shopify', inv:1120, vel:12, forecast:360, reorder:0, days:93, status:'ok', abc:'A'},
+
+        // NasalFresh MD Storage Drawer (C-class)
+        {sku:'850038082642', name:'NasalFresh MD Storage Drawer/Riser w/ Bonus Salt Packets', source:'sostocked', inv:8846, vel:42, forecast:1260, reorder:2000, days:211, status:'ok', abc:'C'},
+        {sku:'850038082642', name:'NasalFresh MD Storage Drawer/Riser w/ Bonus Salt Packets', source:'amazon', inv:6120, vel:31, forecast:930, reorder:0, days:197, status:'ok', abc:'C'},
+
+        // SIMA Premium Bundle (D-class)
+        {sku:'850038082529', name:'SIMA Premium Bundle (Pink) 2024 - Amazon', source:'sostocked', inv:16961, vel:78, forecast:2340, reorder:3000, days:217, status:'ok', abc:'D'},
+        {sku:'850038082529', name:'SIMA Premium Bundle (Pink) 2024 - Amazon', source:'amazon', inv:14200, vel:68, forecast:2040, reorder:0, days:209, status:'ok', abc:'D'},
+
+        // SMARTGUN Pro (D-class)
+        {sku:'850038082628', name:'SMARTGUN Pro - Black (3 buttons - 2025)', source:'sostocked', inv:3187, vel:52, forecast:1560, reorder:2000, days:61, status:'ok', abc:'D'},
+        {sku:'850038082628', name:'SMARTGUN Pro - Black (3 buttons - 2025)', source:'amazon', inv:1840, vel:35, forecast:1050, reorder:0, days:53, status:'ok', abc:'D'},
+        {sku:'850038082628', name:'SMARTGUN Pro - Black (3 buttons - 2025)', source:'tiktok', inv:420, vel:12, forecast:360, reorder:0, days:35, status:'low', abc:'D'},
+
+        // MIO - Replacement Filters (C-class)
+        {sku:'850003115085', name:'MIO - Replacement Filters', source:'sostocked', inv:5919, vel:34, forecast:1020, reorder:1500, days:174, status:'ok', abc:'C'},
+        {sku:'850003115085', name:'MIO - Replacement Filters', source:'amazon', inv:4100, vel:24, forecast:720, reorder:0, days:171, status:'ok', abc:'C'},
+
+        // NOVA - Green (C-class)
+        {sku:'860021001185', name:'NOVA - Green - w/USB', source:'sostocked', inv:3332, vel:28, forecast:840, reorder:1000, days:119, status:'ok', abc:'C'},
+        {sku:'860021001185', name:'NOVA - Green - w/USB', source:'amazon', inv:2100, vel:19, forecast:570, reorder:0, days:111, status:'ok', abc:'C'},
+        {sku:'860021001185', name:'NOVA - Green - w/USB', source:'shopify', inv:480, vel:4, forecast:120, reorder:0, days:120, status:'ok', abc:'C'},
+
+        // Critical items for demo
+        {sku:'850038082710', name:'Sonicsmooth Replacement Head - 4pk', source:'sostocked', inv:1200, vel:89, forecast:2670, reorder:5000, days:13, status:'critical', abc:'A'},
+        {sku:'850038082710', name:'Sonicsmooth Replacement Head - 4pk', source:'amazon', inv:340, vel:62, forecast:1860, reorder:0, days:5, status:'critical', abc:'A'},
+        {sku:'850038082710', name:'Sonicsmooth Replacement Head - 4pk', source:'shopify', inv:80, vel:8, forecast:240, reorder:0, days:10, status:'critical', abc:'A'},
+
+        {sku:'850003115702', name:'AIVA Replacement Heads - 2pk', source:'sostocked', inv:890, vel:67, forecast:2010, reorder:3000, days:13, status:'critical', abc:'A'},
+        {sku:'850003115702', name:'AIVA Replacement Heads - 2pk', source:'amazon', inv:210, vel:45, forecast:1350, reorder:0, days:5, status:'critical', abc:'A'},
+
+        {sku:'811573031410', name:'KNU Vitamin C Booster Serum - 15ml', source:'sostocked', inv:2100, vel:78, forecast:2340, reorder:3000, days:27, status:'low', abc:'A'},
+        {sku:'811573031410', name:'KNU Vitamin C Booster Serum - 15ml', source:'amazon', inv:1450, vel:56, forecast:1680, reorder:0, days:26, status:'low', abc:'A'},
+        {sku:'811573031410', name:'KNU Vitamin C Booster Serum - 15ml', source:'shopify', inv:320, vel:8, forecast:240, reorder:0, days:40, status:'low', abc:'A'},
+        {sku:'811573031410', name:'KNU Vitamin C Booster Serum - 15ml', source:'valogix', inv:2200, vel:80, forecast:2400, reorder:3500, days:28, status:'low', abc:'A'},
+    ];
+
+    // ===== State =====
+    let activeSource = 'all';
+    let lastFiltered = products;
+    let currentPage = 1;
+    let perPage = 50;
+    let sortCol = null;
+    let sortAsc = true;
+
+    // ===== Functions =====
+    function sourceName(s) {
+        const map = {sostocked:'SoStocked', amazon:'Amazon', shopify:'Shopify', valogix:'Valogix', tiktok:'TikTok', walmart:'Walmart'};
+        return map[s] || s;
+    }
+
+    function updateSummary() {
+        const uniqueSkus = [...new Set(products.map(p => p.sku))].length;
+        const totalInv = products.filter(p => p.source === 'sostocked').reduce((s, p) => s + p.inv, 0);
+        const avgVel = (products.filter(p => p.source === 'sostocked').reduce((s, p) => s + p.vel, 0) / [...new Set(products.filter(p => p.source === 'sostocked').map(p => p.sku))].length).toFixed(1);
+        const lowCount = [...new Set(products.filter(p => p.status === 'low').map(p => p.sku))].length;
+        const critCount = [...new Set(products.filter(p => p.status === 'critical').map(p => p.sku))].length;
+
+        document.getElementById('statSkus').textContent = uniqueSkus;
+        document.getElementById('statSkuDetail').textContent = products.length + ' records across ' + [...new Set(products.map(p => p.source))].length + ' sources';
+        document.getElementById('statInv').textContent = totalInv.toLocaleString();
+        document.getElementById('statVel').textContent = avgVel;
+        document.getElementById('statLow').textContent = lowCount;
+        document.getElementById('statCrit').textContent = critCount;
+        document.getElementById('alertCount').textContent = lowCount + critCount;
+
+        if (lowCount + critCount === 0) {
+            document.getElementById('alertBanner').style.display = 'none';
+        }
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('tableBody');
+        if (!data.length) {
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-dim);">No records match your filters</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.map(p => {
+            const barPct = Math.min(100, (p.days / 120) * 100);
+            const barColor = p.status === 'critical' ? 'var(--danger)' : p.status === 'low' ? 'var(--warning)' : 'var(--success)';
+            const statusLabel = p.status === 'critical' ? 'Critical' : p.status === 'low' ? 'Low Stock' : 'In Stock';
+            return `<tr class="${p.status === 'critical' ? 'row-critical' : ''}">
+                <td class="sku-cell">${p.sku}</td>
+                <td class="product-name" title="${p.name}">${p.name}</td>
+                <td><span class="source-badge ${p.source}">${sourceName(p.source)}</span></td>
+                <td class="num-cell">${p.inv.toLocaleString()}</td>
+                <td><div class="stock-bar-wrap"><div class="stock-bar-fill" style="width:${barPct}%;background:${barColor};"></div></div></td>
+                <td class="num-cell">${p.vel}/day</td>
+                <td class="num-cell">${p.forecast.toLocaleString()}</td>
+                <td class="num-cell">${p.reorder ? p.reorder.toLocaleString() : '\u2014'}</td>
+                <td class="num-cell" style="font-weight:600;color:${p.status === 'critical' ? 'var(--danger)' : p.status === 'low' ? 'var(--warning)' : 'var(--text)'}">${p.days}</td>
+                <td><span class="status-badge ${p.status}"><span class="status-dot ${p.status}"></span>${statusLabel}</span></td>
+            </tr>`;
+        }).join('');
+    }
+
+    function filterSource(el, source) {
+        document.querySelectorAll('.source-pill').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        activeSource = source;
+        currentPage = 1;
+        filterTable();
+    }
+
+    function filterStatus(status) {
+        document.getElementById('statusFilter').value = status;
+        filterTable();
+    }
+
+    function fuzzyMatch(haystack, needle) {
+        const h = haystack.toLowerCase();
+        const n = needle.toLowerCase().trim();
+        if (!n) return true;
+        if (h.includes(n)) return true;
+        return needle.toLowerCase().trim().split(/\s+/).every(w => h.includes(w));
+    }
+
+    function filterTable() {
+        const search = document.getElementById('searchInput').value;
+        const statusVal = document.getElementById('statusFilter').value;
+        const classVal = document.getElementById('classFilter').value;
+        let filtered = [...products];
+
+        if (activeSource !== 'all') filtered = filtered.filter(p => p.source === activeSource);
+        if (search.trim()) filtered = filtered.filter(p => fuzzyMatch(p.sku, search) || fuzzyMatch(p.name, search));
+        if (statusVal) filtered = filtered.filter(p => p.status === statusVal);
+        if (classVal) filtered = filtered.filter(p => p.abc === classVal);
+
+        if (sortCol !== null) {
+            const keys = ['sku','name','source','inv',null,'vel','forecast','reorder','days'];
+            const key = keys[sortCol];
+            if (key) {
+                filtered.sort((a, b) => {
+                    let va = a[key], vb = b[key];
+                    if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+                    return sortAsc ? (va < vb ? -1 : va > vb ? 1 : 0) : (va > vb ? -1 : va < vb ? 1 : 0);
+                });
+            }
+        }
+
+        lastFiltered = filtered;
+        const total = filtered.length;
+        const uniqueSkus = [...new Set(filtered.map(p => p.sku))].length;
+
+        let pageData;
+        if (perPage === 0) {
+            pageData = filtered;
+        } else {
+            const totalPages = Math.max(1, Math.ceil(total / perPage));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * perPage;
+            pageData = filtered.slice(start, start + perPage);
+        }
+
+        renderTable(pageData);
+        updatePagination(total, uniqueSkus);
+    }
+
+    function updatePagination(total, uniqueSkus) {
+        const countEl = document.getElementById('recordCount');
+        const pageBtns = document.getElementById('pageBtns');
+
+        if (perPage === 0) {
+            countEl.textContent = `Showing all ${total} records (${uniqueSkus} unique SKUs)`;
+            pageBtns.innerHTML = '';
+            return;
+        }
+
+        const totalPages = Math.max(1, Math.ceil(total / perPage));
+        const start = (currentPage - 1) * perPage + 1;
+        const end = Math.min(currentPage * perPage, total);
+        countEl.textContent = total > 0
+            ? `Showing ${start}\u2013${end} of ${total} records (${uniqueSkus} unique SKUs)`
+            : 'No records found';
+
+        let btns = '';
+        const addBtn = (label, page, active) => {
+            btns += `<button class="${active ? 'active' : ''}" ${page ? 'onclick="goToPage('+page+')"' : 'disabled'}>${label}</button>`;
+        };
+
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) addBtn(i, i, i === currentPage);
+        } else {
+            addBtn('\u00ab', currentPage > 1 ? currentPage - 1 : null, false);
+            addBtn(1, 1, currentPage === 1);
+            if (currentPage > 3) addBtn('\u2026', null, false);
+            for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+                addBtn(i, i, i === currentPage);
+            }
+            if (currentPage < totalPages - 2) addBtn('\u2026', null, false);
+            addBtn(totalPages, totalPages, currentPage === totalPages);
+            addBtn('\u00bb', currentPage < totalPages ? currentPage + 1 : null, false);
+        }
+        pageBtns.innerHTML = btns;
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        filterTable();
+        document.querySelector('.table-container').scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+
+    function changePerPage(val) {
+        perPage = parseInt(val);
+        currentPage = 1;
+        filterTable();
+    }
+
+    function sortTable(col) {
+        if (sortCol === col) {
+            sortAsc = !sortAsc;
+        } else {
+            sortCol = col;
+            sortAsc = true;
+        }
+        document.querySelectorAll('.data-table th').forEach((th, i) => {
+            th.classList.toggle('sorted', i === col);
+        });
+        currentPage = 1;
+        filterTable();
+    }
+
+    function switchView(view, btn) {
+        document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('view-' + view).classList.add('active');
+        if (view === 'warehouse') renderWarehouseView();
+    }
+
+    function renderWarehouseView() {
+        const sources = [...new Set(products.map(p => p.source))];
+        const grid = document.getElementById('warehouseGrid');
+        grid.innerHTML = sources.map(s => {
+            const items = products.filter(p => p.source === s);
+            const totalInv = items.reduce((sum, p) => sum + p.inv, 0);
+            const totalVel = items.reduce((sum, p) => sum + p.vel, 0);
+            const avgDays = Math.round(items.reduce((sum, p) => sum + p.days, 0) / items.length);
+            const critCount = items.filter(p => p.status === 'critical').length;
+            const lowCount = items.filter(p => p.status === 'low').length;
+            const okCount = items.filter(p => p.status === 'ok').length;
+
+            return `<div class="warehouse-card">
+                <div class="wh-header">
+                    <span class="wh-name"><span class="source-badge ${s}">${sourceName(s)}</span></span>
+                    <span class="wh-badge" style="background:rgba(59,130,246,0.12);color:var(--accent);">${items.length} SKUs</span>
+                </div>
+                <div class="wh-stat"><span class="label">Total Inventory</span><span class="value">${totalInv.toLocaleString()}</span></div>
+                <div class="wh-stat"><span class="label">Total Velocity</span><span class="value">${totalVel.toLocaleString()}/day</span></div>
+                <div class="wh-stat"><span class="label">Avg Days of Stock</span><span class="value">${avgDays} days</span></div>
+                <div class="wh-stat"><span class="label">In Stock</span><span class="value" style="color:var(--success)">${okCount}</span></div>
+                <div class="wh-stat"><span class="label">Low Stock</span><span class="value" style="color:var(--warning)">${lowCount}</span></div>
+                <div class="wh-stat"><span class="label">Critical</span><span class="value" style="color:var(--danger)">${critCount}</span></div>
+            </div>`;
+        }).join('');
+    }
+
+    function downloadCSV() {
+        const data = lastFiltered;
+        if (!data.length) { alert('No data to export.'); return; }
+        const headers = ['SKU','Product Name','Source','Inventory','Sales Velocity (units/day)','30-Day Forecast','Reorder Qty','Days of Stock','Status','ABC Class'];
+        const rows = data.map(p => [
+            p.sku,
+            '"' + p.name.replace(/"/g, '""') + '"',
+            sourceName(p.source),
+            p.inv,
+            p.vel,
+            p.forecast,
+            p.reorder || '',
+            p.days,
+            p.status === 'critical' ? 'Critical' : p.status === 'low' ? 'Low Stock' : 'In Stock',
+            p.abc
+        ]);
+        let csv = headers.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], {type: 'text/csv'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'stock_levels_' + new Date().toISOString().slice(0,10) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // ===== Init =====
+    updateSummary();
+    filterTable();
+</script>
+
+</body>
+</html>

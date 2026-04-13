@@ -1,0 +1,206 @@
+================================================================================
+MICHAEL TODD BEAUTY - ERP PROCUREMENT SYSTEM
+Setup Instructions & Project Handoff
+================================================================================
+
+HOW TO SET UP ON YOUR WINDOWS WORK COMPUTER
+================================================================================
+
+1. Copy the entire "ProcurementSystem" folder to your work computer
+   (USB drive, OneDrive, Google Drive, or GitHub — whatever is easiest)
+
+2. Install Python 3.11 or 3.12 from https://www.python.org/downloads/
+   IMPORTANT: During install, check the box that says "Add Python to PATH"
+
+3. Open Command Prompt (search "cmd" in Start menu) and run these commands:
+
+   cd C:\path\to\ProcurementSystem\erp_system
+   python -m venv venv
+   venv\Scripts\activate
+   pip install -r requirements.txt
+   python manage.py migrate
+   python manage.py runserver
+
+4. Open your browser and go to: http://localhost:8000
+   Login: use your existing account (it's in the SQLite database that copies over)
+
+5. To stop the server: press Ctrl+C in the Command Prompt
+   To start it again later: open Command Prompt, then:
+
+   cd C:\path\to\ProcurementSystem\erp_system
+   venv\Scripts\activate
+   python manage.py runserver
+
+
+HOW TO CONTINUE BUILDING WITH CLAUDE AT WORK
+================================================================================
+
+Start a new Claude conversation and paste this entire text block as your first
+message. Claude will understand the full project and can pick up where we left off.
+
+This is a Django 5.0 ERP system for Michael Todd Beauty's procurement workflow.
+It runs on Python 3.11+, SQLite, and Bootstrap 5. Brand colors are #1f4788 (navy)
+and #d4a574 (gold).
+
+The project lives in: ProcurementSystem/erp_system/
+The main Django project config is in: erp/settings.py
+
+
+PROJECT STRUCTURE
+================================================================================
+
+Django Apps (8 total):
+- accounts     — Custom User model (extends AbstractUser)
+- core         — TimeStampedModel abstract base
+- vendors      — Vendor, Branch, BillToAddress, ThreePLProvider, ShipToAddress
+- procurement  — PurchaseRequisition, PlannedPurchaseOrder (PPO), PPOLineItem,
+                 ProformaInvoice, PPOStatusLog, PPOAttachment
+- items        — Item master data
+- inventory    — Warehouse, StockLevel, StockMovement
+- receiving    — GoodsReceiptPO (GRPO), GRPOLineItem
+- invoicing    — APInvoice, APInvoiceLine
+
+Key files:
+- procurement/models.py        — PPO model with full status workflow
+- procurement/views.py         — All PPO views including batch send, PI recording
+- procurement/email_service.py — Microsoft 365 email integration (Graph API)
+- procurement/pdf_generator.py — ReportLab-based PPO PDF generation
+- procurement/urls.py          — All procurement URL routes
+- erp/settings.py              — Django settings with Azure email config at bottom
+- templates/procurement/       — 13 HTML templates for procurement module
+- templates/vendors/           — 13 HTML templates for vendor management
+- templates/receiving/         — 3 HTML templates for goods receipt
+
+
+WHAT HAS BEEN BUILT (COMPLETED)
+================================================================================
+
+1. FULL PPO LIFECYCLE with status workflow:
+   Draft -> Sent to Vendor -> PI Received -> Pending CEO Approval ->
+   CEO Approved -> Confirmed -> In Transit -> Partially/Fully Received -> Closed
+   - VALID_TRANSITIONS dict enforces allowed status changes
+   - PPOStatusLog audit trail tracks every transition with user and timestamp
+
+2. PPO FORM with Excel-style paste:
+   - Paste line items from Excel with tab navigation
+   - Cell selection, tab between fields
+   - Auto-calculate totals
+
+3. PROFORMA INVOICE RECORDING:
+   - "Record Proforma Invoice" button appears when PPO is "Sent to Vendor"
+   - Form captures: PI number, PI amount, file upload (saved as PPO attachment), notes
+   - Transitions status to "PI Received" on save
+
+4. CEO E-SIGNATURE:
+   - Approval page at /procurement/ppos/<pk>/ceo-approve/
+   - Two signature options: type-to-sign (cursive font) or upload signature image
+   - Signature fields: ceo_signature_type, ceo_signature_text, ceo_signature_image
+   - Auto-confirms PPO after CEO approval
+
+5. BATCH SEND TO VENDOR:
+   - Checkboxes on PPO list page next to all Draft PPOs
+   - Select All checkbox in header
+   - Navy batch action bar with gold "Batch Send to Vendor" button
+   - Confirmation page groups PPOs by vendor, shows email preview
+   - Sender selection dropdown: Tom, Augusto, or Donna
+   - Email preview shows: From, To (vendor), CC (supplychain@), Subject, Attachments
+   - Same batch selection available on vendor detail page
+
+6. SINGLE SEND TO VENDOR with sender dropdown:
+   - Dropdown on PPO detail header lets you pick sender before sending
+   - Same 3 sender options
+
+7. EMAIL INFRASTRUCTURE (code ready, needs Azure AD setup):
+   - procurement/email_service.py handles Microsoft Graph API
+   - Branded HTML email templates with PPO summary table
+   - PDF attachments generated from existing PDF generator
+   - CEO approval notification with "Review & Approve" button link
+   - Azure credentials read from settings.py or environment variables
+   - Setup guide: Azure_Email_Setup_Guide.docx in project root
+
+8. GOODS RECEIPT (GRPO):
+   - Auto-generate GRPO number
+   - Auto-populate supplier and line items when PPO number entered
+   - Enter qty received next to PO qty
+   - Excel-style paste, tab navigation
+   - 3PL Provider instead of Warehouse in dropdown
+   - Auto-updates PPO status: Partially Received or Fully Received based on
+     cumulative qty received vs ordered
+
+9. RECEIVING STATUS on PPO detail:
+   - 4 metric cards: Total Ordered, Total Received, Remaining, % Received
+   - Per-line progress bars
+   - Goods Receipts table with links to GRPOs
+   - Workflow buttons change based on status
+
+
+WHAT STILL NEEDS TO BE BUILT (TODO)
+================================================================================
+
+1. IN-TRANSIT LOG:
+   - Track shipment progress: container numbers, tracking info, ETAs
+   - Log updates as goods move from port to port
+   - Link to PPO and show on detail page
+   - Possibly integrate with shipping carrier APIs
+
+2. AZURE AD EMAIL SETUP:
+   - Follow the Azure_Email_Setup_Guide.docx to register the app
+   - Add AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET to settings
+   - Install: pip install msal requests
+   - Test by sending a PPO to a vendor
+
+3. INCOMING EMAIL PARSING (future):
+   - Monitor a mailbox for vendor replies with PI documents
+   - Auto-link PI attachments to the correct PPO
+
+4. DOCUSIGN INTEGRATION (future):
+   - Include DocuSign link in CEO notification email
+   - CEO signs from inbox without logging into ERP
+
+5. DASHBOARD IMPROVEMENTS:
+   - Charts showing PPO status distribution
+   - Pending approvals widget
+   - Recent activity feed
+
+6. PRODUCTION DEPLOYMENT:
+   - Switch from SQLite to PostgreSQL
+   - Set DEBUG=False, proper SECRET_KEY
+   - Configure whitenoise for static files
+   - Set up proper domain and HTTPS
+
+
+DEPENDENCIES (requirements.txt)
+================================================================================
+
+Django>=4.2,<5.1
+django-crispy-forms>=2.0
+crispy-bootstrap5>=2024.2
+django-filter>=24.0
+reportlab>=4.0
+Pillow>=10.0
+openpyxl>=3.1
+pandas>=2.0
+whitenoise>=6.0
+python-dateutil>=2.9
+
+For email (install separately when ready):
+msal
+requests
+
+
+DATABASE
+================================================================================
+
+SQLite3 — file is db.sqlite3 in the erp_system directory.
+It copies with the project, so all your data (PPOs, vendors, items) transfers
+to your work computer automatically.
+
+
+AUTHORIZED EMAIL SENDERS (configured in procurement/email_service.py)
+================================================================================
+
+tom      — Tom Sapia (tom@michaeltoddbeauty.com)
+augusto  — Augusto (augusto@michaeltoddbeauty.com)
+donna    — Donna (donna@michaeltoddbeauty.com)
+
+CC on all outgoing: supplychain@michaeltoddbeauty.com

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Bill To Addresses{% endblock %}
+{% block content %}
+<h2>Bill To Addresses</h2>
+<a href="{% url 'vendors:billto_create' %}" class="btn btn-primary">Add Address</a>
+<table class="table mt-3">
+<thead><tr><th>Branch</th><th>Phone</th><th>Actions</th></tr></thead>
+<tbody>
+{% for addr in addresses %}
+<tr><td>{{ addr.branch }}</td><td>{{ addr.phone }}</td><td><a href="{% url 'vendors:billto_edit' addr.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a></td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

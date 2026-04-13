@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Send to Vendor{% endblock %}
+
+{% block extra_css %}
+<style>
+    .batch-card {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f4788;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #d4a574;
+    }
+    .vendor-group {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #1f4788;
+    }
+    .vendor-group h5 { color: #1f4788; margin-bottom: 0.75rem; }
+    .ppo-chip {
+        display: inline-block;
+        background: #1f4788;
+        color: white;
+        border-radius: 4px;
+        padding: 0.25rem 0.75rem;
+        margin: 0.25rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .email-preview {
+        background: #fafbfc;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1.25rem;
+        font-family: -apple-system, sans-serif;
+    }
+    .email-preview .email-label { font-size: 0.75rem; color: #6c757d; font-weight: 600; text-transform: uppercase; }
+    .email-preview .email-value { color: #333; margin-bottom: 0.75rem; }
+    .email-preview .email-subject { font-weight: 700; font-size: 1.05rem; color: #1f4788; }
+    .attachment-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #e9ecef;
+        border-radius: 4px;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.8rem;
+        margin: 0.2rem;
+    }
+    .warning-box {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 850px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 style="color: #1f4788;">Batch Send to Vendor</h2>
+        <a href="{% url 'procurement:ppo_list' %}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+
+    {% if warnings %}
+    <div class="warning-box">
+        <strong>Note:</strong>
+        <ul class="mb-0 mt-1">
+            {% for w in warnings %}<li>{{ w }}</li>{% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'procurement:ppo_batch_send_confirm' %}">
+        {% csrf_token %}
+        {% for pk in ppo_pks %}
+        <input type="hidden" name="ppo_ids" value="{{ pk }}">
+        {% endfor %}
+
+        <!-- Grouped by vendor -->
+        <div class="batch-card">
+            <div class="section-title">Selected Purchase Orders ({{ ppos|length }})</div>
+            {% regroup ppos by vendor as vendor_groups %}
+            {% for group in vendor_groups %}
+            <div class="vendor-group">
+                <h5>{{ group.grouper.name }}</h5>
+                <div class="mb-2">
+                    <span class="email-label" style="font-size: 0.75rem; color: #6c757d;">Contact:</span>
+                    <span>{{ group.grouper.contact_email|default:"No email on file" }}</span>
+                </div>
+                <div>
+                    {% for ppo in group.list %}
+                    <span class="ppo-chip">PPO-{{ ppo.ppo_number }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Send From -->
+        <div class="batch-card">
+            <div class="section-title">Send From</div>
+            <div class="row align-items-end">
+                <div class="col-md-6">
+                    <label for="sender" class="form-label" style="font-weight: 600; font-size: 0.85rem;">Who is sending this email?</label>
+                    <select name="sender" id="sender" class="form-select" onchange="updateFromPreview()">
+                        {% for key, label in sender_choices %}
+                        <option value="{{ key }}" {% if key == 'tom' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Preview -->
+        <div class="batch-card">
+            <div class="section-title">Email Preview</div>
+            {% regroup ppos by vendor as vendor_groups %}
+            {% for group in vendor_groups %}
+            <div class="email-preview mb-3">
+                <div class="email-label">From</div>
+                <div class="email-value" id="from-preview">Tom Sapia &lt;tom@michaeltoddbeauty.com&gt;</div>
+                <div class="email-label">To</div>
+                <div class="email-value">{{ group.grouper.contact_email|default:"—" }}</div>
+                <div class="email-label">CC</div>
+                <div class="email-value">supplychain@michaeltoddbeauty.com</div>
+                <div class="email-label">Subject</div>
+                <div class="email-subject mb-2">
+                    Purchase Order{{ group.list|length|pluralize }} from Michael Todd Beauty —
+                    {% for ppo in group.list %}PPO-{{ ppo.ppo_number }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                </div>
+                <div class="email-label">Attachments</div>
+                <div>
+                    {% for ppo in group.list %}
+                    <span class="attachment-badge">&#128196; PPO-{{ ppo.ppo_number }}.pdf</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Notes -->
+        <div class="batch-card">
+            <div class="section-title">Message to Vendor (optional)</div>
+            <textarea name="message" class="form-control" rows="3" placeholder="Add a message to include in the email body..."></textarea>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3 mb-4">
+            <a href="{% url 'procurement:ppo_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary" style="min-width: 250px;">
+                Send {{ ppos|length }} PPO{{ ppos|length|pluralize }} to Vendor
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var senderMap = {
+    {% for key, label in sender_choices %}
+    '{{ key }}': '{{ label }}'{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+function updateFromPreview() {
+    var sel = document.getElementById('sender');
+    var preview = document.getElementById('from-preview');
+    if (sel && preview) {
+        preview.textContent = senderMap[sel.value] || sel.value;
+    }
+}
+</script>
+{% endblock %}

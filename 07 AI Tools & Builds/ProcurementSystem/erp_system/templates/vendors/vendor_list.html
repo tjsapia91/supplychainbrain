@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Supplier Accounts{% endblock %}
+
+{% block extra_css %}
+<style>
+    .vendor-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .vendor-card:hover {
+        border-color: #1f4788;
+        box-shadow: 0 2px 8px rgba(31,71,136,0.12);
+        transform: translateY(-1px);
+    }
+    .vendor-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f4788;
+    }
+    .vendor-info {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    .vendor-stats {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+    }
+    .vendor-stat {
+        text-align: center;
+    }
+    .vendor-stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f4788;
+    }
+    .vendor-stat-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    .search-bar {
+        background: white;
+        border-radius: 8px;
+        padding: 1.25rem;
+        border: 1px solid #e9ecef;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8"><h2 style="color: #1f4788;">Supplier Accounts</h2></div>
+        <div class="col-md-4 text-end"><a href="{% url 'vendors:vendor_create' %}" class="btn btn-primary">+ Add Supplier</a></div>
+    </div>
+
+    <!-- Search / Filter -->
+    <div class="search-bar">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="name" class="form-label">Supplier Name</label>
+                <input type="text" name="name" id="name" class="form-control" placeholder="Search by name..." value="{{ request.GET.name|default:'' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="country" class="form-label">Country</label>
+                <input type="text" name="country" id="country" class="form-control" placeholder="Country" value="{{ request.GET.country|default:'' }}">
+            </div>
+            <div class="col-md-2">
+                <label for="is_active" class="form-label">Status</label>
+                <select name="is_active" id="is_active" class="form-select">
+                    <option value="">All</option>
+                    <option value="true" {% if request.GET.is_active == 'true' %}selected{% endif %}>Active</option>
+                    <option value="false" {% if request.GET.is_active == 'false' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary me-2">Search</button>
+                <a href="{% url 'vendors:vendor_list' %}" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Vendor Cards -->
+    {% for vendor in vendors %}
+    <div class="vendor-card" onclick="window.location='{% url 'vendors:vendor_detail' vendor.pk %}'">
+        <div>
+            <div class="vendor-name">
+                {{ vendor.name }}
+                {% if vendor.code %}<span class="text-muted" style="font-weight: 400; font-size: 0.9rem;"> ({{ vendor.code }})</span>{% endif %}
+            </div>
+            <div class="vendor-info">
+                {% if vendor.city or vendor.country %}{{ vendor.city }}{% if vendor.city and vendor.country %}, {% endif %}{{ vendor.country }}{% endif %}
+                {% if vendor.contact_name %} &middot; {{ vendor.contact_name }}{% endif %}
+                {% if not vendor.is_active %}<span class="badge bg-danger ms-2">Inactive</span>{% endif %}
+            </div>
+        </div>
+        <div class="vendor-stats">
+            <div class="vendor-stat">
+                <div class="vendor-stat-value">{{ vendor.order_count }}</div>
+                <div class="vendor-stat-label">Orders</div>
+            </div>
+            <a href="{% url 'procurement:ppo_create' %}?vendor={{ vendor.pk }}" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">+ New PO</a>
+            <a href="{% url 'vendors:vendor_detail' vendor.pk %}" class="btn btn-sm btn-primary" onclick="event.stopPropagation();">Open Account</a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center text-muted py-5">
+        <p style="font-size: 1.2rem;">No suppliers found.</p>
+        <a href="{% url 'vendors:vendor_create' %}" class="btn btn-primary">Add First Supplier</a>
+    </div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

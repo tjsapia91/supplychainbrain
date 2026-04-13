@@ -1,0 +1,73 @@
+/* Michael Todd Beauty ERP - Custom Styles */
+:root {
+    --mtb-navy: #1f4788;
+    --mtb-gold: #d4a574;
+    --mtb-light: #f8f9fa;
+}
+
+/* Status badges */
+.badge-draft { background-color: #6c757d; }
+.badge-sent { background-color: #17a2b8; }
+.badge-pi-received { background-color: #0d6efd; }
+.badge-pending-ceo { background-color: #ffc107; color: #333; }
+.badge-approved { background-color: #198754; }
+.badge-rejected { background-color: #dc3545; }
+.badge-confirmed { background-color: #198754; }
+.badge-in-transit { background-color: #0dcaf0; }
+.badge-received { background-color: #198754; }
+.badge-cancelled { background-color: #dc3545; }
+.badge-closed { background-color: #343a40; }
+
+/* PPO Detail page */
+.ppo-header-section {
+    background-color: var(--mtb-light);
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.ppo-section-title {
+    color: var(--mtb-navy);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--mtb-gold);
+}
+
+/* Workflow timeline */
+.workflow-step {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.workflow-step .step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.workflow-step.active .step-circle {
+    background-color: var(--mtb-navy);
+    color: white;
+}
+
+.workflow-step.completed .step-circle {
+    background-color: #198754;
+    color: white;
+}
+
+/* Print styles */
+@media print {
+    .sidebar, .navbar, .btn, .no-print { display: none !important; }
+    .main-content { padding: 0 !important; }
+    .col-md-10 { width: 100% !important; }
+}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Branches{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8"><h2 style="color: #1f4788;">Company Branches</h2></div>
+    <div class="col-md-4 text-end"><a href="{% url 'vendors:branch_create' %}" class="btn btn-primary">Add Branch</a></div>
+</div>
+<div class="card">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Branch Name</th>
+                <th>Phone</th>
+                <th>Contact Email</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for branch in branches %}
+            <tr>
+                <td><strong>{{ branch.name }}</strong></td>
+                <td>{{ branch.phone|default:"-" }}</td>
+                <td>{{ branch.contact_email|default:"-" }}</td>
+                <td>
+                    {% if branch.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'vendors:branch_edit' branch.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5" class="text-center text-muted py-4">No branches configured yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

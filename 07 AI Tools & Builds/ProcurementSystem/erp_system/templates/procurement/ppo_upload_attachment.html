@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Attachment - {{ ppo.ppo_number }} - Michael Todd Beauty ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        border: 1px solid #e9ecef;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f4788;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #d4a574;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    .upload-area {
+        border: 2px dashed #d4a574;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .upload-area:hover {
+        border-color: #1f4788;
+        background-color: #f0f4f8;
+    }
+    .header-card {
+        background: linear-gradient(135deg, #1f4788 0%, #2e5fa3 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="header-card">
+        <h2 style="margin-bottom: 0.5rem;">Upload Attachment</h2>
+        <p style="margin-bottom: 0;">{{ ppo.ppo_number }} | Vendor: {{ ppo.vendor.name }}</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- File Type -->
+        <div class="form-section">
+            <div class="section-title">Attachment Type</div>
+            <label for="{{ form.file_type.id_for_label }}" class="form-label">{{ form.file_type.label }} <span class="text-danger">*</span></label>
+            {{ form.file_type }}
+            {% if form.file_type.errors %}<div class="text-danger small mt-1">{{ form.file_type.errors }}</div>{% endif %}
+            <small class="text-muted d-block mt-2">
+                <strong>Proforma Invoice:</strong> The vendor's quoted price<br>
+                <strong>Signed PPO:</strong> Vendor-signed copy of the order<br>
+                <strong>CEO Approval:</strong> CEO approval documentation<br>
+                <strong>Shipping Document:</strong> Bill of lading, airway bill, etc.<br>
+                <strong>Other:</strong> Any other supporting documents
+            </small>
+        </div>
+
+        <!-- File Upload -->
+        <div class="form-section">
+            <div class="section-title">Upload File</div>
+            <label for="{{ form.file.id_for_label }}" class="form-label">{{ form.file.label }} <span class="text-danger">*</span></label>
+            <div class="upload-area" id="upload-area">
+                <i class="bi bi-cloud-arrow-up" style="font-size: 3rem; color: #d4a574;"></i>
+                <h5 class="mt-2">Drag and drop your file here or click to select</h5>
+                <p class="text-muted">Supported: PDF, Excel, Word, Images</p>
+                {{ form.file }}
+            </div>
+            {% if form.file.errors %}<div class="text-danger small mt-1">{{ form.file.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Description -->
+        <div class="form-section">
+            <div class="section-title">Description</div>
+            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+            {{ form.description }}
+            <small class="text-muted d-block mt-2">Optional: Add a brief description of the file content</small>
+            {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Submit Section -->
+        <div class="form-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="{% url 'procurement:ppo_detail' ppo.pk %}" class="btn btn-outline-secondary w-100">Cancel</a>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="submit" class="btn btn-primary w-100">Upload Attachment</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Make upload area clickable
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.querySelector('input[type="file"]');
+
+    if (uploadArea && fileInput) {
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#1f4788';
+            uploadArea.style.backgroundColor = '#f0f4f8';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#d4a574';
+            uploadArea.style.backgroundColor = '#f8f9fa';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileInput.files = e.dataTransfer.files;
+            uploadArea.style.borderColor = '#d4a574';
+            uploadArea.style.backgroundColor = '#f8f9fa';
+        });
+
+        // Show file name when selected
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                uploadArea.innerHTML = '<i class="bi bi-check-circle" style="font-size: 3rem; color: #28a745;"></i><h5 class="mt-2">File selected</h5><p class="text-muted">' + fileInput.files[0].name + '</p>';
+            }
+        });
+    }
+</script>
+{% endblock %}
