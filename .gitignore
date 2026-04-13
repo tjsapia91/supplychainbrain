@@ -1,0 +1,28 @@
+# Windows
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Office temp files (Excel, Word, PowerPoint)
+~$*
+*.tmp
+
+# Large binary files (keep attachments local unless small)
+*.xlsx
+*.xls
+*.pdf
+*.zip
+*.7z
+
+# Python / scripts
+__pycache__/
+*.pyc
+.env
+
+# Node (if any tools get built)
+node_modules/
