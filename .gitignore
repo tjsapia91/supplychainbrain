@@ -26,3 +26,11 @@ __pycache__/
 
 # Node (if any tools get built)
 node_modules/
+
+# Code repositories — keep code in its own repo, not in the vault
+erp_system/
+*.zip
+*.tar.gz
+
+# Obsidian Claudian internal files
+.claudian/

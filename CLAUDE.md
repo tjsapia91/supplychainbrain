@@ -134,11 +134,156 @@ SupplyChainBrain/
 ---
 
 ## Current Status
-**Last updated:** April 13th, 2026
-**Status:** Foundation scaffolded. Week 3-4 on the job.
+**Last updated:** April 20, 2026
+**Status:** demand_planning.py updated with critical velocity fix. 17 items need action. Report generated.
 
-**What's in progress:**
-- Still learning the full scope of the role
-- ERP system built, needs polishing
-- International expansion coming but timeline unclear
-- ShipBob → AmzPrep transition possible but not final
+---
+
+### ⚠️ CRITICAL VELOCITY FIX (Apr 20)
+SoStocked velocity columns (Adj. Velocity, 30 Day Velocity) are already in **units/day** — NOT monthly totals. The previous script was dividing by 30, making every DOS calculation 30× too optimistic. Fixed.
+
+Two other improvements also applied:
+- **Adj. Velocity as primary** (corrects for stockout suppression — stocked-out products can't sell, so 30-day is artificially low)
+- **INACTIVE_THRESHOLD = 0.1 units/day** — below this, stocked-out items go to "Low Vel Stockout" tracker instead of Priority Actions
+
+---
+
+### 🔴 Priority Actions (as of Apr 20 — based on Apr 16 data)
+| Product | Brand | Market | Status | DOS | Vel/day | Lead |
+|---|---|---|---|---|---|---|
+| Sonicsmooth 2.0 Lavender | MTB | US | TRUE STOCKOUT | 0 | 1.0 | 117d |
+| Soniclear Body Brush Head | MTB | US | TRUE STOCKOUT | 0 | 1.07 | 117d |
+| Viva Foot Replacement Heads | SS | US | TRUE STOCKOUT | 0 | 1.0 | 60d |
+| NF Salt Packets (Spanish) | NFMD | US | CRITICAL | 3 | 2.17 | 117d |
+| Sonicblend Replacement Head | MTB | US | CRITICAL | 24 | 0.87 | 117d |
+| Sonicsmooth Pro+ Peach | MTB | US | CRITICAL | 34 | 23.42 | 61d |
+| Echo Pink | SS | US | CRITICAL | 34 | 1.13 | 60d |
+| MIO Diamond Tip Pink | SS | US | CRITICAL | 36 | 1.03 | 60d |
+| Mattifying Potion | SS | US | CRITICAL | 42 | 4.1 | 60d |
+| NOVA Serum Infusion Head | SS | US | CRITICAL | 57 | 0.3 | 60d |
+| Sonicblend Display Cradle | MTB | US | CRITICAL | 70 | 1.23 | 117d |
+| Soniclear Elite White Marble | MTB | US | CRITICAL | 70 | 75.76 | 117d |
+| Soniclear Replacement Face Brush Plum | MTB | US | CRITICAL | 82 | 9.63 | 117d |
+| Replacement Face Brush (Clarisonic compat) | MTB | US | CRITICAL | 96 | 0.5 | 117d |
+| Sonicsmooth 2.0 White | MTB | US | CRITICAL | 101 | 30.23 | 117d |
+| Sonicsmooth Pro+ White | MTB | US | CRITICAL | 103 | 78.54 | 117d |
+| BioMist MD Steam Inhaler | NFMD | US | CRITICAL | 104 | 0.47 | 117d |
+
+---
+
+### 🔵 Low Velocity Stockouts (tracked, not PO emergencies — <0.1 units/day)
+- MTB CA: Sonicsmooth 1.0 White, Sonicsmooth 2.0 Lavender CA, Hydrojet CA, Sonicblend Makeup Brush CA, Sonicsmooth Pro+ Blade Refills CA, Hydraskim Bundle CA, LUMOS CA
+- MTB US: Sonicblend Makeup Brush, Sonicsmooth 1.0 White, Hydrojet
+- NFMD US: Hydrating Nose Oil, AM/PM Oil Bundle, Night Time Blend, Adjustable Nose Pillows (US+CA)
+- NFMD CA: BioMist MD CA, Adjustable Nose Pillows CA
+- SS: Viva CA, MIO CA, Ziva Lady Shaver US+CA, Cabezal Afeitadora US+CA, Pulverizador CA, Hydrating Detox Mask CA, Sima Deluxe Pink US
+
+---
+
+### ✅ Completed April 16
+- ✅ **`analyze_sostocked.py` built and tested** — reads SoStocked Multi-Dashboard, filters noise, applies urgency tiers, outputs markdown. Fixed key bug: 0-velocity = INACTIVE not STOCKED OUT.
+- ✅ **`demand_planning.py` built and tested** — full demand planning script using 3-file system. Runs clean, outputs Excel + markdown.
+- ✅ **Three planning docs created** in vault `07 AI Tools & Builds/`
+- ✅ **First demand plan Excel generated** — `demand-plan-2026-04-16.xlsx`
+
+### ✅ Completed April 20
+- ✅ **Critical velocity bug fixed in `demand_planning.py`** — velocity was being divided by 30 (treating units/day as monthly totals). Confirmed SoStocked exports daily rates.
+- ✅ **Adj. Velocity added as primary** with 30-day fallback
+- ✅ **INACTIVE_THRESHOLD (0.1/day) implemented** — Low Vel Stockouts tracked separately
+- ✅ **New demand plan generated** — `demand-plan-2026-04-20.xlsx` (17 priority items)
+
+---
+
+### Scripts — What Each Does
+
+**Script 1: `analyze_sostocked.py`**
+- Location: `C:\Users\Tom Sapia\MTB-SupplyChain\analyze_sostocked.py`
+- Input: SoStocked Multi-Dashboard Report (1 file, all 3 brands)
+- Drop file in: `MTB-SupplyChain\reports\sostocked\`
+- Run: `python analyze_sostocked.py`
+- Output: markdown priority list → `outputs\sostocked-analysis-YYYY-MM-DD.md`
+- Purpose: Quick weekly scan — what's stocked out, what's critical, what needs attention
+
+**Script 2: `demand_planning.py`** ← PRIMARY SCRIPT
+- Location: `C:\Users\Tom Sapia\MTB-SupplyChain\demand_planning.py`
+- Inputs: 2 files (see below)
+- Drop files in: `reports\agency\` and `reports\inventory\`
+- Run: `python demand_planning.py`
+- Output: Excel with 5 sheets → `outputs\demand-plan-YYYY-MM-DD.xlsx`
+- Purpose: Full demand planning — DOS, stockout dates, reorder points, PO quantities
+
+---
+
+### Source Files for demand_planning.py
+
+| File | Where to get it | Drop into |
+|---|---|---|
+| Agency Report (all 3 brands) | SoStocked → Multi-Dashboard Export | `MTB-SupplyChain\reports\agency\` |
+| Inventory Report (all 3 brands) | SoStocked → Inventory Export | `MTB-SupplyChain\reports\inventory\` |
+
+**NOT needed yet:** Projected Forecast file (SS only — will add MTB/NFMD forecasts later)
+
+---
+
+### Formula (Locked In)
+```
+Days of Supply = (FBA Stock/Market [inventory file] + AWD Warehouse Stock [agency col M]) ÷ Adj. Velocity [agency col P]
+
+Order Qty = daily_velocity × (lead_time_days + 60 buffer_days) − total_available_stock
+
+NOTE: Adj. Velocity and 30 Day Velocity from SoStocked are already in units/day. Do NOT divide by 30.
+Fallback: if Adj. Velocity = 0, use 30 Day Velocity (col T).
+```
+
+**Region rules (applied automatically every run):**
+- NAm → US
+- US+MX → US
+- MX → removed
+- CA → kept separate
+
+**Urgency tiers:**
+- 🚨 AMAZON STOCKOUT — FBA=0 but warehouse stock exists (replenish FBA)
+- 🔴 TRUE STOCKOUT — no stock anywhere (new PO needed)
+- 🔴 CRITICAL — DOS ≤ lead time (at reorder point)
+- 🟠 HIGH — DOS ≤ lead time + 30 days
+- 🟡 WATCH — DOS ≤ 60 days
+- 🟢 HEALTHY — DOS > 60 days
+- ⚫ INACTIVE — zero velocity (dead/suppressed listings)
+
+---
+
+### What Still Needs to Be Done
+
+**Script / Data bugs (from Apr 20 audit — see `07 AI Tools & Builds/(C) Demand Planning Audit — 2026-04-20.md`):**
+- [ ] **FIX: Inbound to FBA bug** — 46,129 units showing as inbound for many MTB products (SoStocked aggregate bleed). Causes PO qty = 0 for ~10 CRITICAL items. Fix: remove inbound_fba from PO formula.
+- [ ] **FIX: Add HIGH tier to dashboard** — 13 items not shown, including Blade Refills (236/day) and Hair Spray (143/day), both 6-7 days from flipping to CRITICAL.
+- [ ] **INVESTIGATE: Is inbound 46,129 a real PO in SAP?** — Check SAP for large MTB shipment in transit.
+- [ ] **GAP: Cost / Unit blank in SoStocked export** — Enter costs in SoStocked product settings OR build SAP cost lookup. Currently PO $ value = $0.
+- [ ] **GAP: SS lead times = NaN in combined inventory file** — All SS defaults to 60d (probably OK but worth fixing). Try separate SS inventory export.
+- [ ] Verify SS Canada CIRRA and NERA stockout flags — are these active CA listings or dead?
+- [ ] Clean up SoStocked regional groupings (22 issues flagged by analyze_sostocked.py)
+- [ ] Get MTB and NFMD forecast files from SoStocked (for future PO qty refinement)
+- [ ] Decide report design for Django Reports Hub (need DOS/SVP input)
+- [ ] Add `--json` flag to analyze_sostocked.py for Django integration
+- [ ] Test demand_planning.py on Tommy's Windows machine end-to-end
+
+---
+
+### Key Docs in Vault
+- `07 AI Tools & Builds/(C) SoStocked Reporting Module — Planning.md` — script architecture, Django integration paths
+- `07 AI Tools & Builds/(C) Demand Planning Report — Build Plan.md` — meticulous build plan, formulas, open questions
+- `07 AI Tools & Builds/(C) SoStocked Pipeline Discovery — 2026-04-15.md` — April 15 session findings
+
+### Key Files in MTB-SupplyChain
+- `MTB-SupplyChain/analyze_sostocked.py`
+- `MTB-SupplyChain/demand_planning.py`
+- `MTB-SupplyChain/outputs/demand-plan-2026-04-16.xlsx` ← first real report
+
+---
+
+### Architecture (Three Layers — Don't Rebuild These)
+| Layer | Tool | Purpose |
+|---|---|---|
+| Knowledge | Obsidian vault (`C:\Users\Tom Sapia\supplychainbrain\`) | SOPs, planning docs, weekly snapshots |
+| Execution | `C:\Users\Tom Sapia\MTB-SupplyChain\` | Scripts, raw data, output reports |
+| Procurement | Django ERP (Mac dev → GitHub → PythonAnywhere) | POs, invoicing, Reports Hub (planned) |
