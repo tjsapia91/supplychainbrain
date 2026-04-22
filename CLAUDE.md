@@ -134,8 +134,8 @@ SupplyChainBrain/
 ---
 
 ## Current Status
-**Last updated:** April 20, 2026
-**Status:** demand_planning.py updated with critical velocity fix. 17 items need action. Report generated.
+**Last updated:** April 22, 2026
+**Status:** Weekly pipeline ran successfully. 22 priority items, 8 high, 187 total across all 3 brands. demand-plan-2026-04-22.xlsx generated. Two runtime fixes applied on Windows: (1) created reports\weekly\ directory (didn't exist), (2) pip install pandas openpyxl (missing from active Python env). Browser automation completed all 6 SoStocked downloads. PowerShell steps (combine_forecast.py + demand_planning.py) run manually by Tommy.
 
 ---
 
@@ -185,6 +185,14 @@ Two other improvements also applied:
 - ✅ **`demand_planning.py` built and tested** — full demand planning script using 3-file system. Runs clean, outputs Excel + markdown.
 - ✅ **Three planning docs created** in vault `07 AI Tools & Builds/`
 - ✅ **First demand plan Excel generated** — `demand-plan-2026-04-16.xlsx`
+
+### ✅ Completed April 22
+- ✅ **Full automation agent doc created** — `11 Skills/(C) SoStocked Full Automation Agent.md` + copy at `MTB-SupplyChain/SoStocked_Full_Automation_Agent.md`
+- ✅ **Pipeline confirmed:** 6 SoStocked downloads → combine_forecast.py → Weekly_Forecast moved to `reports\weekly\` → demand_planning.py auto-finds it
+- ✅ **demand_planning.py confirmed** to use `reports\weekly\Weekly_Forecast_*.xlsx` as primary input (legacy agency/inventory folders are fallback only)
+- ✅ **Full run validated last session (Apr 21):** SS 122 rows, MTB 71 rows, NFMD 35 rows, 4 Red Flags, demand plan generated
+- ✅ **Weekly pipeline ran Apr 22:** All 6 SoStocked downloads triggered via browser automation. combine_forecast.py + demand_planning.py run manually. Output: 22 priority items, 8 high, 187 total. `demand-plan-2026-04-22.xlsx` generated.
+- ✅ **Runtime fixes on Windows:** Created `reports\weekly\` directory (missing), installed pandas + openpyxl in active Python env
 
 ### ✅ Completed April 20
 - ✅ **Critical velocity bug fixed in `demand_planning.py`** — velocity was being divided by 30 (treating units/day as monthly totals). Confirmed SoStocked exports daily rates.
@@ -253,6 +261,10 @@ Fallback: if Adj. Velocity = 0, use 30 Day Velocity (col T).
 ---
 
 ### What Still Needs to Be Done
+
+**Agent / Automation:**
+- [ ] **Schedule the agent** — set up Monday 8am recurring trigger (Cowork scheduled task or Windows Task Scheduler)
+- [ ] **Test full agent run on Windows machine end-to-end** — verify PowerShell paths, Python env, all 6 downloads
 
 **Script / Data bugs (from Apr 20 audit — see `07 AI Tools & Builds/(C) Demand Planning Audit — 2026-04-20.md`):**
 - [ ] **FIX: Inbound to FBA bug** — 46,129 units showing as inbound for many MTB products (SoStocked aggregate bleed). Causes PO qty = 0 for ~10 CRITICAL items. Fix: remove inbound_fba from PO formula.
