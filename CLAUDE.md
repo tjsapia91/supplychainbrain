@@ -134,150 +134,162 @@ SupplyChainBrain/
 ---
 
 ## Current Status
-**Last updated:** April 22, 2026
-**Status:** Weekly pipeline ran successfully. 22 priority items, 8 high, 187 total across all 3 brands. demand-plan-2026-04-22.xlsx generated. Two runtime fixes applied on Windows: (1) created reports\weekly\ directory (didn't exist), (2) pip install pandas openpyxl (missing from active Python env). Browser automation completed all 6 SoStocked downloads. PowerShell steps (combine_forecast.py + demand_planning.py) run manually by Tommy.
+**Last updated:** April 27, 2026
+**Status:** Full pipeline rebuild session. Major restructure of MTB-SupplyChain repo, SKU review integration, AWD inbound DOS fix, new executive summary sheet, action plan script. Weekly report generated: **8 priority (CRITICAL/TRUE STOCKOUT), 10 HIGH, 177 total items**. Output: `outputs/2026-04-27/weekly-report-2026-04-27.xlsx` + `demand-plan-2026-04-27.xlsx` + `action-plan-2026-04-27.xlsx`.
 
 ---
 
-### ⚠️ CRITICAL VELOCITY FIX (Apr 20)
-SoStocked velocity columns (Adj. Velocity, 30 Day Velocity) are already in **units/day** — NOT monthly totals. The previous script was dividing by 30, making every DOS calculation 30× too optimistic. Fixed.
-
-Two other improvements also applied:
-- **Adj. Velocity as primary** (corrects for stockout suppression — stocked-out products can't sell, so 30-day is artificially low)
-- **INACTIVE_THRESHOLD = 0.1 units/day** — below this, stocked-out items go to "Low Vel Stockout" tracker instead of Priority Actions
-
----
-
-### 🔴 Priority Actions (as of Apr 20 — based on Apr 16 data)
-| Product | Brand | Market | Status | DOS | Vel/day | Lead |
+### 🔴 Priority Actions (Apr 27 — current week)
+| Product | Brand | Market | Status | DOS | Stockout | Vel/day |
 |---|---|---|---|---|---|---|
-| Sonicsmooth 2.0 Lavender | MTB | US | TRUE STOCKOUT | 0 | 1.0 | 117d |
-| Soniclear Body Brush Head | MTB | US | TRUE STOCKOUT | 0 | 1.07 | 117d |
-| Viva Foot Replacement Heads | SS | US | TRUE STOCKOUT | 0 | 1.0 | 60d |
-| NF Salt Packets (Spanish) | NFMD | US | CRITICAL | 3 | 2.17 | 117d |
-| Sonicblend Replacement Head | MTB | US | CRITICAL | 24 | 0.87 | 117d |
-| Sonicsmooth Pro+ Peach | MTB | US | CRITICAL | 34 | 23.42 | 61d |
-| Echo Pink | SS | US | CRITICAL | 34 | 1.13 | 60d |
-| MIO Diamond Tip Pink | SS | US | CRITICAL | 36 | 1.03 | 60d |
-| Mattifying Potion | SS | US | CRITICAL | 42 | 4.1 | 60d |
-| NOVA Serum Infusion Head | SS | US | CRITICAL | 57 | 0.3 | 60d |
-| Sonicblend Display Cradle | MTB | US | CRITICAL | 70 | 1.23 | 117d |
-| Soniclear Elite White Marble | MTB | US | CRITICAL | 70 | 75.76 | 117d |
-| Soniclear Replacement Face Brush Plum | MTB | US | CRITICAL | 82 | 9.63 | 117d |
-| Replacement Face Brush (Clarisonic compat) | MTB | US | CRITICAL | 96 | 0.5 | 117d |
-| Sonicsmooth 2.0 White | MTB | US | CRITICAL | 101 | 30.23 | 117d |
-| Sonicsmooth Pro+ White | MTB | US | CRITICAL | 103 | 78.54 | 117d |
-| BioMist MD Steam Inhaler | NFMD | US | CRITICAL | 104 | 0.47 | 117d |
+| Soniclear Replacement Body Brush Head | MTB | US | TRUE STOCKOUT | 0 | Apr 27 | 1.0 |
+| Pulverizador de agua faci (SS Spanish) | SS | US | CRITICAL | 18 | May 15 | 0.17 |
+| Sonicblend Replacement Head | MTB | US | CRITICAL | 40 | Jun 06 | 1.13 |
+| Nova Pink | SS | US | CRITICAL | 40 | Jun 06 | 13.07 |
+| NOVA Serum Infusion Head | SS | US | CRITICAL | 42 | Jun 08 | 0.33 |
+| Sonicblend Display Cradle | MTB | US | CRITICAL | 52 | Jun 18 | 1.43 |
+| Soniclear Replacement Face Brush (Plum) | MTB | US | CRITICAL | 71 | Jul 07 | 10.7 |
+| Sonicsmooth Pro+ White | MTB | US | CRITICAL | 77 | Jul 13 | 91.33 |
 
 ---
 
-### 🔵 Low Velocity Stockouts (tracked, not PO emergencies — <0.1 units/day)
-- MTB CA: Sonicsmooth 1.0 White, Sonicsmooth 2.0 Lavender CA, Hydrojet CA, Sonicblend Makeup Brush CA, Sonicsmooth Pro+ Blade Refills CA, Hydraskim Bundle CA, LUMOS CA
-- MTB US: Sonicblend Makeup Brush, Sonicsmooth 1.0 White, Hydrojet
-- NFMD US: Hydrating Nose Oil, AM/PM Oil Bundle, Night Time Blend, Adjustable Nose Pillows (US+CA)
-- NFMD CA: BioMist MD CA, Adjustable Nose Pillows CA
-- SS: Viva CA, MIO CA, Ziva Lady Shaver US+CA, Cabezal Afeitadora US+CA, Pulverizador CA, Hydrating Detox Mask CA, Sima Deluxe Pink US
+### ✅ Completed April 27
+
+**Repo Restructure:**
+- ✅ **Moved all scripts to `scripts/`** — demand_planning.py, build_report.py, build_action_plan.py, combine_forecast.py, run_weekly_supply_chain_analysis.py, generate_weekly_excel.py
+- ✅ **Moved all docs to `docs/`** — WEEKLY_CHECKLIST.md, SoStocked_Full_Automation_Agent.md, and other reference files
+- ✅ **Dated output subfolders** — all outputs now save to `outputs/YYYY-MM-DD/` (e.g. `outputs/2026-04-27/`)
+- ✅ **Fixed BASE path** in all scripts: `BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))` — scripts work from any location after the move
+- ✅ **UTF-8 fix** — added `sys.stdout.reconfigure(encoding="utf-8", errors="replace")` to prevent Windows cp1252 crashes on emoji output
+
+**SKU Review Integration:**
+- ✅ **`load_sku_review()` function** in demand_planning.py — reads `sku-review-YYYY-MM-DD.xlsx`, returns inactive_asins, phase_out_asins, replenish_notes (ASIN → col N text)
+- ✅ **Inactive items fully excluded** from all report sheets (not shown anywhere)
+- ✅ **Phase-out items fully excluded** from all report sheets (deplete and done, no PO recommended)
+- ✅ **Replenish From column (col N)** injected as `replenish_source` field — flows through JSON into all Excel sheets
+- ✅ **ABC classification** added to dashboard priority table
+
+**DOS Formula Fix — AWD Inbound:**
+- ✅ **`load_awd_inbound()` function** — reads `reports/seller-central/awd-*.csv` (skiprows=3), maps ASIN → "Inbound to AWD (units)"
+- ✅ **DOS formula updated**: `total_stock = fba_market + wh_stock (AWD available) + awd_inbound (AWD in transit)`
+- ✅ **Validated**: Soniclear Elite White Marble corrected from DOS 69 (CRITICAL, Jul 5) → DOS 131 (HIGH, Sep 5) after including 4,872 AWD inbound units. 0 formula errors across all 177 items.
+
+**Report Design Improvements:**
+- ✅ **FBA Pipeline column** — condensed 3 in-transit columns (Inbound Shipped, At FC Pending, AWD→FBA Outbound) into one "FBA PIPELINE" display column in all sheets. Underlying data still in JSON.
+- ✅ **New 📊 Weekly Summary sheet** — first sheet in weekly-report Excel. Shows KPI tiles, brand breakdown (SS/MTB/NFMD), priority items section, high items section, FBA replen section. Single-page executive view.
+- ✅ **`build_executive_summary()` function** added to build_report.py
+
+**Action Plan Script:**
+- ✅ **`build_action_plan.py` built** — reads filled sku-review + demand plan JSON, generates 3-tab action plan Excel:
+  - 🚚 ShipBob Send-ins — FBA replenishment from ShipBob
+  - 📦 Supplier POs — purchase orders to place with manufacturers
+  - ⚫ Inactive & Phase Out — no action needed
+- ✅ **Nova Pink special case** — 700 units from ShipBob first, balance (~137 units) on Supplier PO
+- ✅ **Saved to**: `outputs/2026-04-27/action-plan-2026-04-27.xlsx`
+
+**ShipBob Item Reference:**
+- ✅ **BODYBRBLK recorded** — Soniclear Replacement Body Brush Head (ASIN B07D2HWLPM) = ShipBob item **859886007791**. Updated in sku-review-2026-04-27.xlsx col N and flows through to replenish_source in all reports.
 
 ---
 
-### ✅ Completed April 16
-- ✅ **`analyze_sostocked.py` built and tested** — reads SoStocked Multi-Dashboard, filters noise, applies urgency tiers, outputs markdown. Fixed key bug: 0-velocity = INACTIVE not STOCKED OUT.
-- ✅ **`demand_planning.py` built and tested** — full demand planning script using 3-file system. Runs clean, outputs Excel + markdown.
-- ✅ **Three planning docs created** in vault `07 AI Tools & Builds/`
-- ✅ **First demand plan Excel generated** — `demand-plan-2026-04-16.xlsx`
-
-### ✅ Completed April 22
-- ✅ **Full automation agent doc created** — `11 Skills/(C) SoStocked Full Automation Agent.md` + copy at `MTB-SupplyChain/SoStocked_Full_Automation_Agent.md`
-- ✅ **Pipeline confirmed:** 6 SoStocked downloads → combine_forecast.py → Weekly_Forecast moved to `reports\weekly\` → demand_planning.py auto-finds it
-- ✅ **demand_planning.py confirmed** to use `reports\weekly\Weekly_Forecast_*.xlsx` as primary input (legacy agency/inventory folders are fallback only)
-- ✅ **Full run validated last session (Apr 21):** SS 122 rows, MTB 71 rows, NFMD 35 rows, 4 Red Flags, demand plan generated
-- ✅ **Weekly pipeline ran Apr 22:** All 6 SoStocked downloads triggered via browser automation. combine_forecast.py + demand_planning.py run manually. Output: 22 priority items, 8 high, 187 total. `demand-plan-2026-04-22.xlsx` generated.
-- ✅ **Runtime fixes on Windows:** Created `reports\weekly\` directory (missing), installed pandas + openpyxl in active Python env
-
-### ✅ Completed April 20
-- ✅ **Critical velocity bug fixed in `demand_planning.py`** — velocity was being divided by 30 (treating units/day as monthly totals). Confirmed SoStocked exports daily rates.
-- ✅ **Adj. Velocity added as primary** with 30-day fallback
-- ✅ **INACTIVE_THRESHOLD (0.1/day) implemented** — Low Vel Stockouts tracked separately
-- ✅ **New demand plan generated** — `demand-plan-2026-04-20.xlsx` (17 priority items)
+### ⚠️ CRITICAL VELOCITY FIX (Apr 20 — still applies)
+SoStocked velocity columns (Adj. Velocity, 30 Day Velocity) are already in **units/day** — NOT monthly totals. Do NOT divide by 30.
 
 ---
 
-### Scripts — What Each Does
-
-**Script 1: `analyze_sostocked.py`**
-- Location: `C:\Users\Tom Sapia\MTB-SupplyChain\analyze_sostocked.py`
-- Input: SoStocked Multi-Dashboard Report (1 file, all 3 brands)
-- Drop file in: `MTB-SupplyChain\reports\sostocked\`
-- Run: `python analyze_sostocked.py`
-- Output: markdown priority list → `outputs\sostocked-analysis-YYYY-MM-DD.md`
-- Purpose: Quick weekly scan — what's stocked out, what's critical, what needs attention
-
-**Script 2: `demand_planning.py`** ← PRIMARY SCRIPT
-- Location: `C:\Users\Tom Sapia\MTB-SupplyChain\demand_planning.py`
-- Inputs: 2 files (see below)
-- Drop files in: `reports\agency\` and `reports\inventory\`
-- Run: `python demand_planning.py`
-- Output: Excel with 5 sheets → `outputs\demand-plan-YYYY-MM-DD.xlsx`
-- Purpose: Full demand planning — DOS, stockout dates, reorder points, PO quantities
-
----
-
-### Source Files for demand_planning.py
-
-| File | Where to get it | Drop into |
-|---|---|---|
-| Agency Report (all 3 brands) | SoStocked → Multi-Dashboard Export | `MTB-SupplyChain\reports\agency\` |
-| Inventory Report (all 3 brands) | SoStocked → Inventory Export | `MTB-SupplyChain\reports\inventory\` |
-
-**NOT needed yet:** Projected Forecast file (SS only — will add MTB/NFMD forecasts later)
-
----
-
-### Formula (Locked In)
-```
-Days of Supply = (FBA Stock/Market [inventory file] + AWD Warehouse Stock [agency col M]) ÷ Adj. Velocity [agency col P]
-
-Order Qty = daily_velocity × (lead_time_days + 60 buffer_days) − total_available_stock
-
-NOTE: Adj. Velocity and 30 Day Velocity from SoStocked are already in units/day. Do NOT divide by 30.
-Fallback: if Adj. Velocity = 0, use 30 Day Velocity (col T).
-```
-
-**Region rules (applied automatically every run):**
-- NAm → US
-- US+MX → US
-- MX → removed
-- CA → kept separate
-
-**Urgency tiers:**
-- 🚨 AMAZON STOCKOUT — FBA=0 but warehouse stock exists (replenish FBA)
-- 🔴 TRUE STOCKOUT — no stock anywhere (new PO needed)
-- 🔴 CRITICAL — DOS ≤ lead time (at reorder point)
-- 🟠 HIGH — DOS ≤ lead time + 30 days
-- 🟡 WATCH — DOS ≤ 60 days
-- 🟢 HEALTHY — DOS > 60 days
-- ⚫ INACTIVE — zero velocity (dead/suppressed listings)
+### ⚠️ AWD INBOUND NOW IN DOS FORMULA (Apr 27)
+AWD inbound units (in transit from supplier → AWD) are now included in total_stock for DOS calculation. Source: `reports/seller-central/awd-*.csv`. This is an ASIN-level number — CA market rows share the same AWD inbound figure, which may slightly inflate CA DOS. Watch for this.
 
 ---
 
 ### What Still Needs to Be Done
 
 **Agent / Automation:**
-- [ ] **Schedule the agent** — set up Monday 8am recurring trigger (Cowork scheduled task or Windows Task Scheduler)
+- [ ] **Schedule the agent** — set up Monday 8am recurring trigger via Windows Task Scheduler
 - [ ] **Test full agent run on Windows machine end-to-end** — verify PowerShell paths, Python env, all 6 downloads
 
-**Script / Data bugs (from Apr 20 audit — see `07 AI Tools & Builds/(C) Demand Planning Audit — 2026-04-20.md`):**
-- [ ] **FIX: Inbound to FBA bug** — 46,129 units showing as inbound for many MTB products (SoStocked aggregate bleed). Causes PO qty = 0 for ~10 CRITICAL items. Fix: remove inbound_fba from PO formula.
-- [ ] **FIX: Add HIGH tier to dashboard** — 13 items not shown, including Blade Refills (236/day) and Hair Spray (143/day), both 6-7 days from flipping to CRITICAL.
-- [ ] **INVESTIGATE: Is inbound 46,129 a real PO in SAP?** — Check SAP for large MTB shipment in transit.
-- [ ] **GAP: Cost / Unit blank in SoStocked export** — Enter costs in SoStocked product settings OR build SAP cost lookup. Currently PO $ value = $0.
-- [ ] **GAP: SS lead times = NaN in combined inventory file** — All SS defaults to 60d (probably OK but worth fixing). Try separate SS inventory export.
-- [ ] Verify SS Canada CIRRA and NERA stockout flags — are these active CA listings or dead?
-- [ ] Clean up SoStocked regional groupings (22 issues flagged by analyze_sostocked.py)
+**ShipBob Item References — Still Missing:**
+- [ ] Sonicblend Replacement Head — no SB item number
+- [ ] NOVA Serum Infusion Head — no SB item number
+- [ ] Sonicblend Display Cradle — no SB item number
+- [ ] Soniclear Elite White Marble — no SB item number
+- [ ] LUMOS — no SB item number
+- [ ] Sonicsmooth Hair Identifier Spray — no SB item number
+- [ ] Pulverizador — no SB item number
+
+**Data Gaps:**
+- [ ] **Cost / Unit blank** — PO $ value = $0 across all items. Enter costs in SoStocked OR build SAP cost lookup.
+- [ ] **CA AWD inbound double-counting** — AWD inbound is ASIN-level, applied to both US and CA rows. May inflate CA DOS. Monitor.
+- [ ] **Inbound to FBA (46,129 units)** — Verify in SAP whether this is a real MTB PO in transit. If not, this was SoStocked aggregate bleed (previously excluded from formula — now irrelevant since we use AWD inbound instead).
+- [ ] Clean up SoStocked regional groupings (22 issues previously flagged)
 - [ ] Get MTB and NFMD forecast files from SoStocked (for future PO qty refinement)
-- [ ] Decide report design for Django Reports Hub (need DOS/SVP input)
+
+**Reporting:**
+- [ ] Decide final design for Django Reports Hub (need DOS/SVP input)
 - [ ] Add `--json` flag to analyze_sostocked.py for Django integration
-- [ ] Test demand_planning.py on Tommy's Windows machine end-to-end
+
+---
+
+### Scripts — What Each Does (Updated Apr 27)
+
+All scripts now live in `MTB-SupplyChain\scripts\`. Run from the repo root:
+```
+cd C:\Users\Tom Sapia\MTB-SupplyChain
+python scripts\demand_planning.py
+python scripts\build_report.py
+python scripts\build_action_plan.py
+```
+
+**`demand_planning.py`** ← PRIMARY SCRIPT
+- Input: Weekly Forecast (`reports\weekly\Weekly_Forecast_*.xlsx`) + AWD inbound CSV (`reports\seller-central\awd-*.csv`) + filled SKU review (`outputs\YYYY-MM-DD\sku-review-YYYY-MM-DD.xlsx`)
+- Output: `outputs\YYYY-MM-DD\demand-plan-YYYY-MM-DD.xlsx` + `.json` + `.md`
+- Does: DOS calc (FBA + AWD available + AWD inbound), PO qty, urgency tiers, excludes inactive/phase-out
+
+**`build_report.py`**
+- Input: `demand-plan-YYYY-MM-DD.json` from dated output folder
+- Output: `outputs\YYYY-MM-DD\weekly-report-YYYY-MM-DD.xlsx` (5 sheets + 📊 Weekly Summary)
+- Does: Formats Excel dashboard with executive summary, priority actions, inventory overview
+
+**`build_action_plan.py`**
+- Input: `sku-review-YYYY-MM-DD.xlsx` + `demand-plan-YYYY-MM-DD.json`
+- Output: `outputs\YYYY-MM-DD\action-plan-YYYY-MM-DD.xlsx` (3 tabs)
+- Does: Translates SKU review decisions into ShipBob send-ins, Supplier POs, Inactive/Phase-out list
+
+**`combine_forecast.py`**
+- Input: 6 individual SoStocked CSV downloads in `reports\sostocked\`
+- Output: Combined `Weekly_Forecast_*.xlsx` in `reports\weekly\`
+
+---
+
+### Required Input Files (Weekly)
+
+| File | Source | Drop Into |
+|---|---|---|
+| Weekly Forecast (all 3 brands) | SoStocked → 6 brand/market exports → combine_forecast.py | `reports\weekly\` |
+| AWD Inbound report | Amazon Seller Central → AWD → Inventory → Export | `reports\seller-central\` |
+| SKU Review (filled in) | Tommy fills out sku-review sheet from prior run | `outputs\YYYY-MM-DD\` |
+
+---
+
+### Formula (Locked In — Updated Apr 27)
+```
+Days of Supply = (FBA Stock + AWD Available Stock + AWD Inbound) ÷ Adj. Velocity
+
+Order Qty = daily_velocity × (lead_time_days + 60 buffer_days) − total_stock
+
+NOTE: Adj. Velocity and 30 Day Velocity from SoStocked are already in units/day. Do NOT divide by 30.
+Fallback: if Adj. Velocity = 0, use 30 Day Velocity.
+AWD Inbound source: reports/seller-central/awd-*.csv, col "Inbound to AWD (units)", skiprows=3
+```
+
+**Urgency tiers:**
+- 🚨 AMAZON STOCKOUT — FBA=0 but warehouse stock exists (replenish FBA)
+- 🔴 TRUE STOCKOUT — no stock anywhere (new PO needed)
+- 🔴 CRITICAL — DOS ≤ lead time (at reorder point)
+- 🟠 HIGH — DOS ≤ lead time + 30 days
+- 🟡 FBA REPLENISHMENT — FBA empty but ShipBob stock > 30 days (routine send-in)
+- 🟢 HEALTHY — DOS > lead time + 30 days
+- 🔵 LOW VEL STOCKOUT — stocked out but velocity < 0.1/day (tracked, not a PO emergency)
 
 ---
 
@@ -287,9 +299,12 @@ Fallback: if Adj. Velocity = 0, use 30 Day Velocity (col T).
 - `07 AI Tools & Builds/(C) SoStocked Pipeline Discovery — 2026-04-15.md` — April 15 session findings
 
 ### Key Files in MTB-SupplyChain
-- `MTB-SupplyChain/analyze_sostocked.py`
-- `MTB-SupplyChain/demand_planning.py`
-- `MTB-SupplyChain/outputs/demand-plan-2026-04-16.xlsx` ← first real report
+- `scripts/demand_planning.py` — primary demand planning script
+- `scripts/build_report.py` — Excel dashboard builder
+- `scripts/build_action_plan.py` — action plan generator (new Apr 27)
+- `scripts/combine_forecast.py` — SoStocked CSV combiner
+- `outputs/2026-04-27/weekly-report-2026-04-27.xlsx` ← current week
+- `outputs/2026-04-27/action-plan-2026-04-27.xlsx` ← current action plan
 
 ---
 
