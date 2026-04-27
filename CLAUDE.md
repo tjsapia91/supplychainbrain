@@ -208,14 +208,20 @@ AWD inbound units (in transit from supplier → AWD) are now included in total_s
 - [ ] **Schedule the agent** — set up Monday 8am recurring trigger via Windows Task Scheduler
 - [ ] **Test full agent run on Windows machine end-to-end** — verify PowerShell paths, Python env, all 6 downloads
 
-**ShipBob Item References — Still Missing:**
-- [ ] Sonicblend Replacement Head — no SB item number
-- [ ] NOVA Serum Infusion Head — no SB item number
-- [ ] Sonicblend Display Cradle — no SB item number
-- [ ] Soniclear Elite White Marble — no SB item number
-- [ ] LUMOS — no SB item number
-- [ ] Sonicsmooth Hair Identifier Spray — no SB item number
-- [ ] Pulverizador — no SB item number
+**ShipBob Item References — Resolved Apr 27:**
+All SB item numbers confirmed = UPC barcode (same as SAP item no.). Source: `Downloads/Amazon SKU Numbers In SAP (1).xlsx` + sku-review col F.
+
+| Product | ASIN | ShipBob Item No. (UPC) | Updated in sku-review |
+|---|---|---|---|
+| Soniclear Replacement Body Brush Head | B07D2HWLPM | 859886007791 | ✅ |
+| Sonicblend Replacement Head | B07CRS2PDJ | 859886007739 | — |
+| NOVA Serum Infusion Head | B01ND4R0NU | 859886007722 | — |
+| Sonicblend Display Cradle | B07D2JYZ2V | 859886007043 | — |
+| Soniclear Elite White Marble | B08WB2L1M1 | 811573030093 | — |
+| LUMOS | B0DCQTWWHN | 811573031397 | — |
+| Sonicsmooth Pro+ White | B0D1GLNW5C | 811573031366 | — |
+| Pulverizador (NANO MISTER) | B09B16JH5G | 850026141306 | ✅ |
+| Sonicsmooth Hair Identifier Spray | B0DSLQKVVL | 811573031410 | ✅ |
 
 **Data Gaps:**
 - [ ] **Cost / Unit blank** — PO $ value = $0 across all items. Enter costs in SoStocked OR build SAP cost lookup.
