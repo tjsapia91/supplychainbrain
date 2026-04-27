@@ -134,8 +134,24 @@ SupplyChainBrain/
 ---
 
 ## Current Status
-**Last updated:** April 27, 2026
-**Status:** Full pipeline rebuild session. Major restructure of MTB-SupplyChain repo, SKU review integration, AWD inbound DOS fix, new executive summary sheet, action plan script. Weekly report generated: **8 priority (CRITICAL/TRUE STOCKOUT), 10 HIGH, 177 total items**. Output: `outputs/2026-04-27/weekly-report-2026-04-27.xlsx` + `demand-plan-2026-04-27.xlsx` + `action-plan-2026-04-27.xlsx`.
+**Last updated:** April 27, 2026 (evening — wrapping up to resume tomorrow)
+**Status:** Full pipeline rebuild PLUS multi-marketplace integration (Valogix). Weekly report now spans Amazon · Shopify · Walmart · Floship · Spa Sciences DTC. **573 total item × channel rows** (177 Amazon + 396 Valogix). Output: `outputs/2026-04-27/weekly-report-2026-04-27.xlsx` + `demand-plan-2026-04-27.xlsx` + `action-plan-2026-04-27.xlsx` + new `wm-marketplace-review-2026-04-27.xlsx`.
+
+---
+
+### 🛑 PICK UP HERE TOMORROW
+
+**Last thing we were doing:** Fixing ABC classification gaps across the report.
+- ✅ Expanded `ABC_STYLE` palette to cover all 9 codes (A/B/C/D/E/F/I/S/Z) — was only A/B/C
+- ✅ Added `_normalize_sku_for_lookup()` to strip suffixes (`-M`, `AMZ-stickerless`, `MT-` prefix) so Amazon SKU variants match bare UPCs in item master
+- ⏳ **Still TODO**: Some items have custom non-UPC SKU codes (e.g. `BODYBRBLK`) that need a manual alias map. Tommy to provide list of these custom codes → UPC mappings.
+- ⏳ **Still TODO**: 28 Valogix UPCs aren't in the item master — either add to item master or accept the gap.
+
+**Next session priorities:**
+1. Manual alias map for custom Amazon SKU codes (BODYBRBLK → 859886007791, etc.)
+2. Walmart Marketplace SKU review — Tommy fills out `wm-marketplace-review-2026-04-27.xlsx` (94 items, 14 auto-flagged as zombies). Decisions feed back into Multi-Channel dashboard to phase out items.
+3. Once WM review done, do the same review pattern for Shopify (SBGA-MT 121 SKUs), Spa Sciences DTC (SBGA-SS 163 SKUs), Floship (FLO-MTB 18 SKUs)
+4. Owner-meeting walkthrough of the Weekly Summary tab — rehearse the narrative
 
 ---
 
@@ -153,7 +169,46 @@ SupplyChainBrain/
 
 ---
 
-### ✅ Completed April 27
+### ✅ Completed April 27 (evening session — multi-marketplace)
+
+**Valogix Integration (NEW):**
+- ✅ **Valogix CSV moved to pipeline** — `reports/valogix/schain_itemLocationHistoryForecast_*.csv` is now a standard weekly input. 396 item × location rows across 4 channels: Floship, Shopify MTB, Spa Sciences DTC, Walmart Marketplace
+- ✅ **`load_valogix()` function** in build_report.py — reads the CSV, computes DOS = on_hand / (12mo forecast ÷ 365), per-channel status (STOCKOUT / BELOW ROP / LOW / HEALTHY / NO DEMAND)
+- ✅ **`build_cost_lookup()`** — builds UPC → unit cost map from Valogix Inventory Cost field. **244 UPCs now have real cost data** — fills the long-standing cost gap. PO $ values now populate correctly
+- ✅ **`build_multichannel_dashboard()`** — new sheet 🌐 Multi-Channel with KPI tiles, channel snapshot matrix, and one flat filterable list of all 396 marketplace items (auto-filter on header)
+
+**Weekly Summary upgraded to multi-marketplace:**
+- ✅ **5 KPI tiles** now span all marketplaces: Active SKUs · Priority Actions · Warning/High · On-Hand Value · On Order
+- ✅ **Marketplace Snapshot section** added — one row per marketplace (Amazon FBA+AWD / Shopify MTB / Floship / Spa Sciences DTC / Walmart) with SKUs · On Hand · On Hand $ · On Order · 12mo Forecast · Need Action · Healthy
+- ✅ **Priority Actions + High Tier sections now span all marketplaces** — combined Amazon + Valogix items, sorted by status urgency then DOS
+- ✅ **MARKETPLACE column added** — shows where each priority/high item lives (Amazon US, Shopify MTB, Walmart, etc.)
+- ✅ **ASIN column added** to all Amazon detail tables
+
+**Color palette switched to muted:**
+- Brick (#B85042) instead of bright red, sage (#6B8E5A) instead of bright green, amber (#B5894A) instead of yellow, slate (#8B96A0) instead of gray
+- Easier on the eyes for owner-facing weekly meeting
+
+**ABC Classification fixes:**
+- ✅ Expanded ABC_STYLE to cover all 9 codes (A/B/C/D/E/F/I/S/Z) instead of just A/B/C
+- ✅ SKU normalization for lookup — strips `-M`, `AMZ-stickerless`, `MT-` prefix etc. so Amazon SKU variants match bare UPCs
+- 81% of Amazon items now show a colored ABC badge (was ~17%)
+
+**Walmart Marketplace SKU Review (NEW):**
+- ✅ `outputs/2026-04-27/wm-marketplace-review-2026-04-27.xlsx` built — 94 WM SKUs, sorted alphabetically
+- ✅ 14 zombie items auto-flagged (zero on hand + zero forecast + zero history) — yellow highlight, "AUTO?" in Phase Out column
+- ✅ Reusable builder script: `scripts/build_wm_marketplace_review.py`
+- Tommy to fill out Active Y/N, Phase Out, Notes columns
+
+**Cross-channel inventory lookups (this session):**
+- B0758J2X6J — Sonicsmooth White Bundle: 0 (likely discontinued)
+- B0758JDTXK — Sonicsmooth Lavender 2021 USB: 8,359 (Shopify 8,183 + Floship 176)
+- B08D6X47HS — MicroSmooth Tips Fine/Coarse: 0 (true stockout)
+- B08WB2L1M1 — Soniclear Elite Pink Sakura: 519 (FBA 1 + AWD 200 + Shopify 318)
+- B0GHSN7NFB — Sonicsmooth Pro+ Dermaplane: 382 (Amazon FBA only — ~4 days at velocity)
+
+---
+
+### ✅ Completed April 27 (morning session)
 
 **Repo Restructure:**
 - ✅ **Moved all scripts to `scripts/`** — demand_planning.py, build_report.py, build_action_plan.py, combine_forecast.py, run_weekly_supply_chain_analysis.py, generate_weekly_excel.py
@@ -236,7 +291,7 @@ All SB item numbers confirmed = UPC barcode (same as SAP item no.). Source: `Dow
 
 ---
 
-### Scripts — What Each Does (Updated Apr 27)
+### Scripts — What Each Does (Updated Apr 27 evening)
 
 All scripts now live in `MTB-SupplyChain\scripts\`. Run from the repo root:
 ```
@@ -244,22 +299,29 @@ cd C:\Users\Tom Sapia\MTB-SupplyChain
 python scripts\demand_planning.py
 python scripts\build_report.py
 python scripts\build_action_plan.py
+python scripts\build_wm_marketplace_review.py   # WM Marketplace SKU review (new)
 ```
 
-**`demand_planning.py`** ← PRIMARY SCRIPT
+**`demand_planning.py`** ← PRIMARY SCRIPT (Amazon)
 - Input: Weekly Forecast (`reports\weekly\Weekly_Forecast_*.xlsx`) + AWD inbound CSV (`reports\seller-central\awd-*.csv`) + filled SKU review (`outputs\YYYY-MM-DD\sku-review-YYYY-MM-DD.xlsx`)
 - Output: `outputs\YYYY-MM-DD\demand-plan-YYYY-MM-DD.xlsx` + `.json` + `.md`
-- Does: DOS calc (FBA + AWD available + AWD inbound), PO qty, urgency tiers, excludes inactive/phase-out
+- Does: Amazon DOS calc (FBA + AWD available + AWD inbound), PO qty, urgency tiers, excludes inactive/phase-out
 
-**`build_report.py`**
-- Input: `demand-plan-YYYY-MM-DD.json` from dated output folder
-- Output: `outputs\YYYY-MM-DD\weekly-report-YYYY-MM-DD.xlsx` (5 sheets + 📊 Weekly Summary)
-- Does: Formats Excel dashboard with executive summary, priority actions, inventory overview
+**`build_report.py`** ← MULTI-MARKETPLACE
+- Input: `demand-plan-YYYY-MM-DD.json` + Valogix CSV (`reports\valogix\`) + FBA/AWD CSVs + item master
+- Output: `outputs\YYYY-MM-DD\weekly-report-YYYY-MM-DD.xlsx` (7 sheets)
+- Does: Formats Excel dashboard with multi-marketplace executive summary, priority actions, inventory overview, brand breakdowns
+- **Tabs**: 📊 Weekly Summary · 🌐 Multi-Channel · 📊 Dashboard · 📋 Inventory Overview · 🚨 Priority Actions · ✅ Action Plan · MTB / SS / NFMD
 
 **`build_action_plan.py`**
 - Input: `sku-review-YYYY-MM-DD.xlsx` + `demand-plan-YYYY-MM-DD.json`
 - Output: `outputs\YYYY-MM-DD\action-plan-YYYY-MM-DD.xlsx` (3 tabs)
 - Does: Translates SKU review decisions into ShipBob send-ins, Supplier POs, Inactive/Phase-out list
+
+**`build_wm_marketplace_review.py`** ← NEW
+- Input: Valogix CSV
+- Output: `outputs\YYYY-MM-DD\wm-marketplace-review-YYYY-MM-DD.xlsx`
+- Does: Walmart Marketplace SKU review template — auto-flags zombie items (zero stock + zero forecast + zero history)
 
 **`combine_forecast.py`**
 - Input: 6 individual SoStocked CSV downloads in `reports\sostocked\`
@@ -273,6 +335,8 @@ python scripts\build_action_plan.py
 |---|---|---|
 | Weekly Forecast (all 3 brands) | SoStocked → 6 brand/market exports → combine_forecast.py | `reports\weekly\` |
 | AWD Inbound report | Amazon Seller Central → AWD → Inventory → Export | `reports\seller-central\` |
+| FBA Inbound report (per brand) | Amazon Seller Central → FBA Inventory → Export | `reports\seller-central\` |
+| Valogix Item-Location-Forecast | Valogix export — `schain_itemLocationHistoryForecast_*.csv` | `reports\valogix\` |
 | SKU Review (filled in) | Tommy fills out sku-review sheet from prior run | `outputs\YYYY-MM-DD\` |
 
 ---
