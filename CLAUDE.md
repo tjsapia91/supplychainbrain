@@ -134,24 +134,28 @@ SupplyChainBrain/
 ---
 
 ## Current Status
-**Last updated:** April 27, 2026 (evening — wrapping up to resume tomorrow)
-**Status:** Full pipeline rebuild PLUS multi-marketplace integration (Valogix). Weekly report now spans Amazon · Shopify · Walmart · Floship · Spa Sciences DTC. **573 total item × channel rows** (177 Amazon + 396 Valogix). Output: `outputs/2026-04-27/weekly-report-2026-04-27.xlsx` + `demand-plan-2026-04-27.xlsx` + `action-plan-2026-04-27.xlsx` + new `wm-marketplace-review-2026-04-27.xlsx`.
+**Last updated:** April 28, 2026 (evening — wrapping up to resume tomorrow)
+**Status:** Major operational and dashboard refinement day. Built daily routine SOP, multi-channel SKU review workbook, shipment tracking report, multiple weekly-report enhancements. Replaced item master with new SAP export (1,384 ABC codes + 1,386 descriptions). Switched Valogix velocity from forecast/365 to **last 90 days actual**. Output: `outputs/2026-04-27/weekly-report-2026-04-27.xlsx` (12 tabs) + `outputs/2026-04-28/shipment-tracking-2026-04-28.xlsx` + `marketplace-sku-review-2026-04-27.xlsx` (combined review for 4 channels).
 
 ---
 
 ### 🛑 PICK UP HERE TOMORROW
 
-**Last thing we were doing:** Fixing ABC classification gaps across the report.
-- ✅ Expanded `ABC_STYLE` palette to cover all 9 codes (A/B/C/D/E/F/I/S/Z) — was only A/B/C
-- ✅ Added `_normalize_sku_for_lookup()` to strip suffixes (`-M`, `AMZ-stickerless`, `MT-` prefix) so Amazon SKU variants match bare UPCs in item master
-- ⏳ **Still TODO**: Some items have custom non-UPC SKU codes (e.g. `BODYBRBLK`) that need a manual alias map. Tommy to provide list of these custom codes → UPC mappings.
-- ⏳ **Still TODO**: 28 Valogix UPCs aren't in the item master — either add to item master or accept the gap.
+**Where we left off:**
+- Just removed freeze panes from all sheets (was set on Multi-Channel, Key SKUs, Inventory Overview, Priority Actions, brand tabs)
+- Added monthly forecast cols Apr-Dec + 9MO TOTAL on Weekly Summary (cols L-U) with Excel +/- collapsible group
+- Tab structure now: 📊 Weekly Summary → 🎯 Key SKUs → 🌐 Multi-Channel → 📊 Dashboard → 📋 Inventory Overview → 🚨 Priority Actions → ✅ Action Plan → MTB / SS / NFMD → 🏷 Bundles & Custom SKUs → 🔚 Phase-Out Review (E→Z) → 🗑 Obsolete (Z)
 
-**Next session priorities:**
-1. Manual alias map for custom Amazon SKU codes (BODYBRBLK → 859886007791, etc.)
-2. Walmart Marketplace SKU review — Tommy fills out `wm-marketplace-review-2026-04-27.xlsx` (94 items, 14 auto-flagged as zombies). Decisions feed back into Multi-Channel dashboard to phase out items.
-3. Once WM review done, do the same review pattern for Shopify (SBGA-MT 121 SKUs), Spa Sciences DTC (SBGA-SS 163 SKUs), Floship (FLO-MTB 18 SKUs)
-4. Owner-meeting walkthrough of the Weekly Summary tab — rehearse the narrative
+**Open follow-ups:**
+1. **FBA Inbound Shipment Items report** — download from Seller Central for each brand (MTB / NFMD / SS), drop into `reports/seller-central/fba-shipments-*.csv` so the Shipment Tracking report's FBA tab populates
+2. **32 DELAYED shipments in shipment-tracking-2026-04-28.xlsx** — review WATER tab to identify which are real delays vs. stale log entries (containers that arrived but never had WHSE DELV. DATE filled in)
+3. **Marketplace SKU reviews** — Tommy/team to fill out `marketplace-sku-review-2026-04-27.xlsx` (Floship 18 + Walmart 94 + Shopify MTB 121 + SS DTC 163 = 396 items, 58 zombies pre-flagged). Decisions feed back into Multi-Channel dashboard
+4. **Manual alias map for custom Amazon SKU codes** — BODYBRBLK → 859886007791 etc. ABC_OVERRIDE has 9 entries already; keep adding as Tommy spots discrepancies
+5. **Item master refresh** — when SAP changes, re-export Book1.xlsx → `reports/item-master/item_master.xlsx` to flush all overrides
+6. **Owner-meeting walkthrough** of the Weekly Summary — rehearse the narrative
+7. **90-day velocity for Amazon items** — currently uses SoStocked Adj. Velocity (~30-day adjusted). To match Valogix's 90-day, would need a 90-day column from SoStocked OR a code change to demand_planning.py
+
+**Today's Daily Action Plan:** [[15 Meetings & Decisions/Daily Action Plans/2026-04-28.md]] — partially filled, lessons section ready for end-of-day reflection
 
 ---
 
@@ -166,6 +170,103 @@ SupplyChainBrain/
 | Sonicblend Display Cradle | MTB | US | CRITICAL | 52 | Jun 18 | 1.43 |
 | Soniclear Replacement Face Brush (Plum) | MTB | US | CRITICAL | 71 | Jul 07 | 10.7 |
 | Sonicsmooth Pro+ White | MTB | US | CRITICAL | 77 | Jul 13 | 91.33 |
+
+---
+
+### ✅ Completed April 28
+
+**Operational SOPs (NEW):**
+- ✅ **Daily Morning Routine SOP** built and saved to vault: `06 Processes & SOPs/(C) Daily Morning Routine — SCM.md` — 7-step / 30-min routine with decision rules, time boxes, and a Daily Action Plan template
+- ✅ **ABC Classification Reference** doc saved: `06 Processes & SOPs/(C) ABC Classification Reference.md` — official 6-code table (A/B/C/D/E/Z) with decision rules
+- ✅ **Daily Action Plan note for April 28** created at `15 Meetings & Decisions/Daily Action Plans/2026-04-28.md`
+
+**Marketplace SKU Reviews (NEW):**
+- ✅ Built `scripts/build_marketplace_reviews_combined.py` — produces ONE workbook with README + 4 channel review tabs (Floship 18 / Walmart 94 / Shopify MTB 121 / SS DTC 163 = 396 SKUs · 58 zombies pre-flagged with AUTO?)
+- ✅ Output: `outputs/2026-04-27/marketplace-sku-review-2026-04-27.xlsx` — single file to send to a reviewer
+- ✅ Also retains individual per-channel files via `scripts/build_marketplace_reviews.py`
+
+**Shipment Tracking Report (NEW):**
+- ✅ Built `scripts/build_shipment_tracking.py` — pulls from In-Transit Log + AWD CSV + (future) FBA shipments CSV
+- ✅ In-Transit Log moved to `reports/in-transit/IN_TRANSIT_LOG_2026-04-28.xlsx`
+- ✅ Output: `outputs/2026-04-28/shipment-tracking-2026-04-28.xlsx` with 7 tabs:
+  - 📊 Tracking Dashboard — KPIs + by-mode breakdown
+  - 📋 By Shipment — items grouped by container/PO (master-detail layout, see what's IN each shipment)
+  - 🌐 All Shipments / 🚢 Containers / 🚚 Truck / ✈️ Air — per-mode flat lists
+  - 🏢 AWD Inbound — supplier → AWD units
+- ✅ 49 active shipments tracked (33 sea + 13 air + 3 truck) — 32 marked DELAYED (some likely stale log entries)
+
+**Item Master replaced (NEW SAP export):**
+- ✅ Replaced `reports/item-master/item_master.xlsx` with new Book1.xlsx export — 1,384 ABC codes (was 1,349) and 1,386 descriptions (was 0)
+- ✅ Old version backed up as `item_master_old_2026-04-27.xlsx`
+- ✅ `load_item_master()` now returns BOTH ABC and description lookups
+- ✅ **`enrich_with_sap_description()`** — overrides product/description fields with SAP canonical names across all marketplaces — 182 Amazon rows + 396 Valogix rows now use SAP descriptions instead of channel-specific titles
+
+**ABC Classification overhaul:**
+- ✅ Restricted ABC palette to **6 official codes** (A/B/C/D/E/Z) — was previously also coloring F/I/S which aren't real ABC codes
+- ✅ **New ABC color palette** — teal/indigo/plum family — visually distinct from status colors (brick/amber/sage/slate)
+  - A=teal · B=indigo · C=plum · D=lavender · E=burnt sienna · Z=charcoal
+- ✅ ABC column now visible on **every tab** (was missing on Multi-Channel, Inventory Overview, Key SKUs)
+- ✅ ABC enrichment now runs on **all data sections** (priority_actions, high_tier, etc.) not just all_items — fixed bug where overrides weren't showing on Weekly Summary
+- ✅ Same fix applied to enrich_with_inbound and enrich_with_cost
+- ✅ Valogix items also use ABC_OVERRIDE (was Amazon-only before)
+- ✅ **9 manual ABC overrides** locked in:
+  - 850003115139 → A High Vol (MIO Green w/USB)
+  - 850003115269 → E Phase-Out (MIO Mint Walmart)
+  - 850026141306 → E Phase-Out (Pulverizador)
+  - 811573030499 → E Phase-Out (Sonicblend Replacement Head)
+  - 860021001178 → C Low Vol (Nova Pink)
+  - 850003115153 → E Phase-Out (NOVA Serum Infusion Head)
+  - 859886007043 → E Phase-Out (Sonicblend Display Cradle)
+  - 811573031366 → A High Vol (Sonicsmooth Pro+ White)
+  - 850026141184 → E Phase-Out (PRIMA Multi-Purpose Massager)
+
+**Item routing — visibility tabs:**
+- ✅ **🗑 Obsolete (Z) tab (NEW)** — all Z-classified items (22 items, $XX write-off exposure shown in title bar) — kept for visibility, filtered out of all main views
+- ✅ **🔚 Phase-Out Review (E→Z)** — items with E + 0 stock + 0 vel (43 items, was 60 with stale master) — review tab for SAP reclassification
+- ✅ **🏷 Bundles & Custom SKUs** now has 3 sections:
+  - Non-UPC SKUs (custom codes like BODYBRBLK, SSLB-PACK) — 20 items
+  - Combos & Specials (ABC = S) — 11 items
+  - Special Account Items (CVS NFMD UPC 850038082314) — 2 items
+- ✅ All these are filtered out of Weekly Summary, Multi-Channel, Inventory Overview, Priority Actions, brand tabs
+
+**Weekly Summary major upgrade:**
+- ✅ **Marketplace grouping** in Priority Actions / High Tier / FBA Replen sections — items grouped by Amazon US, Amazon CA, Shopify MTB, Spa Sciences DTC, Walmart, Floship Intl
+- ✅ **Column headers repeat** under each marketplace sub-divider so they're always visible while scrolling
+- ✅ **MARKETPLACE column** added — shows where each priority/high item lives
+- ✅ **ASIN column** added across all Amazon detail tables
+- ✅ **E and Z items filtered** from action lists (Priority Actions / High Tier / FBA Replen) — they're being phased out, no need for action
+- ✅ **Monthly forecast columns Apr-Dec (cols L-T)** + **9MO TOTAL (col U)** added — Excel +/- collapsible group, starts collapsed
+- ✅ **Status sub-grouping** within each marketplace — STOCKOUT/CRITICAL/BELOW ROP grouped at top, then LOW, then HEALTHY
+- ✅ Column widths now use MAX of PRI_COLS / WS_PRIORITY_COLS per position — no more squishing
+
+**Inventory Overview rebuilt:**
+- ✅ Now multi-marketplace with sub-dividers — Amazon US / Amazon CA / Shopify MTB / Spa Sciences DTC / Walmart / Floship Intl all in one filterable list (553+ rows)
+- ✅ Uses MC_COLS (unified column set) so Amazon and Valogix data display consistently
+
+**Multi-Channel tab improvements:**
+- ✅ Amazon US + Amazon CA added as marketplaces (was Valogix-only) — 6 marketplaces shown in Channel Snapshot
+- ✅ Bottom flat list now has 553 items (was 396) with auto-filter for cross-channel slicing
+- ✅ MARKETPLACE column added to flat list so each row identifies its channel
+
+**Key SKUs tab (NEW):**
+- ✅ New `🎯 Key SKUs` tab as 2nd tab — filtered to Tommy's priority watchlist:
+  - **NFMD** — all SKUs (oils, salts, BioMist, nose pillows)
+  - **MTB** — Sonicsmooth Pro+ Lavender/White, Sonicsmooth Lavender/White/Pink/Green, Sonicsmooth Blades, Hair Identifier Spray, MicroSmooth
+  - **SS** — Sima (Pink/White/Green), Sima Premium, Sima Blades, Lela, Nova, Mio
+- ✅ Grouped by brand → urgency rank → family → DOS
+
+**Smart status logic:**
+- ✅ **Net Inventory Position used for ROP comparison** — Valogix items no longer flagged BELOW ROP if (On Hand + On Order - Committed) > ROP. Fixed Eucalyptus Essential Oil case (had 5,016 on order)
+- ✅ **Amazon items downgraded by inbound coverage** — `recompute_amazon_status_with_inbound()` reclassifies CRITICAL/HIGH items if (FBA + AWD + AWD Inbound + FBA Pipeline) covers lead time + 30 days. 6 items reclassified this week.
+
+**Velocity calculation upgrade:**
+- ✅ **Valogix items now use last 90 days actual sales** instead of forecast/365 — sourced from history months 26-Feb, 26-Mar, 26-Apr. Falls back to forecast if no recent sales. Eliminates the issue of aggressive Valogix trend forecasts showing inflated velocities.
+- Amazon items still use SoStocked "Adj. Velocity" (30-day adjusted)
+
+**Other UX improvements:**
+- ✅ NOTES column added to every data tab — open/editable for user comments per row
+- ✅ Freeze panes removed from all sheets (per Apr 28 user request)
+- ✅ Channel labels: Amazon US, Amazon CA, Shopify MTB, Spa Sciences DTC, Walmart, Floship Intl
 
 ---
 

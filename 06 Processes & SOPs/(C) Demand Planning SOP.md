@@ -4,6 +4,9 @@
 **Last updated:** April 20, 2026
 **Status:** v2 — updated with SoStocked Multi-Dashboard workflow and velocity fix
 
+> **Monday morning?** Use the runcard: [[06 Processes & SOPs/(C) Monday Demand Plan Runcard|Monday Demand Plan Runcard]] — checklist format, step by step.
+> This SOP has the full detail and formulas behind it.
+
 ---
 
 ## Purpose
