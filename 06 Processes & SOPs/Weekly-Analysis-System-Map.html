@@ -1,0 +1,436 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Weekly Analysis — System Map</title>
+<style>
+  @page { size: landscape; margin: 0.4in; }
+  body { font-family: Calibri, Arial, sans-serif; font-size: 9pt; line-height: 1.3; max-width: 100%; margin: 0; padding: 12px; color: #1a1a1a; }
+  h1 { color: #2B4D5C; border-bottom: 3px solid #2B4D5C; padding-bottom: 4px; font-size: 22pt; margin: 8px 0; page-break-after: avoid; }
+  h2 { color: #2B4D5C; border-bottom: 1px solid #ccc; padding-bottom: 2px; font-size: 14pt; margin: 12px 0 6px; page-break-after: avoid; }
+  h3 { color: #3C5A6A; font-size: 11pt; margin: 8px 0 4px; page-break-after: avoid; }
+  h4 { color: #3C5A6A; font-size: 10pt; margin: 6px 0 4px; }
+  p { margin: 4px 0; }
+  table { border-collapse: collapse; margin: 6px 0; width: 100%; font-size: 8pt; page-break-inside: avoid; }
+  th, td { border: 1px solid #999; padding: 3px 6px; text-align: left; vertical-align: top; }
+  th { background: #2B4D5C; color: white; }
+  tr:nth-child(even) td { background: #F4F0EA; }
+  pre { background: #F4F4F4; border: 1px solid #ccc; padding: 8px; font-family: Consolas, monospace; font-size: 7.5pt; white-space: pre; overflow-x: visible; page-break-inside: avoid; }
+  code { background: #F4F4F4; padding: 1px 3px; font-family: Consolas, monospace; font-size: 8pt; border-radius: 2px; }
+  blockquote { border-left: 3px solid #6B8E5A; background: #EEF3E8; padding: 6px 10px; margin: 6px 0; font-style: italic; }
+  hr { border: 0; border-top: 2px solid #ccc; margin: 12px 0; }
+  li { margin: 2px 0; }
+</style>
+</head><body><h1>(C) Weekly Analysis — System Map</h1>
+<p></p>
+<blockquote><b>The architecture doc.</b> Single-page overview of how the weekly analysis pipeline works end-to-end — what data goes in, what scripts process it, what tabs come out, and how every column traces back to a source. Use this when you need to understand the WHY behind a number on the report.</blockquote>
+<p>></p>
+<blockquote><b>Companion docs:</b></blockquote>
+<blockquote>- <i>06 Processes & SOPs/(C) Weekly Analysis SOP — Step by Step</i> — operational SOP (run the scripts)</blockquote>
+<blockquote>- <i>06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP</i> — where to pull each file from</blockquote>
+<blockquote>- <i>06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page</i> — printable quick reference</blockquote>
+<p></p>
+<hr>
+<p></p>
+<h2>🗺 One-page data flow</h2>
+<p></p>
+<pre><code>
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                            INPUT SOURCES (11)                                    │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  📊 SoStocked            📦 Seller Central        📦 ShipBob (4 brand logins)    │
+│  (3 brands × 3 reports)  (3 brands × 2 reports)   On Hand Summary                │
+│  • Forecast Model        • AWD Inventory          • MTB / NFMD / SS / LUMOS      │
+│  • Inventory             • FBA Inventory                                          │
+│  • FvA                                                                            │
+│                                                                                  │
+│  🌐 Valogix              🛒 Walmart Seller Ctr.   🚢 Floship                     │
+│  Item-Location-History-  (NFMD + SS only)         Product Inventory               │
+│  Forecast CSV            WFS Inventory .xlsx      (international, MTB only)      │
+│  • 24mo history actuals                                                          │
+│  • 18mo forward forecast                                                          │
+│  • UPC cost                                                                       │
+│                                                                                  │
+│  ⚠️ Valogix Exceptions    📈 Sellerboard          📋 SAP Open POs                │
+│  History Exception Rpt   Sales by product/month   Open Purchase Order Report     │
+│  (statistical outliers)  (3 brands · 28mo back)   (full export, 5000+ rows)      │
+│                                                                                  │
+│  🏷 SAP Item Master       🚚 In-Transit Log        🆕 AWD-to-FBA Shipments       │
+│  ABC + Description       Sea/Truck/Air shipments  (parked — accumulating only)   │
+│  (as-needed refresh)     (manual update)                                          │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                          PIPELINE SCRIPTS (3 steps)                              │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  STEP 1: combine_forecast.py                                                     │
+│    Combines 9 SoStocked CSVs → Weekly_Forecast_YYYY-MM-DD.xlsx (8 sheets)        │
+│                                                                                  │
+│  STEP 2: demand_planning.py                                                      │
+│    Reads Weekly_Forecast + AWD inbound + SKU review                              │
+│    → demand-plan-YYYY-MM-DD.json (Amazon priority tiers, DOS, status)            │
+│                                                                                  │
+│  STEP 3: build_report.py    ◄── pre-flight auto-archives stale prior-week files  │
+│    Reads ALL inputs above + demand-plan JSON                                     │
+│    → weekly-report-YYYY-MM-DD.xlsx (14 tabs)                                     │
+│    → Auto-published to SharePoint via outputs/latest/ junction                   │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        WEEKLY REPORT (14 tabs)                                   │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  Per-marketplace full universe (default tab = Amazon US):                        │
+│  1. Amazon US     2. 🇨🇦 Amazon CA   3. Shopify   4. Walmart   5. Floship Intl   │
+│                                                                                  │
+│  Action layer:                                                                   │
+│  6. 🚨 Priority Actions   7. ✅ Action Plan   8. 📋 SAP Open POs                 │
+│                                                                                  │
+│  Routing layer:                                                                  │
+│  9. 🏷 Bundles & Custom SKUs   10. 🗑 Phase-Out, Obsolete & BOMs                  │
+│                                                                                  │
+│  Insight layer:                                                                  │
+│  11. 📈 Forecast Pivot   12. 📊 Amazon Sales History   13. 📈 Amazon FvA         │
+│  14. 📊 Sales Anomalies                                                          │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</pre>
+<p></p>
+<hr>
+<p></p>
+<h2>📥 The 11 input sources</h2>
+<p></p>
+<table>
+<tr><th>#</th><th>Source</th><th>What it brings</th><th>Files</th><th>Folder</th><th>Loader function</th></tr>
+<tr><td>1</td><td>**SoStocked**</td><td>Amazon forecasts · velocity · FBA stock · FvA accuracy</td><td>9</td><td>`reports/sostocked/<BRAND>/`</td><td>`combine_forecast.py`</td></tr>
+<tr><td>2</td><td>**Amazon Seller Central**</td><td>Authoritative FBA + AWD stock + inbound pipeline (overrides SoStocked)</td><td>6</td><td>`reports/seller-central/<BRAND>/`</td><td>`load_fba_inbound()` + `load_awd_inbound()`</td></tr>
+<tr><td>3</td><td>**ShipBob**</td><td>Total On Hand for emergency-stock + Shopify on-hand</td><td>4</td><td>`reports/shipbob/<BRAND>/`</td><td>`load_shipbob()`</td></tr>
+<tr><td>4</td><td>**Walmart Seller Center**</td><td>NFMD direct inventory + forecast (Valogix doesn't carry NFMD on Walmart)</td><td>2</td><td>`reports/walmart/<BRAND>/`</td><td>`load_walmart_nfmd()`</td></tr>
+<tr><td>5</td><td>**Floship**</td><td>International FLO-MTB inventory validation</td><td>1</td><td>`reports/floship/`</td><td>(cross-checked against Valogix FLO-MTB row)</td></tr>
+<tr><td>6</td><td>**Valogix**</td><td>24mo history · 18mo forward forecast · cost · multi-channel inventory · supplier on-order</td><td>1</td><td>`reports/valogix/`</td><td>`load_valogix()` + `load_amazon_supplier_on_order()`</td></tr>
+<tr><td>7</td><td>**Valogix Exceptions**</td><td>Statistical outliers in actuals (bad-data months)</td><td>1</td><td>`reports/valogix-exceptions/`</td><td>`load_valogix_exceptions()`</td></tr>
+<tr><td>8</td><td>**Sellerboard**</td><td>28mo Amazon sales actuals (TTM Qty · YoY · volatility)</td><td>3</td><td>`reports/sellerboard/<BRAND>/`</td><td>`load_sellerboard_history()`</td></tr>
+<tr><td>9</td><td>**SAP Open POs**</td><td>Open PO ETAs · same-day flag · supplier-on-order via warehouse</td><td>1</td><td>`reports/sap-open-pos/`</td><td>`load_sap_open_pos()`</td></tr>
+<tr><td>10</td><td>**SAP Item Master**</td><td>ABC classifications · canonical product descriptions</td><td>1</td><td>`reports/item-master/`</td><td>`load_item_master()`</td></tr>
+<tr><td>11</td><td>**In-Transit Log**</td><td>Container/truck/air shipment tracking (manual)</td><td>1</td><td>`reports/in-transit/`</td><td>(separate `build_shipment_tracking.py` script)</td></tr>
+</table>
+<p></p>
+<p><b>Total: 28 files per weekly run.</b></p>
+<p></p>
+<hr>
+<p></p>
+<h2>⚙️ The 3 pipeline scripts</h2>
+<p></p>
+<h3>STEP 1 — `scripts/combine_forecast.py`</h3>
+<p></p>
+<p><b>Reads:</b> 9 SoStocked CSVs (3 brands × 3 reports — Projected Forecast Model, Inventory, FvA)</p>
+<p></p>
+<p><b>Produces:</b> <code>reports/weekly/Weekly_Forecast_YYYY-MM-DD.xlsx</code> — 8 sheets:</p>
+<p>1. Forecast SS · 2. Forecast MTB · 3. Forecast NFMD</p>
+<p>4. Red Flags (variance >30%) · 5. Inv. MTB · 6. Inv. SS · 7. Inv. NFMD</p>
+<p>8. Forecast Accuracy (FvA aggregated)</p>
+<p></p>
+<p><b>Auto-archives:</b> the 6 raw source files → <code>reports/archive/sostocked/YYYY-MM-DD/</code></p>
+<p></p>
+<hr>
+<p></p>
+<h3>STEP 2 — `scripts/demand_planning.py`</h3>
+<p></p>
+<p><b>Reads:</b></p>
+<li><code>Weekly_Forecast_*.xlsx</code> (output of step 1)</li>
+<li>AWD inbound CSV (<code>reports/seller-central/<BRAND>/awd-*.csv</code>)</li>
+<li>SKU review (carryover from prior week — <code>outputs/<prev-date>/sku-review-*.xlsx</code>)</li>
+<p></p>
+<p><b>Produces:</b> <code>outputs/YYYY-MM-DD/demand-plan-YYYY-MM-DD.json</code> + <code>.md</code></p>
+<p></p>
+<p><b>Logic:</b></p>
+<li>Computes Days of Supply (DOS) per ASIN: <code>(FBA + AWD + AWD Inbound) ÷ Adj. Velocity</code></li>
+<li>Classifies each ASIN into urgency tier (CRITICAL / HIGH / WATCH / FBA REPLENISHMENT / HEALTHY / INACTIVE / LOW VEL STOCKOUT / TRUE STOCKOUT / AMAZON STOCKOUT)</li>
+<li>Sizes Order Qty: <code>daily_vel × (Lead Time + 60d buffer) − total_stock</code></li>
+<li>Drops inactive + phase-out items from action lists</li>
+<p></p>
+<hr>
+<p></p>
+<h3>STEP 3 — `scripts/build_report.py`</h3>
+<p></p>
+<p><b>Pre-flight (auto-archive stale prior-week files):</b></p>
+<p></p>
+<p>Scans every input folder. If multiple files exist, moves all but the newest to <code>reports/archive/<source>/YYYY-MM-DD/</code>. Prevents stale data from contaminating fresh runs.</p>
+<p></p>
+<p>Covers: Seller Central (per brand × report type), ShipBob, Walmart, Floship, Sellerboard, Valogix Exceptions, SAP Open POs, AWD-to-FBA shipments (parked).</p>
+<p></p>
+<p>Valogix archive happens inside <code>load_valogix()</code> itself.</p>
+<p></p>
+<p><b>Reads:</b> demand-plan JSON + ALL 11 input sources</p>
+<p></p>
+<p><b>Produces:</b> <code>outputs/YYYY-MM-DD/weekly-report-YYYY-MM-DD.xlsx</code> (14 tabs)</p>
+<p></p>
+<p><b>Publishes:</b> copies to <code>outputs/latest/weekly-report-YYYY-MM-DD.xlsx</code> (SharePoint junction)</p>
+<p></p>
+<hr>
+<p></p>
+<h2>📊 The 14 output tabs — what flows into each</h2>
+<p></p>
+<table>
+<tr><th>#</th><th>Tab</th><th>Inputs that feed it</th></tr>
+<tr><td>1</td><td>**Amazon US**</td><td>demand-plan JSON (Amazon section, market=US) + SAP Item Master (ABC, desc) + Seller Central (FBA/AWD stock) + ShipBob (emergency) + Valogix (supplier on-order from AMZN-MT/SS) + Sellerboard (volatility) + SAP Open POs (PO ETA)</td></tr>
+<tr><td>2</td><td>**🇨🇦 Amazon CA**</td><td>demand-plan JSON (market=CA) + same enrichment as Amazon US, minus SUPPLIER on-order (CA not split in Valogix)</td></tr>
+<tr><td>3</td><td>**Shopify**</td><td>Valogix (SBGA-MT / SBGA-SS / SBGA-SS-NFMD rows) + ShipBob (overrides Shopify on_hand) + Sellerboard volatility</td></tr>
+<tr><td>4</td><td>**Walmart**</td><td>Valogix (WM-SS row) + direct Walmart Seller Center pull (WM-NFMD) + ShipBob emergency</td></tr>
+<tr><td>5</td><td>**Floship Intl**</td><td>Valogix (FLO-MTB row) + Floship export cross-check</td></tr>
+<tr><td>6</td><td>**🚨 Priority Actions**</td><td>Amazon priority items from demand-plan, full columns view</td></tr>
+<tr><td>7</td><td>**✅ Action Plan**</td><td>Amazon items needing replenishment, split into ShipBob send-ins vs Supplier POs</td></tr>
+<tr><td>8</td><td>**📋 SAP Open POs**</td><td>SAP Open Purchase Order Report (filtered: not closed, posted ≥2026-01-01, 12-digit UPC, qty>0)</td></tr>
+<tr><td>9</td><td>**🏷 Bundles & Custom SKUs**</td><td>Non-UPC SKUs (bundle/combo codes) + S-class items + special-account UPCs</td></tr>
+<tr><td>10</td><td>**🗑 Phase-Out, Obsolete & BOMs**</td><td>E + Z + F + I + S classified items from SAP Item Master</td></tr>
+<tr><td>11</td><td>**📈 Forecast Pivot**</td><td>Valogix (24mo actuals + 18mo forecast) + Sellerboard (Amazon actuals)</td></tr>
+<tr><td>12</td><td>**📊 Amazon Sales History**</td><td>Sellerboard 12mo per-ASIN actuals + YoY + ROI</td></tr>
+<tr><td>13</td><td>**📈 Amazon FvA**</td><td>Archived SoStocked FvA snapshots → forecast vs actual variance</td></tr>
+<tr><td>14</td><td>**📊 Sales Anomalies**</td><td>Valogix History Exception Report (statistical outliers)</td></tr>
+</table>
+<p></p>
+<hr>
+<p></p>
+<h2>🧮 Key business logic</h2>
+<p></p>
+<h3>DOS (Days of Supply)</h3>
+<p></p>
+<pre><code>
+Amazon side:
+  DOS = (FBA Available + FC Transfer + AWD Available + AWD Inbound) ÷ Adj. Velocity
+
+Non-Amazon (Shopify/Walmart/Floship):
+  DOS = Available ÷ Valogix 30-day velocity (last fully closed month)
+  Where Available = On Hand − Committed
+
+Walmart NFMD (direct from Walmart Seller Center):
+  DOS = "Forecasted days of supply" field straight from Walmart
+</pre>
+<p></p>
+<p><b>Velocity sources</b> (all 30-day basis):</p>
+<li>Amazon: SoStocked <code>Adj. Velocity</code> (~30d stockout-corrected)</li>
+<li>Shopify/Walmart-SS/Floship: Valogix last-closed-month actuals ÷ 30</li>
+<li>Walmart NFMD direct: Walmart's <code>Daily units sold</code></li>
+<p></p>
+<h3>Lead Time Floor (150 days)</h3>
+<p></p>
+<p>Per-item lead times from SoStocked are usually under-stated. For URGENCY classification, the system uses <code>max(per-item lead_time, 150)</code> to reflect real door-to-door time:</p>
+<p></p>
+<pre><code>
+Production (30-60d) + Ocean freight (30-45d) + Customs + Receiving (15-30d) = ~150d typical
+</pre>
+<p></p>
+<h3>Status Classification (Amazon)</h3>
+<p></p>
+<table>
+<tr><th>Status</th><th>Trigger</th></tr>
+<tr><td>🚨 AMAZON STOCKOUT</td><td>FBA=0 but AWD or ShipBob has stock</td></tr>
+<tr><td>🔴 TRUE STOCKOUT</td><td>Nothing anywhere (PO needed)</td></tr>
+<tr><td>🔴 CRITICAL</td><td>DOS ≤ Lead Time floor (150d)</td></tr>
+<tr><td>🟠 HIGH</td><td>DOS ≤ Lead Time + 30d</td></tr>
+<tr><td>🟡 WATCH</td><td>DOS ≤ 60d</td></tr>
+<tr><td>🟡 FBA REPLENISHMENT</td><td>FBA=0 but DOS > 30d (routine send-in)</td></tr>
+<tr><td>🟢 HEALTHY</td><td>DOS > Lead Time + 30d</td></tr>
+<tr><td>⚫ INACTIVE</td><td>Velocity < 0.1/day</td></tr>
+<tr><td>🔵 LOW VEL STOCKOUT</td><td>Stocked out but velocity < 0.1/day</td></tr>
+</table>
+<p></p>
+<h3>Status Classification (non-Amazon — Valogix)</h3>
+<p></p>
+<table>
+<tr><th>Status</th><th>Trigger</th></tr>
+<tr><td>🔴 STOCKOUT</td><td>On Hand = 0</td></tr>
+<tr><td>🔴 BELOW ROP</td><td>(On Hand + On Order − Committed) < Reorder Point</td></tr>
+<tr><td>🟡 LOW</td><td>DOS < Lead Time, or DOS < 30d</td></tr>
+<tr><td>🟢 HEALTHY</td><td>Otherwise</td></tr>
+<tr><td>⚪ NO DEMAND</td><td>Both Forecast 12mo and Rolling 12mo are 0</td></tr>
+</table>
+<p></p>
+<h3>ABC Classification</h3>
+<p></p>
+<table>
+<tr><th>Code</th><th>Meaning</th><th>Where shown</th></tr>
+<tr><td>**A**</td><td>High Volume</td><td>Main views (per-marketplace tabs)</td></tr>
+<tr><td>**B**</td><td>Medium Volume</td><td>Main views</td></tr>
+<tr><td>**C**</td><td>Low Volume</td><td>Main views</td></tr>
+<tr><td>**D**</td><td>Phase-In (new)</td><td>Main views</td></tr>
+<tr><td>**E**</td><td>Phase-Out</td><td>Bottom section of per-marketplace tabs + 🗑 Phase-Out tab</td></tr>
+<tr><td>**F**</td><td>Other</td><td>🗑 Phase-Out tab only</td></tr>
+<tr><td>**I**</td><td>Ind. Component</td><td>🗑 Phase-Out tab only</td></tr>
+<tr><td>**S**</td><td>Sales BOM (combo packs)</td><td>🗑 Phase-Out tab only + 🏷 Bundles tab</td></tr>
+<tr><td>**Z**</td><td>Obsolete</td><td>🗑 Phase-Out tab only</td></tr>
+</table>
+<p></p>
+<p>Source: SAP Item Master CSV (<code>Item No.</code> UPC match) · manual overrides in <code>ABC_OVERRIDE</code> dict in <code>build_report.py</code> for mid-cycle changes.</p>
+<p></p>
+<h3>Demand Volatility (Phase 3)</h3>
+<p></p>
+<p>Coefficient of variation (CV) of last 12 months of actuals:</p>
+<p></p>
+<table>
+<tr><th>Bucket</th><th>CV %</th><th>Interpretation</th></tr>
+<tr><td>🟢 STABLE</td><td><30%</td><td>Predictable demand — normal buffer enough</td></tr>
+<tr><td>🟡 MODERATE</td><td>30-60%</td><td>Some swing — slight buffer cushion</td></tr>
+<tr><td>🔴 VOLATILE</td><td>>60%</td><td>Erratic — extra buffer or safety stock</td></tr>
+<tr><td>—</td><td><4mo data</td><td>INSUFFICIENT history</td></tr>
+</table>
+<p></p>
+<p>Source: Sellerboard 12mo for Amazon · Valogix history for non-Amazon</p>
+<p></p>
+<h3>PO ETA</h3>
+<p></p>
+<li>Source: SAP Open Purchase Order Report</li>
+<li>Per item × channel: earliest <code>Original Due Date</code> among open POs</li>
+<li>⚠️ flag = <code>Original Due Date == Posting Date</code> (SAP data quality issue — due date wasn't filled in)</li>
+<li>ETA = warehouse arrival date (NOT port date), based on the receiving warehouse code on the PO</li>
+<li>Warehouse → channel: <code>AMZN-MT/SS → Amazon US</code> · <code>SBGA-MT/SS → Shopify</code> · <code>FLO-MTB / AMZ-MT<i> / AMZ-NF</i> → Floship Intl</code></li>
+<p></p>
+<hr>
+<p></p>
+<h2>🔑 Authoritative source rules</h2>
+<p></p>
+<p>Multiple inputs can carry overlapping data (e.g., SoStocked also has FBA stock). Pipeline trusts:</p>
+<p></p>
+<table>
+<tr><th>Field</th><th>Authoritative source</th><th>Why</th></tr>
+<tr><td>**FBA Stock**</td><td>Seller Central FBA Inventory Report</td><td>Direct from Amazon — immune to SoStocked column-name changes</td></tr>
+<tr><td>**AWD Stock + AWD Inbound**</td><td>Seller Central AWD Inventory Report</td><td>Direct from Amazon AWD system</td></tr>
+<tr><td>**Adj. Velocity (Amazon)**</td><td>SoStocked `Adj. Velocity`</td><td>SoStocked's stockout-corrected velocity is the best signal</td></tr>
+<tr><td>**Shopify On Hand**</td><td>ShipBob On Hand Summary</td><td>Shopify orders ship from ShipBob — that's the operational truth</td></tr>
+<tr><td>**30-day velocity (non-Amazon)**</td><td>Valogix last-closed-month actuals</td><td>Apples-to-apples with Amazon's 30d basis</td></tr>
+<tr><td>**Walmart NFMD inventory + forecast**</td><td>Walmart Seller Center direct</td><td>NFMD not in Valogix</td></tr>
+<tr><td>**ABC code**</td><td>SAP Item Master</td><td>+ manual `ABC_OVERRIDE` for mid-cycle changes</td></tr>
+<tr><td>**Cost per UPC**</td><td>Valogix `Inventory Cost`</td><td>Only place we have cost data</td></tr>
+<tr><td>**Product description (canonical)**</td><td>SAP Item Master `Item Description`</td><td>Overrides marketplace-specific titles</td></tr>
+<tr><td>**PO ETA**</td><td>SAP Open POs `Original Due Date`</td><td>Planning-side commit date</td></tr>
+</table>
+<p></p>
+<hr>
+<p></p>
+<h2>🗂 File system layout</h2>
+<p></p>
+<pre><code>
+C:\Users\Tom Sapia\MTB-SupplyChain\
+├── reports\
+│   ├── sostocked\&lt;BRAND&gt;\           ← 9 weekly files (auto-archive after combine)
+│   ├── seller-central\&lt;BRAND&gt;\      ← AWD + FBA Inventory CSVs
+│   │   └── awd-to-fba-shipments\    ← parked — accumulating only
+│   ├── shipbob\&lt;BRAND&gt;\             ← On Hand Summary
+│   │   └── _new-format\&lt;BRAND&gt;\     ← parked — accumulating only
+│   ├── walmart\&lt;BRAND&gt;\             ← WFS Inventory .xlsx
+│   ├── floship\                     ← Product Inventory export
+│   ├── valogix\                     ← Item-Location-History-Forecast CSV
+│   ├── valogix-exceptions\          ← History Exception Report CSV
+│   ├── sellerboard\&lt;BRAND&gt;\         ← Sales by product/month .xlsx
+│   ├── sap-open-pos\                ← SAP Open Purchase Order Report .xlsx
+│   ├── item-master\                 ← item_master.xlsx (as-needed)
+│   ├── in-transit\                  ← IN_TRANSIT_LOG_YYYY-MM-DD.xlsx (manual)
+│   ├── weekly\                      ← (auto-generated) Weekly_Forecast_*.xlsx
+│   └── archive\                     ← (auto-rotated) every stale file lives here forever
+│       ├── sostocked\YYYY-MM-DD\
+│       ├── seller-central\&lt;BRAND&gt;\YYYY-MM-DD\
+│       └── ...
+├── outputs\
+│   ├── YYYY-MM-DD\
+│   │   ├── sku-review-*.xlsx        ← carryover from prior week (you fill in)
+│   │   ├── demand-plan-*.{xlsx,json,md}
+│   │   ├── weekly-report-*.xlsx     ← THE deliverable
+│   │   └── action-plan-*.xlsx
+│   └── latest\                      ← junction → SharePoint synced folder
+│       └── weekly-report-*.xlsx     ← auto-published copy
+└── scripts\
+    ├── combine_forecast.py
+    ├── demand_planning.py
+    ├── build_report.py              ← primary builder, 14 tabs
+    ├── build_action_plan.py
+    ├── build_shipment_tracking.py
+    └── one_off_*.py                 ← ad-hoc reports (E-items, Valogix variance, etc.)
+</pre>
+<p></p>
+<hr>
+<p></p>
+<h2>🔁 Standard weekly cadence</h2>
+<p></p>
+<p>1. <b>Monday morning</b> — pull all 11 source files into their folders (see <i>06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP</i>)</p>
+<p>2. <b>Run the 3 scripts</b> in order:</p>
+<pre><code>
+   cd C:\Users\Tom Sapia\MTB-SupplyChain
+   python scripts\combine_forecast.py
+   python scripts\demand_planning.py
+   python scripts\build_report.py
+</pre>
+<p>3. <b>Open</b> <code>outputs\latest\weekly-report-YYYY-MM-DD.xlsx</code> (or pulls from SharePoint)</p>
+<p>4. <b>Default view = Amazon US</b> with priority items at the top</p>
+<p>5. <b>Work the action list</b> — top of the Priority Actions tab</p>
+<p>6. <b>Fill out next week's sku-review</b> for items you've actioned</p>
+<p></p>
+<hr>
+<p></p>
+<h2>❓ Common questions answered</h2>
+<p></p>
+<h3>"Why is my item not showing on Amazon US?"</h3>
+<p></p>
+<p>Check ABC classification:</p>
+<li>If <b>E (Phase-Out)</b> → it's in the bottom "PHASE-OUT" section of Amazon US AND on the 🗑 Phase-Out tab</li>
+<li>If <b>F, I, S, Z</b> → routed to 🗑 Phase-Out & BOMs tab (not on per-marketplace tabs)</li>
+<li>If <b>INACTIVE</b> (velocity < 0.1/day) → bottom "INACTIVE" section of Amazon US</li>
+<p></p>
+<p>If completely missing, likely a UPC normalization issue — check <code>ABC_OVERRIDE</code> and the SAP item master for that UPC.</p>
+<p></p>
+<h3>"Why does the FBA stock number differ from what I see in Seller Central?"</h3>
+<p></p>
+<p>The report mirrors Seller Central exactly:</p>
+<li><code>FBA AVAILABLE</code> (sellable now) = SC <code>Available</code></li>
+<li><code>+ FC TRANSFER</code> (in motion between FCs) = SC <code>FC Transfer</code></li>
+<li><code>= FBA Stock</code> = SC "On-hand" panel total</li>
+<p></p>
+<p>If these don't match, it's a pipeline bug — file an issue.</p>
+<p></p>
+<h3>"What does the ⚠️ next to PO ETA mean?"</h3>
+<p></p>
+<p>Original Due Date = Posting Date on that SAP PO row. Someone created the PO but didn't enter the actual expected delivery date in SAP. Fix it in SAP so the column shows a real arrival date.</p>
+<p></p>
+<h3>"Why are my 'On Order (Pipeline)' and 'On Order (Supplier)' numbers different?"</h3>
+<p></p>
+<li><b>AMZN PIPE</b> = already in motion to Amazon (FBA pipeline + AWD inbound from Seller Central)</li>
+<li><b>SUPPLIER</b> = open POs to supplier from Valogix AMZN-MT + AMZN-SS warehouses (not yet shipped)</li>
+<li>Total expected inbound = AMZN PIPE + SUPPLIER</li>
+<p></p>
+<h3>"Why is my Walmart NFMD data different from Valogix?"</h3>
+<p></p>
+<p>Walmart NFMD is <b>not in Valogix</b>. The pipeline pulls it directly from Walmart Seller Center (<code>reports/walmart/NFMD/inventory*.xlsx</code>). All other Walmart-SS data still comes through Valogix.</p>
+<p></p>
+<hr>
+<p></p>
+<h2>🚨 Troubleshooting</h2>
+<p></p>
+<table>
+<tr><th>Error</th><th>Likely cause</th><th>Fix</th></tr>
+<tr><td>`KeyError: 'Adj. Velocity'`</td><td>SoStocked changed a column name again</td><td>Check the column header in the inventory CSV, update `demand_planning.py`</td></tr>
+<tr><td>`PermissionError: [Errno 13] ... weekly-report-*.xlsx`</td><td>The file is open in Excel</td><td>Close it and re-run</td></tr>
+<tr><td>`Forecast Total (Next 12 Months) not found`</td><td>Wrong Valogix export type</td><td>Re-pull from Valogix Reports → Item Location History Forecast (NOT the simplified inventory export)</td></tr>
+<tr><td>Inventory Overview tab missing</td><td>(Expected) — replaced by full-universe per-marketplace tabs in May 2026</td><td>None needed</td></tr>
+<tr><td>Items with high velocity flagged INACTIVE</td><td>Seller Central reclassification overrode SoStocked status</td><td>Check the recompute log line for that ASIN</td></tr>
+<tr><td>`🚨` flag count jumped</td><td>More POs in SAP have `Original Due Date == Posting Date` than usual</td><td>Check who's entering POs, fix workflow</td></tr>
+</table>
+<p></p>
+<hr>
+<p></p>
+<h2>📚 Related references</h2>
+<p></p>
+<li><i>06 Processes & SOPs/(C) Weekly Analysis SOP — Step by Step</i> — operational run-book</li>
+<li><i>06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP</i> — pull-list for the 11 sources</li>
+<li><i>06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page</i> — print-and-stick</li>
+<li><i>06 Processes & SOPs/(C) Valogix CSV Format Reference</i> — Valogix CSV column structure</li>
+<li><i>06 Processes & SOPs/(C) ABC Classification Reference</i> — full ABC code definitions</li>
+<li><i>06 Processes & SOPs/(C) Daily Morning Routine — SCM</i> — daily routine that uses this report</li>
+<li><i>07 AI Tools & Builds/(C) Forecast Accuracy & Buffer Sizing — Build Plan</i> — parked enhancement</li>
+<li><i>07 AI Tools & Builds/(C) AWD-to-FBA Shipment Pipeline — Parked</i> — parked enhancement</li>
+<li><i>07 AI Tools & Builds/(C) ShipBob New Format Migration — Parked</i> — parked enhancement</li>
+<p></p>
+<hr>
+<p></p>
+<p><i>Created May 11, 2026 · Owner: Tommy · Update this when the pipeline architecture changes</i></p>
+<p></p></body></html>

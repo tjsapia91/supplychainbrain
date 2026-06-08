@@ -34,3 +34,9 @@ erp_system/
 
 # Obsidian Claudian internal files
 .claudian/
+
+# Generated reports — copies of MTB-SupplyChain outputs, regenerated weekly
+outputs/
+
+# Backup files — git history is the backup
+*.backup_*

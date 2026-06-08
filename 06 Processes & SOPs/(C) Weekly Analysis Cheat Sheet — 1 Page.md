@@ -1,44 +1,58 @@
 # 🚀 Weekly Analysis — 1-Page Cheat Sheet
 
 > Print this. Stick it next to your monitor. After 2-3 weeks you won't need the full SOP anymore — just this.
+>
+> *Last updated: 2026-05-21 — reflects Sellerboard CA Dashboard, Amazon CA FBA, NEW ShipBob format, US/CA seller-central split.*
 
 ---
 
-## ✅ Download checklist (24 files)
+## ✅ Download checklist (34 weekly files)
 
 | # | Source | Report | Drop into | Rename to |
 |---|---|---|---|---|
-| 1 | SoStocked (MTB) | Projected Forecast Model | `Downloads\` | (auto — `*-5118.xlsx`) |
-| 2 | SoStocked (NFMD) | Projected Forecast Model | `Downloads\` | (auto — `*-5109.xlsx`) |
-| 3 | SoStocked (SS) | Projected Forecast Model | `Downloads\` | (auto — `*-5119.xlsx`) |
-| 4 | SoStocked (MTB) | Inventory → **"Export Inventory with Breakdown by Warehouses"** | `Downloads\` | (auto — `inventory-*-5118.csv`) |
-| 5 | SoStocked (NFMD) | Inventory → **"Export Inventory with Breakdown by Warehouses"** | `Downloads\` | (auto — `inventory-*-5109.csv`) |
-| 6 | SoStocked (SS) | Inventory → **"Export Inventory with Breakdown by Warehouses"** | `Downloads\` | (auto — `inventory-*-5119.csv`) |
-| 7 | SoStocked (MTB) | Forecasted vs Actual (FvA) | `Downloads\` | (auto — `*-5118.xlsx`) |
-| 8 | SoStocked (NFMD) | Forecasted vs Actual (FvA) | `Downloads\` | (auto — `*-5109.xlsx`) |
-| 9 | SoStocked (SS) | Forecasted vs Actual (FvA) | `Downloads\` | (auto — `*-5119.xlsx`) |
-| 10 | Amazon SC (MTB) | AWD Inventory Report | `reports\seller-central\MTB\` | (no rename) |
-| 11 | Amazon SC (MTB) | FBA Inventory Report (full — 97 cols) | `reports\seller-central\MTB\` | (no rename) |
-| 12 | Amazon SC (NFMD) | AWD Inventory Report | `reports\seller-central\NFMD\` | (no rename) |
-| 13 | Amazon SC (NFMD) | FBA Inventory Report (full — 97 cols) | `reports\seller-central\NFMD\` | (no rename) |
-| 14 | Amazon SC (SS) | AWD Inventory Report | `reports\seller-central\SS\` | (no rename) |
-| 15 | Amazon SC (SS) | FBA Inventory Report (full — 97 cols) | `reports\seller-central\SS\` | (no rename) |
-| 16 | ShipBob (MTB) | On Hand Summary | `reports\shipbob\MTB\` | (no rename) |
-| 17 | ShipBob (NFMD) | On Hand Summary | `reports\shipbob\NFMD\` | (no rename) |
-| 18 | ShipBob (SS) | On Hand Summary | `reports\shipbob\SS\` | (no rename) |
-| 19 | ShipBob (LUMOS) | On Hand Summary | `reports\shipbob\LUMOS\` | (no rename) |
-| 20 | Floship | Product Inventory | `reports\floship\` | (no rename) |
-| 21 | Walmart (NFMD) | WFS → Inventory → Download All Items (xlsx) | `reports\walmart\NFMD\` | (no rename) |
-| 22 | Walmart (SS) | WFS → Inventory → Download All Items (xlsx) | `reports\walmart\SS\` | (no rename) |
-| 23 | Valogix | Item-Location-History-Forecast | `reports\valogix\` | (keep original) |
-| 24 | (manual) | In-Transit Log (if updated) | `reports\in-transit\` | `IN_TRANSIT_LOG_YYYY-MM-DD.xlsx` |
-| ⊕ | SAP (as needed) | ABC Classification export → `SAPABCCLASSIFICATION.xlsx` | `reports\item-master\item_master.xlsx` | only refresh when SAP changes |
+| **SoStocked — 9 files (Forecast + Inventory + FvA × 3 brands)** ||||
+| 1-3 | SoStocked (MTB/NFMD/SS) | **Projected Forecast Model** | `Downloads\` | auto |
+| 4-6 | SoStocked (MTB/NFMD/SS) | **Inventory → "Breakdown by Warehouses"** | `Downloads\` | auto |
+| 7-9 | SoStocked (MTB/NFMD/SS) | **Forecasted vs Actual (FvA)** — current month | `reports\sostocked\[BRAND]\fva-history\` | `FvA_[BRAND]_YYYY-MM.xlsx` |
+| **Amazon Seller Central — 9 files (US: 2 × 3 brands · CA: 1 × 3 brands)** ||||
+| 10-12 | Amazon SC US (MTB/NFMD/SS) | **AWD Inventory Report** | `reports\seller-central\US\[BRAND]\` | (no rename) |
+| 13-15 | Amazon SC US (MTB/NFMD/SS) | **FBA Inventory Report (97 cols)** | `reports\seller-central\US\[BRAND]\` | (no rename) |
+| 16-18 | Amazon SC CA (MTB/NFMD/SS) | **FBA Inventory Report only — no AWD CA for MTB** | `reports\seller-central\CA\[BRAND]\` | (no rename) |
+| **ShipBob — 4 files (NEW format)** ||||
+| 19 | ShipBob (MTB) | `Inventory → Inventory Status → Export → Export All Data` | `reports\shipbob\MTB\` | (no rename) |
+| 20 | ShipBob (NFMD) | same path | `reports\shipbob\NFMD\` | (no rename) |
+| 21 | ShipBob (SS) | same path | `reports\shipbob\SS\` | (no rename) |
+| 22 | ShipBob (LUMOS) | same path | `reports\shipbob\LUMOS\` | (no rename) |
+| **Walmart — 2 files** ||||
+| 23 | Walmart (NFMD) | WFS → Inventory → Download All Items (xlsx) | `reports\walmart\NFMD\` | (no rename) |
+| 24 | Walmart (SS) | WFS → Inventory → Download All Items (xlsx) | `reports\walmart\SS\` | (no rename) |
+| **Floship — 1 file** ||||
+| 25 | Floship | Inventory → Product Inventory → Export | `reports\floship\` | (no rename) |
+| **Valogix — 1 file** ||||
+| 26 | Valogix | Item-Location-History-Forecast (CSV) | `reports\valogix\` | (keep original name) |
+| **Sellerboard — 6 files (Monthly + CA Dashboard)** ||||
+| 27 | Sellerboard (MTB) | **Sales by Product/Month** — max date range, marketplace ignored | `reports\sellerboard\MTB\` | (no rename) |
+| 28 | Sellerboard (NFMD) | Sales by Product/Month | `reports\sellerboard\NFMD\` | (no rename) |
+| 29 | Sellerboard (SS) | Sales by Product/Month | `reports\sellerboard\SS\` | (no rename) |
+| 30 | Sellerboard (MTB) | 🇨🇦 **Dashboard Products** — set marketplace = `amazon.ca`, last 90 days | `reports\sellerboard\MTB\canada\` | (no rename) |
+| 31 | Sellerboard (NFMD) | 🇨🇦 Dashboard Products (amazon.ca) | `reports\sellerboard\NFMD\canada\` | (no rename) |
+| 32 | Sellerboard (SS) | 🇨🇦 Dashboard Products (amazon.ca) | `reports\sellerboard\SS\canada\` | (no rename) |
+| **Valogix Exceptions — 1 file** ||||
+| 33 | Valogix | History Exception Report (CSV) | `reports\valogix-exceptions\` | (no rename) |
+| **SAP — 1 file** ||||
+| 34 | SAP | Open Purchase Order Report (full export) | `reports\sap-open-pos\` | (no rename) |
+| **Optional / when updated** |||||
+| ⊕ | (manual) | In-Transit Log | `reports\in-transit\` | `IN_TRANSIT_LOG_YYYY-MM-DD.xlsx` |
+| ⊕ | SAP (as needed) | ABC Classification → `SAPABCCLASSIFICATION.xlsx` | `reports\item-master\item_master.xlsx` | only when SAP classifications change |
+| ⊕ | Amazon SKU Mapping | Internal MTB-maintained file | `reports\item-master\amazon-sku-mapping.xlsx` | only when new Amazon SKUs launch |
+
+**One-time backfill: 15 FvA files** (5 months × 3 brands) → drop in `fva-history\` folders. Then just current month each week.
 
 ---
 
 ## ⚡ Run order — 5 commands
 
-Open Command Prompt → `cd C:\Users\[YourName]\MTB-SupplyChain` → run these in order:
+Open Command Prompt → `cd C:\Users\Tom Sapia\MTB-SupplyChain` → run these in order:
 
 ```
 python scripts\combine_forecast.py
@@ -50,7 +64,7 @@ python scripts\build_shipment_tracking.py
 
 ---
 
-## 📂 What you should see in `outputs\2026-MM-DD\`
+## 📂 What you should see in `outputs\YYYY-MM-DD\`
 
 - ✅ `demand-plan-YYYY-MM-DD.xlsx`
 - ✅ `weekly-report-YYYY-MM-DD.xlsx` ⭐ THE BIG ONE
@@ -72,6 +86,15 @@ python scripts\build_shipment_tracking.py
 
 ---
 
+## 🇨🇦 Amazon CA-specific notes
+
+- Amazon CA has **FBA only** (no AWD program for MTB) → just 1 file per brand from CA dashboard
+- Sellerboard Monthly report **combines US + CA** — DON'T use for CA velocity
+- Use Sellerboard **Dashboard Products** with `amazon.ca` marketplace filter for CA velocity + forecast
+- SAP Open POs go to US Amazon ONLY → CA tab's PO ARRIVES ON column shows `—` until CA-specific PO source is added
+
+---
+
 ## 🆘 Quick fixes
 
 | Error | Fix |
@@ -79,8 +102,10 @@ python scripts\build_shipment_tracking.py
 | "No such file" | A file is missing from `reports\` — re-download |
 | "Permission denied" | Excel has the file open — close it |
 | "ModuleNotFoundError" | `pip install pandas openpyxl` |
-| Numbers wrong | Check all 15 inputs are in the right folders, re-run from Script 1 |
+| Numbers wrong | Check all 34 inputs are in the right folders, re-run from Script 1 |
+| `→ ShipBob (LEGACY)` log line | Still pulling On Hand Summary — switch to `Inventory Status → Export All Data` |
+| CA velocity inflated | Sellerboard Monthly applied to CA rows — verify pipeline F1 fix is active |
 
 ---
 
-*Updated: May 4, 2026 · Full SOPs:* [[06 Processes & SOPs/(C) Weekly Analysis SOP — Step by Step]] *(operational)* · [[06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP]] *(where each file comes from)*
+*Updated: 2026-05-21 · Full SOP:* [[06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP]] *(master doc — inputs · architecture · steps)*

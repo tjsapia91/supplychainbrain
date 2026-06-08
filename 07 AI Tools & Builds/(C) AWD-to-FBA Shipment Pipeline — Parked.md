@@ -39,7 +39,7 @@ Fills a gap between the two existing Seller Central reports:
 ## Input infrastructure (already set up)
 
 ```
-reports/awd-to-fba-shipments/
+reports/seller-central/awd-to-fba-shipments/
 ├── MTB/         ← drop MTB exports here
 ├── NFMD/        ← drop NFMD exports here
 └── SS/          ← drop SS exports here

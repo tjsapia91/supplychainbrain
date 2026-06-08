@@ -2,26 +2,29 @@
 
 > Canonical reference cataloging every input the weekly pipeline consumes. Tells you which dashboard, which menu, which export, where it lands, and how the script finds it.
 >
-> **Last updated:** May 6, 2026 (added SAP Open POs · Sellerboard Sales-by-Month · Valogix History Exception Report)
-> **Companion docs:** [[06 Processes & SOPs/(C) Weekly Analysis SOP — Step by Step]] · [[06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page]]
+> **Last updated:** May 21, 2026 (added Sellerboard CA Dashboard Products for per-marketplace CA velocity + forecast; documented US+CA Monthly combining caveat; CA Seller Central FBA file now extracts Reserved FC Transfer; PO data no longer attributed to CA market rows; lead time floor 120→145; Amazon SKU mapping file added; corrected Amazon Seller Central count to 9 files — CA has FBA only, no AWD)
+> **This is the master Weekly Analysis SOP** — covers inputs, sourcing rules, system map, and run steps in one place.
+> **Companion doc:** [[06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page]] (print-and-stick quick reference)
 
 ---
 
-## 📋 At a glance — 11 source systems, 28 weekly files (+2 occasional)
+## 📋 At a glance — 12 source systems, 34 weekly files (+2 occasional)
 
 | # | Source | What | Files | Frequency | Drop into |
 |---|---|---|---|---|---|
 | 1 | **SoStocked** | 3 reports × 3 brands (Forecast + Inventory + FvA) | **9** | Weekly | `Downloads\` (auto-detected & moved) |
-| 2 | **Amazon Seller Central** | 2 reports × 3 brands (AWD + FBA Inventory) | **6** | Weekly | `reports\seller-central\[BRAND]\` |
+| 2 | **Amazon Seller Central** | US: AWD + FBA × 3 brands (6 files) · CA: FBA only × 3 brands (3 files — MTB doesn't have AWD CA) | **9** | Weekly | `reports\seller-central\[MARKET]\[BRAND]\` |
 | 3 | **ShipBob** | On Hand Summary × 4 brand logins (MTB/NFMD/SS/LUMOS) | **4** | Weekly | `reports\shipbob\[BRAND]\` |
 | 4 | **Walmart Seller Center** | WFS Inventory × 2 brands (NFMD + SS) | **2** | Weekly | `reports\walmart\[BRAND]\` |
 | 5 | **Floship** | Product Inventory export | **1** | Weekly | `reports\floship\` |
 | 6 | **Valogix** | Item Location History Forecast | **1** | Weekly | `reports\valogix\` |
-| 7 | **Sellerboard** | Sales by product/month × 3 brands (MTB/NFMD/SS) | **3** | Weekly | `reports\sellerboard\[BRAND]\` |
-| 8 | **Valogix Exceptions** | History Exception Report (statistical outliers) | **1** | Weekly | `reports\valogix-exceptions\` |
-| 9 | **SAP Open POs** | Open Purchase Order report (full export) | **1** | Weekly | `reports\sap-open-pos\` |
-| 10 | **In-Transit Log** | Master shipment tracker (manual) | **1** | When updated | `reports\in-transit\` |
-| 11 | **SAP Item Master** | ABC Classification / Item Master export | **1** | **As needed** — only when SAP classifications change | `reports\item-master\` |
+| 7 | **Sellerboard — Sales by Product/Month** *(US+CA combined)* | × 3 brands (MTB/NFMD/SS) | **3** | Weekly | `reports\sellerboard\[BRAND]\` |
+| 8 | **🆕 Sellerboard CA — Dashboard Products** *(CA-only, per-marketplace)* | × 3 brands (MTB/NFMD/SS) | **3** | Weekly *(or quarterly)* | `reports\sellerboard\[BRAND]\canada\` |
+| 9 | **Valogix Exceptions** | History Exception Report (statistical outliers) | **1** | Weekly | `reports\valogix-exceptions\` |
+| 10 | **SAP Open POs** | Open Purchase Order report (full export) | **1** | Weekly | `reports\sap-open-pos\` |
+| 11 | **In-Transit Log** | Master shipment tracker (manual) | **1** | When updated | `reports\in-transit\` |
+| 12 | **SAP Item Master** | ABC Classification / Item Master export | **1** | **As needed** — only when SAP classifications change | `reports\item-master\` |
+| ⊕ | **Amazon SKU Mapping** | Amazon listing SKU ↔ SAP UPC mapping | 1 | **As needed** — when new SKUs launch on Amazon | `reports\item-master\amazon-sku-mapping.xlsx` |
 | ⊕ | **Internal** | SKU Review (carryover from prior week) | 1 | Weekly (folded forward) | `outputs\YYYY-MM-DD\` |
 
 **Two zero-rename principles to keep in mind:**
@@ -41,15 +44,19 @@ This is the canonical answer to "where does each number on the report come from?
 
 | Field | Authoritative source | File | Column(s) |
 |---|---|---|---|
-| **FBA Stock** (Amazon's "On-hand") | **Amazon Seller Central** | FBA Inventory Report + AWD Inventory Report | `available` (FBA Inv.) **plus** `FC Transfer (units)` (AWD Inv.) — **matches SC's "On-hand" panel exactly** |
-| **AWD Stock** (sellable AWD units) | **Amazon Seller Central** | AWD Inventory Report | `Available in AWD (units)` |
-| **Inbound to AWD** (supplier in transit) | **Amazon Seller Central** | AWD Inventory Report | `Inbound to AWD (units)` |
-| **Outbound to FBA** (AWD → FBA in transit) | **Amazon Seller Central** | AWD Inventory Report | `Outbound to FBA (units)` |
+| **FBA Stock (US)** | **Amazon Seller Central US** | FBA Inventory Report + AWD Inventory Report | `available` (FBA) + `FC Transfer (units)` (AWD) — matches SC US "On-hand" panel |
+| **FBA Stock (CA)** | **Amazon Seller Central CA** | FBA Inventory Report only | `available` (FBA) + `Reserved FC Transfer` (FBA, same file) — Amazon CA has no AWD |
+| **AWD Stock (US only)** | **Amazon Seller Central US** | AWD Inventory Report | `Available in AWD (units)` (CA Amazon doesn't have AWD) |
+| **Inbound to AWD** (supplier in transit) | **Amazon Seller Central US** | AWD Inventory Report | `Inbound to AWD (units)` |
+| **Outbound to FBA** (AWD → FBA in transit) | **Amazon Seller Central US** | AWD Inventory Report | `Outbound to FBA (units)` |
 | **FBA Inbound Pipeline** (working / shipped / received) | **Amazon Seller Central** | FBA Inventory Report (97-col) | `inbound-working` / `inbound-shipped` / `inbound-received` |
-| **Velocity (Adj.)** | **SoStocked** | Inventory export | `Adj. Velocity` |
-| **Forecast Velocity** | **SoStocked** | Projected Forecast Model | (computed from weekly forecast cols) |
-| **Lead Time** | SoStocked | Inventory export | `Default Lead Time` (fallback 60d) |
+| **Velocity — US Amazon** | **Sellerboard Monthly** (90-day) | Sales by product/month (last 3 closed months) | `Quantity` summed ÷ days |
+| **Velocity — CA Amazon** | **Sellerboard CA Dashboard** OR **SoStocked CA Adj. Vel** (fallback) | Dashboard Products (marketplace=amazon.ca) OR SoStocked Inventory | `Units` ÷ days_in_range |
+| **Forecast — US Amazon** | SoStocked PFM + Sellerboard seasonality blend (by ABC class) | Projected Forecast Model + Sellerboard Monthly | per-month forecast |
+| **Forecast — CA Amazon** | Sellerboard CA Dashboard quarterly seasonality | Dashboard Products (multiple quarterly files) | `CA_avg × Q_factor × days_in_month` |
+| **Lead Time** | SoStocked | Inventory export | `Default Lead Time` (fallback 60d, floored at 145d for supplier ocean POs) |
 | **ShipBob (Emergency)** | **ShipBob** | On Hand Summary export | `Total On Hand` |
+| **SAP Open POs** | **SAP** | Open Purchase Order Report | applied ONLY to US Amazon rows — CA fulfillment doesn't share AMZN-MT/SS POs |
 
 **FBA Stock formula clarification:**
 Seller Central's "FBA Inventory Details" panel shows On-hand = Available + FC Transfer. The report mirrors this:
@@ -79,16 +86,16 @@ The report breaks Amazon stock into separate columns so you can verify against S
 
 **For status classification:** TRUE STOCKOUT means literally everything = 0 (need supplier PO). AMAZON STOCKOUT means FBA Available + FC Transfer = 0 but AWD/ShipBob has stock (need send-in).
 
-### Lead time floor: 150 days
+### Lead time floor: 145 days
 
-The system applies a **150-day floor** to per-item lead times when classifying urgency. SoStocked's per-item `lead_time` is often understated (e.g., 60 days when reality is 150+). The 150-day floor reflects realistic supplier-to-receiving time:
+The system applies a **145-day floor** to per-item lead times when classifying urgency. SoStocked's per-item `lead_time` is often understated (e.g., 60 days when reality is 150+). The 145-day floor reflects realistic supplier-to-receiving time:
 
 - Production: 30-60 days
 - Ocean freight: 30-45 days
 - Customs + AWD/FBA receiving: 15-30 days
-- **Total: ~150 days door-to-door** (often more with delays)
+- **Total: ~145 days door-to-door** (often more with delays)
 
-So an item showing `Lead Time = 60` in the report still gets classified against a 150-day threshold for CRITICAL urgency. Tune via `SUPPLIER_LEAD_TIME_FLOOR` constant in `scripts/build_report.py` if shipping reality changes.
+So an item showing `Lead Time = 60` in the report still gets classified against a 145-day threshold for CRITICAL urgency. Tune via `SUPPLIER_LEAD_TIME_FLOOR` constant in `scripts/build_report.py` if shipping reality changes.
 
 This is why some items with 80+ days of stock may still flag CRITICAL — they won't survive a fresh supplier PO cycle.
 
@@ -162,11 +169,43 @@ If you ever see a priority item flagged TRUE STOCKOUT but you can confirm in Sel
 
 ⚠️ **Verify after download:** the CSV should have ~50 columns and include `Adj. Velocity` and `FBA Available Stock`. If it only has 12-15 columns, you picked the wrong export option ("Export Current View" instead of "Breakdown by Warehouses") — re-pull.
 
-### Report C — Forecasted vs Actual (FvA)
+### Report C — Forecasted vs Actual (FvA) — **monthly accumulation**
 - **Where:** Reports section → "Forecasted vs Actual" or "Forecast Accuracy"
 - **What SoStocked names it:** `{uuid}-{brand_id}.xlsx` (no prefix, just UUID + brand ID)
 - **Sheet inside:** "Forecasted vs Actual Monthly" — that's how the combiner identifies it
-- **What it gives us:** forecast accuracy per ASIN per month (script flags items off by 30%+)
+- **What it gives us:** forecast accuracy per ASIN for the selected month (script flags items off by 30%+)
+
+⚠ **Each FvA export covers ONE month at a time.** SoStocked doesn't give a multi-month aggregate via this report.
+
+### How to build historical FvA — the accumulation workflow (per Tommy 2026-05-21)
+
+To get a multi-month view of forecast accuracy (useful for trend analysis), you accumulate month-by-month exports:
+
+**Step 1 — Initial backfill (one-time, ~30 minutes)**
+- Per brand, export FvA for each closed month going back as far as you want:
+  - Jan 2026
+  - Feb 2026
+  - Mar 2026
+  - Apr 2026
+  - May 2026 (MTD — partial, will be replaced)
+- = **15 files total** (5 months × 3 brands)
+
+**Step 2 — Weekly going forward**
+- Pull only the **current month** FvA per brand (3 files weekly)
+- As each month closes, that file becomes the final record for that month
+- Next month, you pull the new current month — closed months stay untouched
+
+**Step 3 — Where to drop them**
+- All FvA files (backfill + weekly) go in: `reports\sostocked\[BRAND]\fva-history\`
+- **One file per (brand × month)** — don't overwrite; let them accumulate
+- Suggested filename convention (so months are visually distinguishable): rename to `FvA_[BRAND]_YYYY-MM.xlsx` after download (e.g., `FvA_MTB_2026-01.xlsx`)
+- Pipeline picks up the most recent file per brand for the "Forecast Accuracy" sheet in the Weekly Forecast workbook
+
+⚠ **Pipeline aggregation deferred (decision: 2026-05-21)**: `combine_forecast.py` reads ONE FvA file per brand at a time — the latest one. Multi-month aggregation across the `fva-history/` folder is **intentionally deferred** until we evaluate whether it actually drives a decision.
+
+**Rationale**: per-month forecast accuracy could be a vanity metric — it doesn't directly change a PO call (the urgency tier already factors recent actuals). Better to accumulate the files for a few months, see if any pattern emerges that we'd actually act on, then build the aggregator if yes.
+
+Until then, the backfill files give you a historical record on disk that you can analyze manually (open them in Excel, build a pivot). If a trend emerges you want to surface weekly, ping Claudian and we'll wire up the multi-month aggregation in ~30 min.
 
 ## Where to drop them — and what runs
 
@@ -191,33 +230,54 @@ The script:
 
 ---
 
-# 2️⃣ Amazon Seller Central — 6 files (2 reports × 3 brands)
+# 2️⃣ Amazon Seller Central — 9 files (US: 2 reports × 3 brands + CA: 1 report × 3 brands)
 
-## The 2 reports — pulled separately for each brand login
+## The 2 reports
 
-### Report A — AWD Inventory Report
+### Report A — AWD Inventory Report (US ONLY — Amazon CA does not offer AWD for MTB)
 - **Path:** `Inventory → AWD → Replenishment / Auto-Replenishment Dashboard` → Download as CSV
-- **Key columns we use:** `ASIN`, `Inbound to AWD (units)`, `Outbound to FBA (units)`
+- **Key columns we use:** `ASIN`, `Inbound to AWD (units)`, `Outbound to FBA (units)`, `Available in AWD (units)`, `FC Transfer (units)`
 - **Why:** the only direct supplier-to-AWD in-transit signal we have at ASIN level. Feeds the DOS calculation.
+- **Marketplace coverage:** US only. **Amazon CA has no AWD program** for MTB — skip this report on the Canadian dashboard. *(If/when CA AWD becomes available, drop the file in `reports\seller-central\CA\[BRAND]\` and the pipeline will auto-pick it up.)*
 
-### Report B — FBA Inventory Report (full, 97 columns)
+### Report B — FBA Inventory Report (full, 97 columns) — pull for **BOTH US and CA**
 - **Path:** `Reports → Fulfillment → FBA Inventory` → Request → Download as CSV
-- **Key columns we use:** `afn-inbound-shipped-quantity`, `afn-inbound-receiving-quantity`, `afn-inbound-working-quantity`, plus aging buckets
+- **Key columns we use:**
+  - `afn-inbound-shipped-quantity`, `afn-inbound-receiving-quantity`, `afn-inbound-working-quantity` (or 97-col aliases)
+  - `available` — sellable on FBA right now
+  - **`Reserved FC Transfer`** — units moving between FBA FCs (Amazon CA's FC Transfer comes from THIS column, since CA has no AWD report)
+  - Plus aging buckets, sales velocity figures
 - **Why:** comprehensive FBA picture — what's sellable, what's inbound, what's at the FC pending. Newer Amazon UIs use the `afn-` prefix; the loader handles both old and new column names.
 
-⚠️ **Don't pull "Manage FBA Inventory" from the Inventory tab** — that's the abbreviated 30-column version. The Reports → Fulfillment → FBA Inventory path gives you the full 97-column file.
+⚠️ **Don't pull "Manage FBA Inventory" from the Inventory tab** — that's the abbreviated 30-column version. The `Reports → Fulfillment → FBA Inventory` path gives you the full 97-column file.
 
 ℹ️ **Inbound Shipment Items** (per-shipment detail) is OPTIONAL. If you find the right path, drop CSVs as `fba-shipments-*.csv` into the brand folder and the Shipment Tracking report's FBA tab populates. Otherwise that tab is skipped.
 
-## Where to drop them
+## What to pull per marketplace
+
+| Marketplace | Login | Reports to pull | Files | Drop into |
+|---|---|---|---|---|
+| **US** (`sellercentral.amazon.com`) | US dashboard | AWD Inventory + FBA Inventory × 3 brands | **6** | `reports\seller-central\US\[BRAND]\` |
+| **CA** (`sellercentral.amazon.ca`) | CA dashboard | **FBA Inventory ONLY** × 3 brands (no AWD CA for MTB) | **3** | `reports\seller-central\CA\[BRAND]\` |
+
+**Total weekly: 9 Amazon Seller Central files** (was 12 before — the AWD CA pulls were assumed but MTB isn't enrolled in AWD CA).
 
 ```
-reports\seller-central\MTB\     reports\seller-central\NFMD\     reports\seller-central\SS\
+reports\seller-central\
+├── US\
+│   ├── MTB\     ← 2 files: AWD Inv CSV + FBA Inv CSV
+│   ├── NFMD\    ← 2 files
+│   └── SS\      ← 2 files
+└── CA\
+    ├── MTB\     ← 1 file: FBA Inv CSV (no AWD CA)
+    ├── NFMD\    ← 1 file
+    └── SS\      ← 1 file
 ```
 
-**No renaming.** The script in `build_report.py` auto-classifies each CSV by its column structure (AWD vs FBA vs Inbound Shipment Items).
+**No renaming.** The script in `build_report.py` auto-classifies each CSV by column structure (AWD vs FBA) and tags the data with the marketplace based on which folder it's in (US or CA). The loader keys ASIN data by `(ASIN, marketplace)` so US and CA stock for the same ASIN stay separate.
 
-📚 Detailed per-brand walkthrough: [[06 Processes & SOPs/(C) Amazon Seller Central — Reports Pull List]]
+**For CA's FC Transfer**: since there's no CA AWD report, the pipeline reads `Reserved FC Transfer` from the CA FBA file instead. So CA TOTAL AT AMZN = `available + Reserved FC Transfer` (matches Seller Central CA's "On-hand" panel). *(This handling was added 2026-05-21 — verified with SKU 850038082383: 1,919 available + 135 FC Transfer = 2,054 total.)*
+
 
 ---
 
@@ -234,9 +294,52 @@ ShipBob requires a separate login per brand. There's no master account.
 
 ## How to pull (per login)
 
+**Use the NEW format export only — don't pull On Hand Summary anymore.**
+
 1. Sign into shipbob.com for the brand
-2. Inventory → Export → **On Hand Summary**
-3. ShipBob emails a download link — must be logged into the **correct brand** when clicking the link
+2. `Inventory → Inventory Status → Export → Export All Data`
+3. Filename ShipBob generates: `inventory-export-blob_{tenant}_{timestamp}.csv`
+4. ShipBob emails a download link — must be logged into the **correct brand** when clicking the link
+
+> ℹ️ The LEGACY `On Hand Summary` export still works as a fallback if ShipBob ever changes the path, but you don't need to pull it routinely. The NEW format is strictly more accurate (`Sellable` excludes Committed/Exception/Backordered; `Total On Hand` on the old report overstates).
+
+## Two ShipBob export formats — pipeline auto-detects which one
+
+### 🆕 NEW format — `inventory-export-blob_*.csv` (preferred)
+
+Lot-level normalized export. **14 columns**, multiple rows per SKU (one per FC × lot):
+
+| Column | What it shows |
+|---|---|
+| SKU | UPC / item number |
+| Inventory ID | ShipBob internal ID |
+| Inventory Name | Product name |
+| Lot Number | Lot # (or `-` if no lots) |
+| Expiration Date | Lot expiry (or `-`) |
+| Incoming | Units in transit to ShipBob |
+| On Hand | Total physical inventory at this FC × lot |
+| Committed | Already allocated to open orders |
+| Fulfillable | On Hand − Committed (ready to ship now) |
+| Exception | Damaged / quarantined |
+| **Sellable** ⭐ | **Free-to-ship — what the pipeline uses for `on_hand`** |
+| Backordered | Customer orders waiting on stock |
+| Internal Transfer | Moving between ShipBob FCs |
+| Fulfillment Center | FC location (e.g., "Reno (NV)", "Buford (GA)") |
+
+**Detection signature**: pipeline flags as NEW if BOTH `Sellable` AND `Fulfillment Center` columns are present.
+
+### 🗄 LEGACY format — `On Hand Summary` (fallback)
+
+Pivoted single-row-per-SKU view with `Total On Hand` column. Pipeline accepts it but uses Total On Hand directly (overstates true free-to-ship since it includes Committed/Exception units).
+
+### Why NEW is better
+
+| Aspect | LEGACY | NEW |
+|---|---|---|
+| Stock accuracy | `Total On Hand` includes Committed (overstates) | `Sellable` excludes Committed/Exception/Backordered |
+| Lot visibility | None | Lot # + Expiration per FC |
+| FC breakdown | Total only | Per-FC rows |
+| FIFO planning ready | No | Yes (lot-level data preserved in the report) |
 
 ## Where to drop them
 
@@ -244,14 +347,27 @@ ShipBob requires a separate login per brand. There's no master account.
 reports\shipbob\MTB\     reports\shipbob\NFMD\     reports\shipbob\SS\     reports\shipbob\LUMOS\
 ```
 
-**No renaming.** The original ShipBob filename is fine.
+**No renaming.** The original ShipBob filename (e.g., `inventory-export-blob_385579_639150688574617481.csv`) is fine — pipeline reads by columns, not filename.
+
+## Pipeline log to confirm NEW format
+
+After running `build_report.py`, you'll see one of these per brand:
+```
+→ ShipBob MTB (NEW format): inventory-export-blob_385579_*.csv
+→ ShipBob NFMD (NEW format): inventory-export-blob_385954_*.csv
+→ ShipBob SS (NEW format): inventory-export-blob_385953_*.csv
+→ ShipBob LUMOS (NEW format): inventory-export-blob_396348_*.csv
+→ ShipBob: NN SKUs across 4 brand files (4 new-fmt) · XXX,XXX sellable units
+```
+
+If you see `(LEGACY)` instead of `(NEW format)`, you're still pulling the old export — switch to the new lot-level export path for better accuracy.
 
 **Why we pull this:**
 - Validates Valogix's ShipBob inventory data (independent source of truth)
 - Drives Shopify fulfillment readiness checks (Shopify orders ship from ShipBob)
 - Sanity-checks Amazon emergency send-in plans (what's actually pullable)
+- Per-FC + per-lot detail enables future FIFO-aware allocation planning
 
-📚 Detailed per-brand walkthrough: [[06 Processes & SOPs/(C) ShipBob — Reports Pull List]]
 
 ---
 
@@ -278,7 +394,6 @@ reports\walmart\NFMD\     reports\walmart\SS\
 - Valogix only carries Walmart-SS data. **NFMD on Walmart is invisible to Valogix** — the direct WM-NFMD pull fills that gap as a separate marketplace ("Walmart NFMD") in the Multi-Channel dashboard.
 - Validates Walmart-SS data against Valogix.
 
-📚 Detailed walkthrough: [[06 Processes & SOPs/(C) Walmart Seller Center — Reports Pull List]]
 
 ---
 
@@ -339,11 +454,28 @@ reports\valogix\
 
 ---
 
-# 7️⃣ Sellerboard — 3 files (1 report × 3 brand logins)
+# 7️⃣ Sellerboard — 6 files total: 3 Monthly (US+CA combined) + 3 CA Dashboard (per-marketplace)
 
-Sellerboard is the source for **Amazon sales actuals** with 28-month historical depth — the cleanest monthly history we have for the Amazon channel. Drives the 📊 Amazon Sales History tab and the Phase 3 Demand Volatility scoring.
+Sellerboard is the source for **Amazon sales actuals** with 28-month historical depth — the cleanest monthly history we have for the Amazon channel. Drives the 📊 Amazon Sales History tab, the Phase 3 Demand Volatility scoring, and now the CA-specific velocity + forecast.
 
-## How to pull (per brand login)
+## ⚠ Critical caveat — Sellerboard report types behave differently
+
+| Report type | Marketplace filter | Excludes any SKUs? | Used for |
+|---|---|---|---|
+| **Sales by Product/Month** | ❌ IGNORED — always shows US+CA combined | ✓ Includes all SKUs | US Amazon velocity + monthly history |
+| **Dashboard Products** | ✓ RESPECTS marketplace filter | ⚠ Excludes ASINs with non-numeric SKUs (MTBLavendar, *-M, *-AMZ, *-FBA etc.) | CA-only velocity + CA quarterly seasonality |
+
+This matters because:
+- **Sales by Product/Month** is comprehensive (every SKU) but combines US+CA — so it slightly over-counts US (~2%, acceptable) and would dramatically over-count CA (~50×) if applied to CA rows. **Used for US Amazon ONLY.**
+- **Dashboard Products** filters to true CA-only when marketplace = `amazon.ca` is selected. **Used for CA Amazon.**
+
+The pipeline routes these correctly per the **F1 fix** (2026-05-21): Amazon US rows use Monthly (combined), Amazon CA rows use Dashboard (CA-only).
+
+---
+
+## Report A — Sales by Product/Month (Monthly history, 3 brands)
+
+### How to pull (per brand login)
 
 1. Sign into [sellerboard.com](https://sellerboard.com) for the brand
 2. Reports → **Sales by product/month**
@@ -352,7 +484,7 @@ Sellerboard is the source for **Amazon sales actuals** with 28-month historical 
 
 ⚠️ **Make sure the date range goes back at least 24 months** — short ranges (1-3 months) will show up as "INSUFFICIENT" volatility on the report. If only 1 month exports, you picked the wrong date range — re-pull.
 
-## Where to drop them
+### Where to drop them
 
 ```
 reports\sellerboard\MTB\     reports\sellerboard\NFMD\     reports\sellerboard\SS\
@@ -360,11 +492,50 @@ reports\sellerboard\MTB\     reports\sellerboard\NFMD\     reports\sellerboard\S
 
 **No renaming.** The loader picks the file with the widest date range automatically.
 
-## What the pipeline uses it for
+### What the pipeline uses it for
 
 - **📊 Amazon Sales History tab** — last 12 months of actuals + TTM Qty + YoY % per ASIN
 - **📈 Forecast Pivot tab** — Amazon side of the actuals heatmap (last 12 closed months)
 - **Demand Volatility scoring** — coefficient of variation over last 12 months → STABLE / MODERATE / VOLATILE bucket on every Amazon row
+- **Amazon US 90-day velocity** — derived from last 3 closed months, applied to `daily_vel` on US market rows (replaces SoStocked Adj. Velocity for the 118+ ASINs that match)
+
+---
+
+## 🆕 Report B — Dashboard Products, Amazon CA filtered (CA velocity + forecast)
+
+Per-marketplace CA-only Sellerboard export. Drives accurate CA Amazon velocity (replacing the inflated US+CA combined number) AND the CA-specific monthly forecast on the Amazon CA tab.
+
+### How to pull (per brand login)
+
+1. Sign into [sellerboard.com](https://sellerboard.com) for the brand
+2. ⚠ **Switch the marketplace selector** (top-right) to **`amazon.ca`** before exporting
+3. Reports → **Dashboard Products** (NOT Sales by Product/Month — the format is different)
+4. Set date range:
+   - **Weekly workflow**: trailing 90 days (e.g., Feb 22 → May 21) — one file per brand per week
+   - **OR quarterly snapshots**: pull one file per quarter (Q3 2025, Q4 2025, Q1 2026, etc.) — keeps a longer rolling window for seasonality
+5. Export as `.xlsx`
+6. Date range MUST be in filename: `..._DD_MM_YYYY-DD_MM_YYYY_*.xlsx` — pipeline parses it
+
+### Where to drop them
+
+```
+reports\sellerboard\MTB\canada\     reports\sellerboard\NFMD\canada\     reports\sellerboard\SS\canada\
+```
+
+**No renaming.** The loader auto-detects every Dashboard Products file in the `canada/` subfolder and sums across non-overlapping date ranges.
+
+### What the pipeline uses it for
+
+- **Amazon CA velocity** — `avg = total_units ÷ total_days` per ASIN, replaces the previously-inflated US+CA combined number for CA market rows
+- **Amazon CA quarterly seasonality** — derives Q1/Q2/Q3/Q4 factors per ASIN from the date-tagged files, applied to forward monthly forecasts (Apr-Dec)
+- **CA forecast (9MO PLANNING column on Amazon CA tab)** — `monthly_forecast = CA_avg × Q_factor × days_in_month`
+
+### Pipeline log to look for after running
+
+```
+→ Sellerboard CA velocity: NN ASINs across NN files (MTB: X units / X d × X f · NFMD: ... · SS: ...)
+→ CA forecast: NN items use CA quarterly seasonality · NN use flat-rate (CA daily_vel × days)
+```
 
 ---
 
@@ -547,9 +718,12 @@ If today's `sku-review-*.xlsx` doesn't exist, `build_action_plan.py` falls back 
 C:\Users\[YourName]\MTB-SupplyChain\
 ├── reports\
 │   ├── sostocked\
-│   │   ├── MTB\         ← (or land in Downloads\ — combine_forecast.py reads both)
+│   │   ├── MTB\         ← Forecast + Inventory exports (or land in Downloads\)
+│   │   │   └── fva-history\  ← 🆕 month-by-month FvA accumulation (one file per closed month)
 │   │   ├── NFMD\
+│   │   │   └── fva-history\
 │   │   └── SS\
+│   │       └── fva-history\
 │   ├── seller-central\
 │   │   ├── MTB\         ← awd-*.csv + fba inventory.csv (any names)
 │   │   ├── NFMD\
@@ -566,13 +740,20 @@ C:\Users\[YourName]\MTB-SupplyChain\
 │   ├── valogix\         ← schain_itemLocationHistoryForecast_*.csv
 │   ├── valogix-exceptions\ ← schain_itemLocationHistoryException_*.csv
 │   ├── sellerboard\
-│   │   ├── MTB\         ← Sales by product/month .xlsx (any name)
+│   │   ├── MTB\
+│   │   │   ├── (Sales by product/month .xlsx — US+CA combined Monthly)
+│   │   │   └── canada\  ← 🆕 (Dashboard Products .xlsx — marketplace=amazon.ca, CA-only)
 │   │   ├── NFMD\
+│   │   │   ├── (Sales by product/month .xlsx)
+│   │   │   └── canada\
 │   │   └── SS\
+│   │       ├── (Sales by product/month .xlsx)
+│   │       └── canada\
 │   ├── sap-open-pos\    ← SAP_Openpurchaseorderreport.xlsx
 │   ├── in-transit\      ← IN_TRANSIT_LOG_YYYY-MM-DD.xlsx
 │   ├── item-master\
-│   │   └── item_master.xlsx
+│   │   ├── item_master.xlsx
+│   │   └── amazon-sku-mapping.xlsx  ← 🆕 (Amazon listing SKU ↔ SAP UPC mapping)
 │   ├── weekly\          ← (auto-generated by combine_forecast.py)
 │   └── archive\         ← (auto-archive of prior raw files)
 │       ├── sostocked\YYYY-MM-DD\
@@ -589,34 +770,29 @@ C:\Users\[YourName]\MTB-SupplyChain\
 
 ---
 
-# ✅ Pre-run checklist (28 weekly inputs)
+# ✅ Pre-run checklist (34 weekly inputs)
 
-- [ ] **9 SoStocked files** (3 brands × 3 reports — Forecast + Inventory + FvA) — in `Downloads\` or `reports\sostocked\[BRAND]\`
-- [ ] **6 Amazon Seller Central files** (3 brands × 2 reports — AWD + FBA Inventory) — in `reports\seller-central\[BRAND]\`
+- [ ] **9 SoStocked files** (3 brands × 3 reports — Forecast + Inventory + FvA) — in `Downloads\` or `reports\sostocked\[BRAND]\`. FvA files go in `reports\sostocked\[BRAND]\fva-history\` to accumulate month-by-month (see Section 1 Report C). One-time backfill: 15 files (5 months × 3 brands) — then 3 current-month FvA files weekly.
+- [ ] **9 Amazon Seller Central files** — US: AWD + FBA × 3 brands (6 files) in `reports\seller-central\US\[BRAND]\`. CA: FBA only × 3 brands (3 files — MTB doesn't have AWD CA) in `reports\seller-central\CA\[BRAND]\`. **Don't skip CA FBA pulls** — they drive CA stock + FC Transfer numbers on the Amazon CA tab.
 - [ ] **4 ShipBob files** (4 brand logins — On Hand Summary) — in `reports\shipbob\[BRAND]\`
 - [ ] **2 Walmart files** (NFMD + SS — WFS Inventory .xlsx) — in `reports\walmart\[BRAND]\`
 - [ ] **1 Floship file** (Product Inventory export) — in `reports\floship\`
 - [ ] **1 Valogix file** (Item Location History Forecast) — in `reports\valogix\`
-- [ ] **3 Sellerboard files** (3 brand logins — Sales by product/month, max date range) — in `reports\sellerboard\[BRAND]\`
+- [ ] **3 Sellerboard Monthly files** (3 brand logins — Sales by product/month, max date range, marketplace ignored — US+CA combined) — in `reports\sellerboard\[BRAND]\`
+- [ ] **🆕 3 Sellerboard CA Dashboard files** (3 brand logins — Dashboard Products, marketplace = amazon.ca, 90-day or quarterly range) — in `reports\sellerboard\[BRAND]\canada\`
 - [ ] **1 Valogix Exception Report** (History Exception export) — in `reports\valogix-exceptions\`
 - [ ] **1 SAP Open PO report** (full export, no filtering) — in `reports\sap-open-pos\`
 - [ ] **1 In-Transit Log** (latest) — in `reports\in-transit\` *(skip if not updated)*
 - [ ] **`item_master.xlsx`** present in `reports\item-master\` *(no weekly refresh — only re-pull `SAPABCCLASSIFICATION.xlsx` when SAP classifications change)*
+- [ ] **`amazon-sku-mapping.xlsx`** present in `reports\item-master\` *(no weekly refresh — only update when new SKUs launch on Amazon. Maps Amazon listing SKU ↔ SAP UPC for the 30+ items where they differ — e.g., 859886007685-M → SAP 859886007685, BODYBRBLK → SAP 859886007791)*
 - [ ] **Carryover sku-review** in this week's `outputs\YYYY-MM-DD\` folder *(if you have decisions to fold in)*
 
-When all checked → follow [[06 Processes & SOPs/(C) Weekly Analysis SOP — Step by Step]].
+When all checked → run the 3 scripts (see "How to run" section above).
 
 ---
 
-# 🔗 Per-source detail docs
-
-- [[06 Processes & SOPs/(C) Amazon Seller Central — Reports Pull List]]
-- [[06 Processes & SOPs/(C) ShipBob — Reports Pull List]]
-- [[06 Processes & SOPs/(C) Walmart Seller Center — Reports Pull List]]
-
 # 🔗 Companion SOPs
 
-- [[06 Processes & SOPs/(C) Weekly Analysis SOP — Step by Step]] — the operational run-the-scripts playbook
 - [[06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page]] — print-and-stick version
 - [[06 Processes & SOPs/(C) ABC Classification Reference]] — the 6 ABC codes
 - [[06 Processes & SOPs/(C) Daily Morning Routine — SCM]] — daily routine
@@ -624,4 +800,4 @@ When all checked → follow [[06 Processes & SOPs/(C) Weekly Analysis SOP — St
 
 ---
 
-*Rewritten: May 4, 2026 · Updated: May 6, 2026 (added Sellerboard · Valogix Exceptions · SAP Open POs) · Owner: Supply Chain*
+*Rewritten: May 4, 2026 · Consolidated: May 18, 2026 (absorbed Step-by-Step SOP + System Map + per-source pull lists) · Owner: Supply Chain*

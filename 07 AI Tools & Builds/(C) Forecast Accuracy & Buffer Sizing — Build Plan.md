@@ -1,4 +1,4 @@
-# (C) Forecast Accuracy & Buffer Sizing — Build Plan
+																																																																																																																# (C) Forecast `Accuracy & Buffer Sizing — Build Plan
 
 > Comprehensive plan to add forecast vs actual analysis, per-SKU accuracy scoring, and accuracy-driven PO buffer sizing to the weekly pipeline. **Parked plan** — work through the open questions before executing.
 >
