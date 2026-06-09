@@ -337,7 +337,7 @@ By now you have a clean view. Two pro-discipline rules:
 | Friday — week-over-week check | 15 min |
 | **Total** | **~5 hrs/week** for the analysis-and-decide loop |
 
-Anything more = miscalibrated. Augusto can absorb the deeper triage.
+Anything more = miscalibrated. If a future analyst joins the team, deeper triage gets delegated to them.
 
 ---
 

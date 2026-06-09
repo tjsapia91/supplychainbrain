@@ -99,7 +99,7 @@ Surface the operational signals the new format unlocks:
 
 - [[06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP]] — note the export menu path change in ShipBob
 - [[06 Processes & SOPs/(C) ShipBob — Reports Pull List]] — update pull instructions
-- Brief on legacy-vs-new fields so Augusto knows which to pull
+- Document legacy-vs-new fields so future team members know which to pull
 
 ---
 

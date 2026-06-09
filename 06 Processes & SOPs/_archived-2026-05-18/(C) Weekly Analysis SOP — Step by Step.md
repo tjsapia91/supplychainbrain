@@ -389,4 +389,4 @@ Total time: ~3-4 hours your first month, ~1.5 hours when you're seasoned.
 
 ---
 
-*Rewritten: May 4, 2026 · Owner: Supply Chain (Tommy + Augusto)*
+*Rewritten: May 4, 2026 · Owner: Supply Chain (Tommy)*

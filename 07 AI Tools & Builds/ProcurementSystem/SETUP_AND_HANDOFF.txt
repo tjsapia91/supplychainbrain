@@ -102,7 +102,7 @@ WHAT HAS BEEN BUILT (COMPLETED)
    - Select All checkbox in header
    - Navy batch action bar with gold "Batch Send to Vendor" button
    - Confirmation page groups PPOs by vendor, shows email preview
-   - Sender selection dropdown: Tom, Augusto, or Donna
+   - Sender selection dropdown: Tom or Donna
    - Email preview shows: From, To (vendor), CC (supplychain@), Subject, Attachments
    - Same batch selection available on vendor detail page
 
@@ -200,7 +200,6 @@ AUTHORIZED EMAIL SENDERS (configured in procurement/email_service.py)
 ================================================================================
 
 tom      — Tom Sapia (tom@michaeltoddbeauty.com)
-augusto  — Augusto (augusto@michaeltoddbeauty.com)
 donna    — Donna (donna@michaeltoddbeauty.com)
 
 CC on all outgoing: supplychain@michaeltoddbeauty.com

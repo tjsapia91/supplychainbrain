@@ -142,7 +142,6 @@ STEP 7: RELOAD AND TEST
 If you ran create_team_users.py, these accounts are ready:
 
   Username: tom       Password: MTB2024!   Role: Admin (full access)
-  Username: augusto   Password: MTB2024!   Role: Supply Chain Manager
   Username: donna     Password: MTB2024!   Role: Supply Chain Manager
 
   ** Have everyone change their password after first login **

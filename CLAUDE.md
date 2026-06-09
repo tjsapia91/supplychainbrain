@@ -41,7 +41,6 @@ Each brand: separate Amazon login, products, forecasts.
 
 ## Team
 - **Tommy** — SCM (#2 on team)
-- **Augusto** — analyst (onboarded May 2026)
 - Director of Supply Chain (boss)
 - SVP of Operations (senior leadership)
 
@@ -245,4 +244,3 @@ All drop into `Downloads\` — `sort_downloads.py` routes them:
 - *"Pick up the forecast accuracy build plan"* — 5-phase plan
 - *"Pick up the AWD-to-FBA pipeline"* — shipment visibility build
 - *"Wire up the Inbound Shipment Items report"* — companion to In-Transit Log
-- *"Resume Augusto onboarding"* — second analyst's training

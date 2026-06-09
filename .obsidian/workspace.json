@@ -58,13 +58,13 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page.md",
+                "file": "07 AI Tools & Builds/(C) Forecast Accuracy & Buffer Sizing — Build Plan.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": false
               },
               "icon": "lucide-file",
-              "title": "(C) Weekly Analysis Cheat Sheet — 1 Page"
+              "title": "(C) Forecast Accuracy & Buffer Sizing — Build Plan"
             }
           }
         ],
@@ -155,11 +155,14 @@
       "terminal:Open terminal": false
     }
   },
-  "active": "fb66cab55d9b1ada",
+  "active": "dbc908e04d46cf34",
   "lastOpenFiles": [
-    "07 AI Tools & Builds/(C) Forecast Accuracy & Buffer Sizing — Build Plan.md",
-    "06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page.md",
+    "06 Processes & SOPs/(C) ABC Classification Reference.md",
+    "06 Processes & SOPs/(C) Augusto Onboarding — Supply Chain Brain.md",
+    "CLAUDE.md.tmp.27256.1781023559767",
     "06 Processes & SOPs/(C) Weekly Analysis SOP — Step by Step.md",
+    "06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page.md",
+    "07 AI Tools & Builds/(C) Forecast Accuracy & Buffer Sizing — Build Plan.md",
     "10 System/(C) Master SupplyChainBrain — Architecture.md",
     "06 Processes & SOPs/(C) ShipBob Inventory Protection — Channel Reserve Logic.md",
     "CLAUDE.md.tmp.39428.1780927103657",
@@ -182,8 +185,6 @@
     "Weekly Report Explanation/(C) 05 - Amazon EU.md",
     "Weekly Report Explanation/(C) 04 - Amazon AU.md",
     "Weekly Report Explanation/(C) 03 - Amazon UK.md",
-    "Weekly Report Explanation/(C) 02 - Amazon CA.md",
-    "Weekly Report Explanation/(C) README.md",
     "Weekly Report Explanation",
     "06 Processes & SOPs/(C) PO Creation SOP.md.backup_2026-05-20",
     "06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP.md.backup_2026-05-20",
@@ -192,7 +193,6 @@
     "06 Processes & SOPs/Weekly-Analysis-System-Map.html",
     "07 AI Tools & Builds/TrueOPS Shipment Module",
     "07 AI Tools & Builds/Shipment Operations Module",
-    "outputs/2026-05-05",
     "06 Attachments/try15FINAL.jpeg",
     "06 Attachments/try13FINAL.jpeg",
     "06 Attachments/try12FINAL.jpeg",

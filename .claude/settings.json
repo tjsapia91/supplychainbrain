@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(rm -f \"C:/Users/Tom Sapia/supplychainbrain/.git/index.lock\" && echo \"Lock removed\")",
-      "Write(C:\\\\Users\\\\Tom Sapia\\\\.claude\\\\CLAUDE.md)"
+      "Write(C:\\\\Users\\\\Tom Sapia\\\\.claude\\\\CLAUDE.md)",
+      "Edit(C:\\\\Users\\\\Tom Sapia\\\\.claude\\\\CLAUDE.md)"
     ]
   }
 }
