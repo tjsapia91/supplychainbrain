@@ -1,97 +1,115 @@
 # 🚀 Weekly Analysis — 1-Page Cheat Sheet
 
-> Print this. Stick it next to your monitor. After 2-3 weeks you won't need the full SOP anymore — just this.
+> Print this. Stick it next to your monitor. After 2-3 weeks you won't need the full SOP — just this.
 >
-> *Last updated: 2026-05-21 — reflects Sellerboard CA Dashboard, Amazon CA FBA, NEW ShipBob format, US/CA seller-central split.*
+> *Last updated: 2026-06-08 — reflects 5-section THIS WEEK tab, In Transit tab, PO Priority tab, days-first ranking, auto-classified Downloads workflow.*
 
 ---
 
-## ✅ Download checklist (34 weekly files)
+## ✅ Download checklist (~37 weekly files)
 
-| # | Source | Report | Drop into | Rename to |
-|---|---|---|---|---|
-| **SoStocked — 9 files (Forecast + Inventory + FvA × 3 brands)** ||||
-| 1-3 | SoStocked (MTB/NFMD/SS) | **Projected Forecast Model** | `Downloads\` | auto |
-| 4-6 | SoStocked (MTB/NFMD/SS) | **Inventory → "Breakdown by Warehouses"** | `Downloads\` | auto |
-| 7-9 | SoStocked (MTB/NFMD/SS) | **Forecasted vs Actual (FvA)** — current month | `reports\sostocked\[BRAND]\fva-history\` | `FvA_[BRAND]_YYYY-MM.xlsx` |
-| **Amazon Seller Central — 9 files (US: 2 × 3 brands · CA: 1 × 3 brands)** ||||
-| 10-12 | Amazon SC US (MTB/NFMD/SS) | **AWD Inventory Report** | `reports\seller-central\US\[BRAND]\` | (no rename) |
-| 13-15 | Amazon SC US (MTB/NFMD/SS) | **FBA Inventory Report (97 cols)** | `reports\seller-central\US\[BRAND]\` | (no rename) |
-| 16-18 | Amazon SC CA (MTB/NFMD/SS) | **FBA Inventory Report only — no AWD CA for MTB** | `reports\seller-central\CA\[BRAND]\` | (no rename) |
-| **ShipBob — 4 files (NEW format)** ||||
-| 19 | ShipBob (MTB) | `Inventory → Inventory Status → Export → Export All Data` | `reports\shipbob\MTB\` | (no rename) |
-| 20 | ShipBob (NFMD) | same path | `reports\shipbob\NFMD\` | (no rename) |
-| 21 | ShipBob (SS) | same path | `reports\shipbob\SS\` | (no rename) |
-| 22 | ShipBob (LUMOS) | same path | `reports\shipbob\LUMOS\` | (no rename) |
-| **Walmart — 2 files** ||||
-| 23 | Walmart (NFMD) | WFS → Inventory → Download All Items (xlsx) | `reports\walmart\NFMD\` | (no rename) |
-| 24 | Walmart (SS) | WFS → Inventory → Download All Items (xlsx) | `reports\walmart\SS\` | (no rename) |
-| **Floship — 1 file** ||||
-| 25 | Floship | Inventory → Product Inventory → Export | `reports\floship\` | (no rename) |
-| **Valogix — 1 file** ||||
-| 26 | Valogix | Item-Location-History-Forecast (CSV) | `reports\valogix\` | (keep original name) |
-| **Sellerboard — 6 files (Monthly + CA Dashboard)** ||||
-| 27 | Sellerboard (MTB) | **Sales by Product/Month** — max date range, marketplace ignored | `reports\sellerboard\MTB\` | (no rename) |
-| 28 | Sellerboard (NFMD) | Sales by Product/Month | `reports\sellerboard\NFMD\` | (no rename) |
-| 29 | Sellerboard (SS) | Sales by Product/Month | `reports\sellerboard\SS\` | (no rename) |
-| 30 | Sellerboard (MTB) | 🇨🇦 **Dashboard Products** — set marketplace = `amazon.ca`, last 90 days | `reports\sellerboard\MTB\canada\` | (no rename) |
-| 31 | Sellerboard (NFMD) | 🇨🇦 Dashboard Products (amazon.ca) | `reports\sellerboard\NFMD\canada\` | (no rename) |
-| 32 | Sellerboard (SS) | 🇨🇦 Dashboard Products (amazon.ca) | `reports\sellerboard\SS\canada\` | (no rename) |
-| **Valogix Exceptions — 1 file** ||||
-| 33 | Valogix | History Exception Report (CSV) | `reports\valogix-exceptions\` | (no rename) |
-| **SAP — 1 file** ||||
-| 34 | SAP | Open Purchase Order Report (full export) | `reports\sap-open-pos\` | (no rename) |
-| **Optional / when updated** |||||
-| ⊕ | (manual) | In-Transit Log | `reports\in-transit\` | `IN_TRANSIT_LOG_YYYY-MM-DD.xlsx` |
-| ⊕ | SAP (as needed) | ABC Classification → `SAPABCCLASSIFICATION.xlsx` | `reports\item-master\item_master.xlsx` | only when SAP classifications change |
-| ⊕ | Amazon SKU Mapping | Internal MTB-maintained file | `reports\item-master\amazon-sku-mapping.xlsx` | only when new Amazon SKUs launch |
+**Drop everything into `C:\Users\Tom Sapia\Downloads\`. No folder navigation needed.**
+`sort_downloads.py` (auto-runs first) classifies every recognized file and routes it to the right `reports/` subfolder.
 
-**One-time backfill: 15 FvA files** (5 months × 3 brands) → drop in `fva-history\` folders. Then just current month each week.
+| Source | Files | Cadence | Notes |
+|---|---:|---|---|
+| **SoStocked** (Forecast + Inventory + FvA × 3 brands) | 9 | Weekly | Inventory must be "Breakdown by Warehouses" (~50 cols) — not "Current View" |
+| **Amazon Seller Central US** (FBA + AWD × 3 brands) | 6 | Weekly | FBA = full 97-col report from Reports → Fulfillment |
+| **Amazon Seller Central CA** (FBA × 3 brands) | 3 | Weekly | CA has no AWD program for MTB; FBA only |
+| **ShipBob** (Inventory Status → Export All Data) | 4 | Weekly | NEW format only — MTB, NFMD, SS, LUMOS |
+| **Walmart** (Marketplace + Inventory Health × 2 brands) | 4 | Weekly | NFMD + SS only |
+| **Floship** (Product Inventory export) | 1 | Weekly | |
+| **Valogix** (Forecast + Exceptions) | 2 | Weekly | Item-Location-History-Forecast + History Exception Report |
+| **SAP Open POs** (full export) | 1 | Weekly | |
+| **Sellerboard CA Dashboard** (× 3 brands) | 3 | Weekly | Set marketplace filter = `amazon.ca` · last 90 days |
+| **Sellerboard Sales by Product/Month** (× 3 brands) | 3 | **Monthly** | Max date range, marketplace ignored |
+| **In-Transit Log** (`IN TRANSIT LOG*.xlsx`) | 1 | Weekly | From SharePoint — get latest before running |
+| **Total weekly** | **~37** | | Plus 3 monthly Sellerboards |
+
+**Optional / on-change-only:**
+- SAP `SAPABCCLASSIFICATION.xlsx` → only when ABC codes change
+- `amazon-sku-mapping.xlsx` → only when new Amazon SKUs launch
 
 ---
 
-## ⚡ Run order — 5 commands
+## ⚡ Run order — 2 commands
 
-Open Command Prompt → `cd C:\Users\Tom Sapia\MTB-SupplyChain` → run these in order:
+Open Command Prompt → `cd C:\Users\Tom Sapia\MTB-SupplyChain` → run:
 
 ```
-python scripts\combine_forecast.py
 python scripts\demand_planning.py
 python scripts\build_report.py
-python scripts\build_action_plan.py
-python scripts\build_shipment_tracking.py
 ```
+
+`build_report.py` auto-chains the rest: `sort_downloads.py` (pre-flight) → demand-plan ingestion → 19-tab weekly report → velocity-watch → deep-plan workflow → order-list → in-transit + PO priority tabs.
+
+**Run time:** 2-4 minutes total once Downloads is populated.
 
 ---
 
 ## 📂 What you should see in `outputs\YYYY-MM-DD\`
 
-- ✅ `demand-plan-YYYY-MM-DD.xlsx`
-- ✅ `weekly-report-YYYY-MM-DD.xlsx` ⭐ THE BIG ONE
-- ✅ `action-plan-YYYY-MM-DD.xlsx`
-- ✅ `shipment-tracking-YYYY-MM-DD.xlsx`
+- ✅ `weekly-report-YYYY-MM-DD.xlsx` ⭐ **THE BIG ONE** (19 tabs)
+- ✅ `demand-plan-YYYY-MM-DD.json` + `.md`
+- ✅ `order-list-YYYY-MM-DD.xlsx`
+- ✅ `velocity-watch-YYYY-MM-DD.xlsx`
+
+All also copied to `outputs/latest/`.
 
 ---
 
-## 🎯 Decision rules
+## 🎯 The ONE tab to open: ✅ THIS WEEK
 
-| Status | What to do |
-|---|---|
-| 🔴 STOCKOUT / TRUE STOCKOUT | **Today.** ShipBob send-in if available, urgent PO if not. |
-| 🔴 CRITICAL / BELOW ROP | **Today/tomorrow.** Place PO. |
-| 🟠 HIGH / LOW | **This week.** Schedule the PO. |
-| 🟡 FBA REPLENISHMENT | **This week.** Routine ShipBob → FBA send-in. |
-| 🟢 HEALTHY | Skip. |
-| ⚫ E or Z classification | **No new POs** — being phased out / obsolete. |
+5 sections, top to bottom:
+
+| Section | Action | When |
+|---|---|---|
+| 🛒 **ORDER** | Place a new supplier PO | This week |
+| ⏱ **EXPEDITE** | Call supplier — PO is arriving AFTER our stockout | This week |
+| 🚛 **TRANSFER** | File an SB→Amazon send-in | This week |
+| ⚠ **SUPPLY RISK** | Confirm PO ETA — SAP same-day error means we don't know real date | This week |
+| ⏳ **WATCH** | PO is in flight; verify next week | Next week |
+
+---
+
+## 🎯 Decision rules — days-first (June 5 update)
+
+The PO Priority tab and SUPPLY RISK section both rank by **days to stockout**, not status string:
+
+| Rank | Days to Stockout | What to do |
+|---|---|---|
+| 🔴 **OVERDUE** | < 0 | Already stocked out — manufacture immediately, evaluate air freight |
+| 🔴 **CRITICAL** | ≤ 30 days | Place PO today/this week |
+| 🟠 **HIGH** | 31-90 days | Place PO this week — fits in next supplier cycle |
+| 🟡 **MEDIUM** | 91-180 days | Schedule for fall production |
+| 🟢 **HEALTHY** | > 180 days | Monitor only |
+| ⚪ **NO DATA** | (no calculable date) | Verify before ordering — data uncertainty |
+
+---
+
+## 🏭 PO Priority tab — what to send the supplier
+
+After scanning ✅ THIS WEEK, open **🏭 PO Priority**. It's the vendor-by-vendor manufacturing priority list:
+- Groups POs by vendor (Ningbo Dream Big · Ningbo Ocean · Ningbo Rivers · etc.)
+- Each PO ranked by days-to-stockout for the item it covers
+- "Still at supplier" qty = SAP open qty MINUS what's already in transit (per In-Transit Log)
+
+Copy a vendor's section into an email → send to the supplier → "manufacture in this order."
+
+---
+
+## 📦 In Transit tab — POs already shipped
+
+33 active line items typical: 21 Amazon-bound + 12 SB-bound. Shows real ETAs from the In-Transit Log (overrides SAP's same-day errors). Cross-reference here before assuming a PO is overdue.
 
 ---
 
 ## 🇨🇦 Amazon CA-specific notes
 
-- Amazon CA has **FBA only** (no AWD program for MTB) → just 1 file per brand from CA dashboard
-- Sellerboard Monthly report **combines US + CA** — DON'T use for CA velocity
-- Use Sellerboard **Dashboard Products** with `amazon.ca` marketplace filter for CA velocity + forecast
-- SAP Open POs go to US Amazon ONLY → CA tab's PO ARRIVES ON column shows `—` until CA-specific PO source is added
+- Amazon CA has **FBA only** (no AWD program for MTB) — just 1 file per brand
+- Sellerboard Monthly **combines US + CA** — DO NOT use for CA velocity
+- Use Sellerboard **Dashboard Products** with `amazon.ca` filter for CA velocity
+- SAP Open POs go to US Amazon ONLY → CA `PO ARRIVES ON` column shows `—`
 
 ---
 
@@ -99,13 +117,24 @@ python scripts\build_shipment_tracking.py
 
 | Error | Fix |
 |---|---|
-| "No such file" | A file is missing from `reports\` — re-download |
-| "Permission denied" | Excel has the file open — close it |
-| "ModuleNotFoundError" | `pip install pandas openpyxl` |
-| Numbers wrong | Check all 34 inputs are in the right folders, re-run from Script 1 |
-| `→ ShipBob (LEGACY)` log line | Still pulling On Hand Summary — switch to `Inventory Status → Export All Data` |
-| CA velocity inflated | Sellerboard Monthly applied to CA rows — verify pipeline F1 fix is active |
+| `PermissionError: weekly-report-*.xlsx` | Excel has the file open — close it |
+| `❓ UNSORTED` in sort log | New file pattern — move manually OR add rule to `sort_downloads.py` |
+| Numbers don't match Seller Central dashboard | CSV is cached — re-download FBA Inventory Report |
+| `⚠️ Sellerboard Monthly is N days old` | Pull the 3 monthly Sellerboards (monthly cadence) |
+| CA velocity inflated 30-50× | CA Dashboard pulled without `amazon.ca` filter |
+| `→ ShipBob (LEGACY)` log line | Switch to `Inventory Status → Export All Data` (new format) |
+| In-Transit Log shows stale dates | Get the latest from SharePoint and re-drop in Downloads |
+| 🏭 PO Priority shows NO DATA on items in ORDER section | `supplier_rows` lookup gap — verify build_report ran clean to end |
 
 ---
 
-*Updated: 2026-05-21 · Full SOP:* [[06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP]] *(master doc — inputs · architecture · steps)*
+## Master / detail docs
+
+- Full step-by-step (this doc's expanded twin): [[06 Processes & SOPs/(C) Weekly Analysis SOP — Step by Step]]
+- Where to source each file: [[06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP]]
+- Tab-by-tab reference (every column explained): `Weekly Report Explanation/` folder
+- ShipBob channel reserve logic: [[06 Processes & SOPs/(C) ShipBob Inventory Protection — Channel Reserve Logic]]
+
+---
+
+*Updated: 2026-06-08 · 1-page reference · See Step-by-Step SOP for first-time walkthrough*

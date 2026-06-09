@@ -58,13 +58,13 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "07 AI Tools & Builds/(C) Forecast Accuracy & Buffer Sizing — Build Plan.md",
+                "file": "06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": false
               },
               "icon": "lucide-file",
-              "title": "(C) Forecast Accuracy & Buffer Sizing — Build Plan"
+              "title": "(C) Weekly Analysis Cheat Sheet — 1 Page"
             }
           }
         ],
@@ -108,8 +108,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 208.50543212890625,
-    "collapsed": true
+    "width": 418.50543212890625
   },
   "right": {
     "id": "2998eaf027a1c010",
@@ -148,7 +147,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 1178.5
+    "width": 661.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -156,13 +155,16 @@
       "terminal:Open terminal": false
     }
   },
-  "active": "a463a701c5b010f8",
+  "active": "fb66cab55d9b1ada",
   "lastOpenFiles": [
+    "07 AI Tools & Builds/(C) Forecast Accuracy & Buffer Sizing — Build Plan.md",
+    "06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page.md",
+    "06 Processes & SOPs/(C) Weekly Analysis SOP — Step by Step.md",
+    "10 System/(C) Master SupplyChainBrain — Architecture.md",
+    "06 Processes & SOPs/(C) ShipBob Inventory Protection — Channel Reserve Logic.md",
     "CLAUDE.md.tmp.39428.1780927103657",
     "Weekly Report Explanation/(C) 00 - Data Source Map.md",
     "Weekly Report Explanation/(C) 01 - Amazon US.md",
-    "10 System/(C) Master SupplyChainBrain — Architecture.md",
-    "07 AI Tools & Builds/(C) Forecast Accuracy & Buffer Sizing — Build Plan.md",
     "Weekly Report Explanation/(C) 19 - Sales Anomalies.md",
     "Weekly Report Explanation/(C) 18 - Amazon FvA.md",
     "Weekly Report Explanation/(C) 17 - Amazon Sales History.md",
@@ -183,8 +185,6 @@
     "Weekly Report Explanation/(C) 02 - Amazon CA.md",
     "Weekly Report Explanation/(C) README.md",
     "Weekly Report Explanation",
-    "06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page.md",
-    "06 Processes & SOPs/(C) Daily Morning Routine — SCM.md",
     "06 Processes & SOPs/(C) PO Creation SOP.md.backup_2026-05-20",
     "06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP.md.backup_2026-05-20",
     "CLAUDE.md.backup_2026-05-20",
@@ -193,7 +193,6 @@
     "07 AI Tools & Builds/TrueOPS Shipment Module",
     "07 AI Tools & Builds/Shipment Operations Module",
     "outputs/2026-05-05",
-    "outputs",
     "06 Attachments/try15FINAL.jpeg",
     "06 Attachments/try13FINAL.jpeg",
     "06 Attachments/try12FINAL.jpeg",
