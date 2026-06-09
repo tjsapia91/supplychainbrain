@@ -104,6 +104,14 @@ Copy a vendor's section into an email → send to the supplier → "manufacture 
 
 ---
 
+## 🔄 SAP↔SB Rebalance tab — inventory drift catcher
+
+Auto-computed every Monday. Compares SAP claimed inventory at SB warehouses vs actual ShipBob count. **Skim weekly** — only act if variances are flagged ⚠ (>50 units OR >5%).
+
+**First Monday of each month:** run `python scripts/build_sap_sb_rebalance.py` standalone for the full 5-tab cleanup file. Investigate every flagged variance. Update SAP to match physical OR escalate to ShipBob.
+
+---
+
 ## 🇨🇦 Amazon CA-specific notes
 
 - Amazon CA has **FBA only** (no AWD program for MTB) — just 1 file per brand

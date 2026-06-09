@@ -316,6 +316,7 @@ Every open PO from SAP. Use as a reference / audit trail. Same-day-error rows ar
 | **📊 Amazon Sales History** | Sellerboard monthly view per ASIN |
 | **📈 Amazon FvA** | Sellerboard Forecast vs Actual variance |
 | **📊 Sales Anomalies** | Statistical outliers from Valogix exception report |
+| **🔄 SAP↔SB Rebalance** | Weekly variance scan vs SAP inventory at SB warehouses — see monthly cadence below |
 
 ---
 
@@ -325,6 +326,17 @@ By now you have a clean view. Two pro-discipline rules:
 
 1. **Trust the system.** If THIS WEEK / PO Priority say it's fine, it's fine. Don't second-guess by reviewing every SKU.
 2. **Supplier calls > dashboard hours.** The bottleneck most weeks is a phone conversation, not a spreadsheet. EXPEDITE + SUPPLY RISK rows are calls to make this week.
+
+### Monthly + quarterly cadences (added beyond the weekly flow)
+
+| Cadence | What runs | Owner | Time |
+|---|---|---|---|
+| **Weekly** (every Monday) | Full weekly report. Skim 🔄 SAP↔SB Rebalance tab — only act if variances are flagged ⚠ | Tommy | included in weekly run |
+| **Monthly** (1st Monday of month) | **Formal SAP↔SB reconciliation:** run `python scripts/build_sap_sb_rebalance.py` standalone to get the full 5-tab cleanup file. Investigate every flagged variance (>50u or >5%). Update SAP to match physical, OR work with ShipBob to investigate missing units. Aligns with financial monthly close. | Tommy + SAP admin | ~2 hrs |
+| **Quarterly** | Physical cycle count at one or two SB FCs (rotate quarterly) to validate ShipBob's own numbers. | Tommy + ShipBob ops | ~half day |
+| **Annually** | Full physical inventory + write-down accounting | Finance + ops | full day |
+
+The 🔄 SAP↔SB Rebalance tab in weekly-report.xlsx is the early-warning system between formal monthly passes. Threshold: variance flagged ⚠ when |Δ| > 50 units OR > 5% of SAP qty.
 
 ### Time budget (for a clean week)
 
