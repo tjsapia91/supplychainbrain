@@ -22,8 +22,9 @@
 | 8 | **🆕 Sellerboard CA — Dashboard Products** *(CA-only, per-marketplace)* | × 3 brands (MTB/NFMD/SS) | **3** | Weekly *(or quarterly)* | `reports\sellerboard\[BRAND]\canada\` |
 | 9 | **Valogix Exceptions** | History Exception Report (statistical outliers) | **1** | Weekly | `reports\valogix-exceptions\` |
 | 10 | **SAP Open POs** | Open Purchase Order report (full export) | **1** | Weekly | `reports\sap-open-pos\` |
-| 11 | **In-Transit Log** | Master shipment tracker (manual) | **1** | When updated | `reports\in-transit\` |
-| 12 | **SAP Item Master** | ABC Classification / Item Master export | **1** | **As needed** — only when SAP classifications change | `reports\item-master\` |
+| 11 | **SAP Inventory in Warehouse** | Per-warehouse inventory snapshot — feeds 🔄 SAP↔SB Rebalance | **1** | Weekly | `reports\_data\sap-inventory\` |
+| 12 | **In-Transit Log** | Master shipment tracker (manual) | **1** | When updated | `reports\in-transit\` |
+| 13 | **SAP Item Master** | ABC Classification / Item Master export | **1** | **As needed** — only when SAP classifications change | `reports\item-master\` |
 | ⊕ | **Amazon SKU Mapping** | Amazon listing SKU ↔ SAP UPC mapping | 1 | **As needed** — when new SKUs launch on Amazon | `reports\item-master\amazon-sku-mapping.xlsx` |
 | ⊕ | **Internal** | SKU Review (carryover from prior week) | 1 | Weekly (folded forward) | `outputs\YYYY-MM-DD\` |
 
@@ -606,6 +607,58 @@ After filters, ~150 active POs remain.
 Any PO where `Original Due Date == Posting Date` is flagged with ⚠ on both the per-marketplace tabs (PO ETA cell highlighted amber) and the dedicated 📋 SAP Open POs tab ("⚠ FIX SAP" badge in the rightmost column). These are SAP data-quality issues — the due date wasn't filled in correctly and needs to be updated in SAP.
 
 **Action:** review the flagged rows on the 📋 SAP Open POs tab each week and update the due dates in SAP so the PO ETA column shows real expected arrival dates.
+
+---
+
+# 9️⃣b SAP Inventory in Warehouse — 1 file (weekly)
+
+Per-warehouse inventory snapshot from SAP. Feeds the **🔄 SAP↔SB Rebalance** tab in the weekly report + the standalone monthly reconciliation file.
+
+## How to pull
+
+1. SAP → **Inventory in Warehouse Report**
+2. Run with **all warehouses** selected (don't filter — the parser splits by warehouse marker rows internally)
+3. Export as Excel
+4. Drop into `Downloads\` — auto-classifier handles the rest
+
+**File-name variants the classifier recognizes** (any of these):
+- `Inventory_in_warehouse*.xlsx`
+- `SAP Inventory in Warehouse Report.xlsx`
+- `Inventory In Warehouse Report.xlsx`
+- `InventoryInWarehouse.xlsx`
+
+**Auto-routed to:** `reports\_data\sap-inventory\`
+
+## What the script reads
+
+The file has a quirky format — warehouse codes appear as separator rows where `Item No. == "Whse:"`. The parser walks row-by-row tracking the current warehouse. Columns used:
+
+- **Item No.** → 12-digit UPC
+- **In Stock** → quantity at that warehouse
+- **Item Price** → unit cost (used for $ at risk calc in the rebalance)
+
+## ShipBob warehouse codes in SAP
+
+The reconciliation aggregates across these warehouse codes (filters out everything else):
+
+| SAP code | ShipBob FC | Brand split |
+|---|---|---|
+| `SBGA-MT` | Fairburn, GA | MTB |
+| `SBGA-SS` | Fairburn, GA | SS + NFMD |
+| `SBNV-MT` | Reno, NV | MTB |
+| `SBNV-SS` | Reno, NV | SS + NFMD |
+| `SBPA-MT` | Bethlehem, PA | MTB |
+| `SBPA-SS` | Bethlehem, PA | SS + NFMD |
+| `SBCA-MT` | Moreno Valley, CA | MTB only |
+| `SBGAMTQC` | Fairburn QC hold | MTB |
+| `SBGASSQC` | Fairburn QC hold | SS + NFMD |
+
+NFMD inventory is tracked under the SS warehouse codes (NFMD shares the SS legal entity in SAP).
+
+## Where the output shows up
+
+- **🔄 SAP↔SB Rebalance** tab in weekly-report (auto, every Monday)
+- **First Monday of month:** run `python scripts/build_sap_sb_rebalance.py` for the standalone 5-tab cleanup file
 
 ---
 
