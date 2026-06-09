@@ -2,7 +2,7 @@
 
 > Official ABC classification codes used by Michael Todd Beauty across all 3 brands (MTB, NFMD, SS). Source of truth: **SAP item master, matched by UPC**.
 >
-> **Last updated:** May 5, 2026
+> **Last updated:** June 8, 2026
 
 ---
 
@@ -36,11 +36,13 @@ Lookup chain:
 
 ## Where each code shows up in the report
 
+(Tabs as of June 8, 2026 — see [[06 Processes & SOPs/(C) Weekly Analysis SOP — Step by Step]] for full tab list.)
+
 | Code | Routing |
 |---|---|
-| A · B · C · D | **Main views** — Weekly Summary, Inventory Overview, Priority Actions, brand tabs |
-| E | **Main views** + eligible for **🔚 Phase-Out Review (E→Z)** tab if 0 stock + 0 velocity |
-| F · I · S · Z | **📦 Sales BOMs & Other tab only** — filtered out of all main views |
+| A · B · C · D | **Main views** — ✅ THIS WEEK · Amazon US/CA/UK/AU/EU · ShipBob · Walmart · TikTok · Floship Intl · 🏭 PO Priority · 📦 In Transit |
+| E | **Main views** + listed in **🗑 Phase-Out, Obsolete & BOMs** tab if 0 stock + 0 velocity |
+| F · I · S · Z | **🗑 Phase-Out, Obsolete & BOMs tab + 🏷 Bundles & Custom SKUs tab** only — filtered out of all main action views |
 
 ---
 
@@ -75,9 +77,9 @@ If a row shows `—` instead of a badge, it means the item's UPC isn't in the SA
 | **C** item flagged as low DOS | Stock out is ok — assess whether to keep replenishing |
 | **D** item with rising velocity | Watch — reclassify to A/B/C as it stabilizes |
 | **E** item with 0 on hand + 0 velocity | Candidate for **Z** reclassification → see Phase-Out Review tab |
-| **F** item appearing on main view | Probably old data — re-pull SAP item master |
-| **I** item appearing on main view | Should not happen — components shouldn't be in sales reports. Investigate why it's tagged as a salable SKU. |
-| **S** (Sales BOM) shows in main report | Re-pull SAP item master — likely stale classification |
+| **F** item appearing on a main action view | Probably old data — re-pull SAP item master |
+| **I** item appearing on a main action view | Should not happen — components shouldn't be in sales reports. Investigate why it's tagged as a salable SKU. |
+| **S** (Sales BOM) shows in a main action view | Re-pull SAP item master — likely stale classification, OR confirm it's a special-account bundle (CVS / Walmart Premium-Mint variants etc.) |
 | **Z** item still in active listings | Remove from sales channels — clean up listings |
 
 ---
@@ -94,5 +96,12 @@ Workflow when a refresh IS needed (per the [[06 Processes & SOPs/(C) Weekly Inpu
 
 ---
 
-*Updated: May 5, 2026*
+## Related docs
+
+- [[06 Processes & SOPs/(C) Weekly Analysis SOP — Step by Step]] — where to find each tab
+- [[06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP]] — SAP item master pull workflow
+
+---
+
+*Updated: June 8, 2026 — refreshed tab routing references (Weekly Summary → ✅ THIS WEEK, brand tabs removed, 🗑 Phase-Out/BOMs naming)*
 *Reference: SAP `SAPABCCLASSIFICATION.xlsx` export (Item No. · Item Description · ItemBranch · ABC Classification)*

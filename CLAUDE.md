@@ -80,6 +80,19 @@ SupplyChainBrain/
 - **Brand abbreviations:** MTB, NFMD, SS
 - **Skills** are markdown files in the Skills folder, NOT Claude Code skills.
 
+### 🔁 Always-Update Rule (Tommy 2026-06-08)
+**When a change ships AND is confirmed, immediately update the relevant docs in the same session — don't defer.** No more "we'll catch up later." Docs lag = audit pain.
+
+When a code/process change is confirmed:
+- New/changed tab in weekly report → update Weekly Analysis SOP + Cheat Sheet
+- New ranking / decision logic → update ABC Classification Reference + Cheat Sheet decision rules
+- New pipeline script or workflow change → update CLAUDE.md Current Status + relevant SOP
+- New parked build plan → add to CLAUDE.md "Parked Build Plans" list
+- Phase of a build plan ships → mark that phase ✅ SHIPPED in the build plan doc (don't leave "PARKED" on shipped work)
+- New auto-classification rule in `sort_downloads.py` → update Weekly Inputs Sourcing SOP
+
+This is operator discipline, not bureaucracy. If you don't update on the day, you'll spend 30+ minutes hunting stale references later.
+
 ---
 
 ## Architecture (Three Layers)
