@@ -110,7 +110,7 @@ Copy a vendor's section into an email → send to the supplier → "manufacture 
 
 Auto-computed every Monday. Compares SAP claimed inventory at SB warehouses vs actual ShipBob count. **Skim weekly** — only act if variances are flagged ⚠ (>50 units OR >5%).
 
-**First Monday of each month:** run `python scripts/build_sap_sb_rebalance.py` standalone for the full 5-tab cleanup file. Investigate every flagged variance. Update SAP to match physical OR escalate to ShipBob.
+**First Monday of each month:** run `python scripts/build_sap_rebalance.py` standalone for the **combined SAP↔3PL** cleanup file (both ShipBob + Floship, 9 tabs in one workbook). Investigate every flagged variance. Update SAP to match physical OR escalate to the 3PL.
 
 ---
 
@@ -118,7 +118,7 @@ Auto-computed every Monday. Compares SAP claimed inventory at SB warehouses vs a
 
 Same pattern as SAP↔SB, but for Floship (international 3PL). **Important scope:** SAP only tracks MTB at Floship (warehouse `FLO-MTB`); SS/NFMD inventory at Floship has no SAP counterpart and appears in the FLO-only list.
 
-**First Monday of each month:** run `python scripts/build_sap_floship_rebalance.py` standalone for the cleanup file.
+Same monthly cadence — both 3PLs run together via `build_sap_rebalance.py`.
 
 ---
 
