@@ -118,7 +118,13 @@ Auto-computed every Monday. Compares SAP claimed inventory at SB warehouses vs a
 
 Same pattern as SAP↔SB, but for Floship (international 3PL). **Important scope:** SAP only tracks MTB at Floship (warehouse `FLO-MTB`); SS/NFMD inventory at Floship has no SAP counterpart and appears in the FLO-only list.
 
-Same monthly cadence — both 3PLs run together via `build_sap_rebalance.py`.
+---
+
+## 🛒 SAP↔Walmart Rebalance tab — marketplace drift
+
+Same pattern, but for Walmart Marketplace (SS + NFMD). **Important scope:** SAP tracks `WM-SS` and `WM-NFMD` warehouses. MTB doesn't sell on Walmart — so no `WM-MTB`. Extra columns: RES (reserved), INB (inbound), UNAV (unavailable/aged) so you see the full Walmart state, not just sellable.
+
+Same monthly cadence — all 3 channels (SB + Floship + Walmart) run together via `build_sap_rebalance.py`. Combined file = 12 tabs.
 
 ---
 

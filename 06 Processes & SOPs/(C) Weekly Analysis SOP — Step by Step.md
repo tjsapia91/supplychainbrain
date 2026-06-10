@@ -318,6 +318,7 @@ Every open PO from SAP. Use as a reference / audit trail. Same-day-error rows ar
 | **📊 Sales Anomalies** | Statistical outliers from Valogix exception report |
 | **🔄 SAP↔SB Rebalance** | Weekly variance scan vs SAP inventory at SB warehouses — see monthly cadence below |
 | **🌏 SAP↔Floship Rebalance** | Weekly variance scan vs SAP inventory at FLO-MTB — SS/NFMD have no SAP counterpart (FLO-only list) |
+| **🛒 SAP↔Walmart Rebalance** | Weekly variance scan vs SAP inventory at WM-SS + WM-NFMD — MTB doesn't sell on Walmart |
 
 ---
 
