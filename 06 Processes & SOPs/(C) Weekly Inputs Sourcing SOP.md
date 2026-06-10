@@ -23,8 +23,9 @@
 | 9 | **Valogix Exceptions** | History Exception Report (statistical outliers) | **1** | Weekly | `reports\valogix-exceptions\` |
 | 10 | **SAP Open POs** | Open Purchase Order report (full export) | **1** | Weekly | `reports\sap-open-pos\` |
 | 11 | **SAP Inventory in Warehouse** | Per-warehouse inventory snapshot — feeds 🔄 SAP↔SB Rebalance | **1** | Weekly | `reports\_data\sap-inventory\` |
-| 12 | **In-Transit Log** | Master shipment tracker (manual) | **1** | When updated | `reports\in-transit\` |
-| 13 | **SAP Item Master** | ABC Classification / Item Master export | **1** | **As needed** — only when SAP classifications change | `reports\item-master\` |
+| 12 | **SAP Inventory Transfer Requests** | Pending approved inter-warehouse moves | **1** | Weekly | `reports\_data\sap-transfer-requests\` |
+| 13 | **In-Transit Log** | Master shipment tracker (manual) | **1** | When updated | `reports\in-transit\` |
+| 14 | **SAP Item Master** | ABC Classification / Item Master export | **1** | **As needed** — only when SAP classifications change | `reports\item-master\` |
 | ⊕ | **Amazon SKU Mapping** | Amazon listing SKU ↔ SAP UPC mapping | 1 | **As needed** — when new SKUs launch on Amazon | `reports\item-master\amazon-sku-mapping.xlsx` |
 | ⊕ | **Internal** | SKU Review (carryover from prior week) | 1 | Weekly (folded forward) | `outputs\YYYY-MM-DD\` |
 
@@ -659,6 +660,50 @@ NFMD inventory is tracked under the SS warehouse codes (NFMD shares the SS legal
 
 - **🔄 SAP↔SB Rebalance** tab in weekly-report (auto, every Monday)
 - **First Monday of month:** run `python scripts/build_sap_sb_rebalance.py` for the standalone 5-tab cleanup file
+
+---
+
+# 9️⃣c SAP Inventory Transfer Requests — 1 file (weekly)
+
+Pending **approved-but-not-yet-shipped** inter-warehouse transfer requests from SAP. Adds critical context to the 🔄 SAP↔SB Rebalance by explaining variances that are "in flight between warehouses."
+
+## How to pull
+
+1. SAP → **Inventory Transfer Requests Report** (or similar — wherever pending SAP transfer requests live)
+2. Filter to status = "Accept" (approved, awaiting shipment) if not already default
+3. Export as Excel
+4. Drop into `Downloads\` (or `OneDrive\Desktop\`, or any of the scanned inbox paths) — auto-classifier handles the rest
+
+**File-name variants the classifier recognizes** (any of these):
+- `SAPinventorytransferrequests.xlsx`
+- `SAP Inventory Transfer Requests.xlsx`
+- `Inventory Transfer Requests.xlsx`
+
+**Auto-routed to:** `reports\_data\sap-transfer-requests\`
+
+## What the script reads
+
+Key columns:
+- **Item No.** → 12-digit UPC
+- **From Warehouse** / **To Warehouse** → e.g., `SBGA-SS → AMZN-SS`
+- **Quantity** → units to transfer
+- **EDI Line Status** → only `Accept` rows count (approved, waiting to ship)
+
+The reconciliation script computes two per-UPC totals:
+- **XFER OUT** = sum of `Quantity` where `From Warehouse` is a ShipBob warehouse (units about to leave SB)
+- **XFER IN** = sum of `Quantity` where `To Warehouse` is a ShipBob warehouse (units about to arrive)
+
+## Why this matters
+
+When SAP says "SBGA-SS has 1,000 units of AIVA Black" but ShipBob shows fewer — and there's an approved transfer request for 1,308 units from SBGA-SS to AMZN-SS — the variance is **already explained**. Those units are pre-allocated to leave; ShipBob's view is more current than SAP's.
+
+Without this data, the rebalance would flag the variance as "missing inventory." With it, the variance becomes "in flight" — no investigation needed.
+
+## Where the output shows up
+
+- **🔄 SAP↔SB Rebalance** tab — new columns **XFER OUT** (red) and **XFER IN** (green)
+- **🔁 SAP Transfer Requests** tab in the standalone monthly file — full list of pending moves color-coded by direction (🔴 Leaving SB · 🟢 Arriving SB · 🟡 SB↔SB internal · ⚪ Non-SB)
+- Summary tab KPI block: `SAP Transfer Requests (pending)`, `Units transferring OUT/IN of SB`
 
 ---
 

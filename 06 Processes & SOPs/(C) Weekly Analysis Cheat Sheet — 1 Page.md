@@ -22,10 +22,11 @@
 | **Valogix** (Forecast + Exceptions) | 2 | Weekly | Item-Location-History-Forecast + History Exception Report |
 | **SAP Open POs** (full export) | 1 | Weekly | |
 | **SAP Inventory in Warehouse** (all warehouses) | 1 | Weekly | Feeds 🔄 SAP↔SB Rebalance tab |
+| **SAP Inventory Transfer Requests** | 1 | Weekly | Pending inter-warehouse moves — adds XFER OUT/IN cols to 🔄 tab |
 | **Sellerboard CA Dashboard** (× 3 brands) | 3 | Weekly | Set marketplace filter = `amazon.ca` · last 90 days |
 | **Sellerboard Sales by Product/Month** (× 3 brands) | 3 | **Monthly** | Max date range, marketplace ignored |
 | **In-Transit Log** (`IN TRANSIT LOG*.xlsx`) | 1 | Weekly | From SharePoint — get latest before running |
-| **Total weekly** | **~38** | | Plus 3 monthly Sellerboards |
+| **Total weekly** | **~39** | | Plus 3 monthly Sellerboards |
 
 **Optional / on-change-only:**
 - SAP `SAPABCCLASSIFICATION.xlsx` → only when ABC codes change
