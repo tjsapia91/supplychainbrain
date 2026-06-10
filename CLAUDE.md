@@ -166,9 +166,11 @@ Three steps:
 ---
 
 ## Current Status
-**Last updated:** June 8, 2026
+**Last updated:** June 10, 2026
 
-**Recent work (Jun 5-8):**
+**Recent work (Jun 5-10):**
+- ✅ **Alliance CA Inventory on Hand (Hereford direct) wired in (Jun 10)** — new authoritative source for `alliance_wh_ca` column on the Amazon CA tab. Overrides SAP ASG-MTB / ASG-NF / ASG-SS (which lags until POs are formally received in SAP). Pattern matches ShipBob direct vs SAP SBGA. New loader `load_alliance_ca_onhand()` aggregates multi-lot rows; sort_downloads classifier rule `My Inventory on Hand*.xlsx` → `reports/_data/alliance-ca/`. First pull (2026-06-10): 21 UPCs / 12,152 units (MTB:9 · NFMD:7 · SS:5).
+- ✅ **LUMOS dropped from ShipBob pull (Jun 10)** — LUMOS IPL was operationally consolidated into MTB at ShipBob (LUMOS account now all zeros). Removed from `sort_downloads.py` group-ID map, all ShipBob loaders (`build_report.py`, `build_sap_sb_rebalance.py`, `build_deep_plan.py`, `build_inventory_audit.py`), and SOPs. Weekly pull is now 3 ShipBob files. "LUMOS" keyword in brand-fallback retained — LUMOS-branded SKUs classify as MTB.
 - ✅ **🏭 PO Priority tab** — vendor-ranked manufacturing list. Days-first ranking aligned with THIS WEEK ORDER section (Gap 1 + Gap 2 closed Jun 8).
 - ✅ **📦 In Transit tab** — reads SharePoint In-Transit Log, filters to active (qty_received < qty_shipped), distinguishes AMZ-bound vs SB-bound.
 - ✅ **⚠ SUPPLY RISK section** in THIS WEEK — subtracts in-transit qty so already-shipped POs don't false-alarm.
@@ -204,18 +206,19 @@ All drop into `Downloads\` — `sort_downloads.py` routes them:
 | Source | Files | Cadence |
 |---|---:|---|
 | SoStocked (Projected Forecast + Inventory + FvA) | 9 (3/brand × 3) | Weekly |
-| Amazon Seller Central FBA (US + CA) | 6 | Weekly |
+| Amazon Seller Central FBA (US × 3 + CA × 2 — SS not on amazon.ca) | 5 | Weekly |
 | Amazon Seller Central AWD (US) | 3 | Weekly |
-| ShipBob (Inventory Status export) | 4 (MTB/NFMD/SS/LUMOS) | Weekly |
+| ShipBob (Inventory Status export) | 3 (MTB/NFMD/SS) — LUMOS dropped 2026-06-10 | Weekly |
 | Walmart (Marketplace bulk + Inventory Health) | 4 | Weekly |
 | Floship (Product Inventory export) | 1 | Weekly |
 | Valogix (Forecast + Exceptions) | 2 | Weekly |
 | SAP Open POs (full export) | 1 | Weekly |
+| Alliance CA Inventory on Hand (Hereford direct) | 1 | Weekly |
 | In-Transit Log (SharePoint) | 1 | Weekly |
 | Sellerboard CA Dashboard Products | 3 | Weekly |
 | Sellerboard Sales by Product/Month | 3 | **Monthly** |
 
-**Total:** ~37 files/week.
+**Total:** ~36 files/week (LUMOS ShipBob dropped 2026-06-10; Alliance CA Inventory on Hand added 2026-06-10; SS CA FBA confirmed not pulled — SS not launched on amazon.ca yet).
 
 ---
 

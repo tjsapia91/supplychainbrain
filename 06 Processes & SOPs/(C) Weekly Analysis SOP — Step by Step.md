@@ -2,7 +2,7 @@
 
 > The Monday-morning recipe to generate the weekly supply chain report end-to-end. Top to bottom, first time = ~60 min. After 2-3 cycles = ~25-30 min (mostly download time).
 >
-> **Last updated:** June 8, 2026
+> **Last updated:** June 10, 2026
 > **Companion docs:**
 > - [[06 Processes & SOPs/(C) Weekly Analysis Cheat Sheet — 1 Page]] (quick reference)
 > - [[06 Processes & SOPs/(C) Weekly Inputs Sourcing SOP]] (where every file comes from, in detail)
@@ -27,13 +27,14 @@
 - [ ] Command Prompt access
 - [ ] Logins for **all 3 Amazon brands** (MTB · NFMD · SS) — US **and** CA
 - [ ] Login for **SoStocked**
-- [ ] Logins for **all 4 ShipBob brand accounts** (MTB · NFMD · SS · LUMOS)
+- [ ] Logins for **3 ShipBob brand accounts** (MTB · NFMD · SS) — LUMOS dropped 2026-06-10 (consolidated into MTB at ShipBob)
 - [ ] Logins for **Walmart Seller Center** (NFMD · SS)
 - [ ] Login for **Floship**
 - [ ] Login for **Valogix**
 - [ ] Login for **Sellerboard**
 - [ ] SharePoint access for the **In-Transit Log**
 - [ ] SAP access for the **Open Purchase Order Report**
+- [ ] Alliance warehouse portal access for the **My Inventory on Hand** export (Hereford CA staging)
 
 If any of those is "no" → fix that first.
 
@@ -80,11 +81,13 @@ For each brand:
 
 ---
 
-## 📥 3 of 11 — Amazon Seller Central CA: 3 files (3 brands × 1 report)
+## 📥 3 of 11 — Amazon Seller Central CA: 2 files (2 brands × 1 report)
 
 **Why:** Canada FBA state. MTB has no AWD program in CA so we pull FBA only.
 
-For each brand, from the **CA marketplace** in Seller Central:
+⚠ **Only 2 brands** — **MTB + NFMD**. **SS hasn't launched on amazon.ca yet** (any phantom/legacy SS data in the CA dashboard is zeroed out by the pipeline; SS's CA supply lives at Alliance staging). Don't pull SS CA FBA.
+
+For each brand (**MTB · NFMD**), from the **CA marketplace** in Seller Central:
 
 | Report | Path | Format |
 |---|---|---|
@@ -92,7 +95,7 @@ For each brand, from the **CA marketplace** in Seller Central:
 
 ---
 
-## 📥 4 of 11 — ShipBob: 4 files (4 brand logins, NEW format)
+## 📥 4 of 11 — ShipBob: 3 files (3 brand logins, NEW format)
 
 **Why:** Independent inventory truth at ShipBob — primary fulfillment for Shopify + manual Amazon send-ins.
 
@@ -100,7 +103,9 @@ ShipBob requires separate login per brand — there's no master account. For eac
 
 | Brand | Path |
 |---|---|
-| MTB · NFMD · SS · LUMOS | Inventory → Inventory Status → **Export → Export All Data** |
+| MTB · NFMD · SS | Inventory → Inventory Status → **Export → Export All Data** |
+
+⚠ **LUMOS dropped 2026-06-10** — LUMOS inventory was operationally consolidated into MTB at ShipBob. LUMOS IPL account now empty (all zeros). Do NOT pull. If a LUMOS export accidentally lands in Downloads, the classifier will leave it UNSORTED as a loud signal.
 
 ⚠ **NEW FORMAT REQUIRED.** If `build_report.py` logs `→ ShipBob (LEGACY)` you're still pulling the old On Hand Summary. The new format includes columns: Sellable / Committed / Exception / Backordered / Incoming / Internal Transfer / Lot Number / Fulfillment Center.
 
@@ -149,6 +154,20 @@ For NFMD and SS each:
 | **Open Purchase Order Report** (full export) | `Open POs.xlsx` |
 
 ⚠ **Same-day SAP errors are endemic.** When `posting_date == due_date == ship_by_date`, the buyer entered the PO with no realistic ETA. The pipeline auto-flags these in the SUPPLY RISK section of THIS WEEK.
+
+---
+
+## 📥 8b of 11 — Alliance CA (Hereford) Inventory on Hand: 1 file
+
+**Why:** Physical truth for what's at the **Alliance / Hereford warehouse** (CA staging, bound for Amazon Canada). Overrides SAP's ASG-* view, which lags until the buyer formally receives POs in SAP. Without this file, the Amazon CA tab's `ALLIANCE WH` column under-reports any newly-received inventory.
+
+| Report | Path | Format |
+|---|---|---|
+| **My Inventory on Hand** | Alliance warehouse portal → Reports → My Inventory on Hand → Export | `.xlsx` |
+
+The classifier recognizes the filename pattern `My Inventory on Hand*.xlsx` (and the `Copy of …` variant Excel auto-creates) and routes it to `reports\_data\alliance-ca\`. Pipeline aggregates multi-lot rows per Item No (e.g. a UPC with 2 lots gets summed into one number).
+
+⚠ **Hereford wins over SAP.** When both sources have a UPC, the pipeline uses Hereford and ignores the SAP ASG-MTB / ASG-NF / ASG-SS row for that UPC. Look for the `→ Alliance CA combined: N UPCs (X from Hereford direct · Y SAP-only fallback)` console line to confirm.
 
 ---
 
@@ -398,7 +417,7 @@ Template:
 
 If a tab is empty or numbers look wildly off:
 1. Re-run `build_report.py` once more — sometimes a transient file lock resolves itself
-2. Check the console output for the line `→ ShipBob: N SKUs across X brand files…` — verify all 4 brand files loaded
+2. Check the console output for the line `→ ShipBob: N SKUs across X brand files…` — verify all 3 brand files loaded (MTB · NFMD · SS)
 3. Check Valogix line: `→ Valogix: schain_itemLocationHistoryForecast_*.csv` — confirms latest CSV loaded
 4. Check SAP Open POs line: `📋 SAP Open POs — N POs · ⚠️ X same-day flags`
 5. Check In-Transit line: `📦 In Transit — N active (X → Amazon · Y → ShipBob)`
@@ -418,4 +437,4 @@ If any of those lines say "0" or "skipped" — go back to Part 1 and verify the 
 
 ---
 
-*Updated: 2026-06-08 · Refresh after THIS WEEK 5-section + PO Priority + In Transit tab additions (June 5)*
+*Updated: 2026-06-10 · LUMOS ShipBob pull dropped (consolidated into MTB) · Alliance CA Inventory on Hand (Hereford direct) wired in · See Cheat Sheet for quick reference*

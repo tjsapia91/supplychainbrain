@@ -13,8 +13,8 @@
 | # | Source | What | Files | Frequency | Drop into |
 |---|---|---|---|---|---|
 | 1 | **SoStocked** | 3 reports × 3 brands (Forecast + Inventory + FvA) | **9** | Weekly | `Downloads\` (auto-detected & moved) |
-| 2 | **Amazon Seller Central** | US: AWD + FBA × 3 brands (6 files) · CA: FBA only × 3 brands (3 files — MTB doesn't have AWD CA) | **9** | Weekly | `reports\seller-central\[MARKET]\[BRAND]\` |
-| 3 | **ShipBob** | On Hand Summary × 4 brand logins (MTB/NFMD/SS/LUMOS) | **4** | Weekly | `reports\shipbob\[BRAND]\` |
+| 2 | **Amazon Seller Central** | US: AWD + FBA × 3 brands (6 files) · CA: FBA × 2 brands (MTB + NFMD only — SS hasn't launched on amazon.ca) | **8** | Weekly | `reports\seller-central\[MARKET]\[BRAND]\` |
+| 3 | **ShipBob** | Inventory Status × 3 brand logins (MTB/NFMD/SS) — LUMOS dropped 2026-06-10 | **3** | Weekly | `reports\shipbob\[BRAND]\` |
 | 4 | **Walmart Seller Center** | WFS Inventory × 2 brands (NFMD + SS) | **2** | Weekly | `reports\walmart\[BRAND]\` |
 | 5 | **Floship** | Product Inventory export | **1** | Weekly | `reports\floship\` |
 | 6 | **Valogix** | Item Location History Forecast | **1** | Weekly | `reports\valogix\` |
@@ -24,14 +24,15 @@
 | 10 | **SAP Open POs** | Open Purchase Order report (full export) | **1** | Weekly | `reports\sap-open-pos\` |
 | 11 | **SAP Inventory in Warehouse** | Per-warehouse inventory snapshot — feeds 🔄 SAP↔SB Rebalance | **1** | Weekly | `reports\_data\sap-inventory\` |
 | 12 | **SAP Inventory Transfer Requests** | Pending approved inter-warehouse moves | **1** | Weekly | `reports\_data\sap-transfer-requests\` |
-| 13 | **In-Transit Log** | Master shipment tracker (manual) | **1** | When updated | `reports\in-transit\` |
-| 14 | **SAP Item Master** | ABC Classification / Item Master export | **1** | **As needed** — only when SAP classifications change | `reports\item-master\` |
+| 13 | **Alliance CA — Inventory on Hand** | Hereford direct (CA staging) — overrides SAP ASG-* | **1** | Weekly | `reports\_data\alliance-ca\` |
+| 14 | **In-Transit Log** | Master shipment tracker (manual) | **1** | When updated | `reports\in-transit\` |
+| 15 | **SAP Item Master** | ABC Classification / Item Master export | **1** | **As needed** — only when SAP classifications change | `reports\item-master\` |
 | ⊕ | **Amazon SKU Mapping** | Amazon listing SKU ↔ SAP UPC mapping | 1 | **As needed** — when new SKUs launch on Amazon | `reports\item-master\amazon-sku-mapping.xlsx` |
 | ⊕ | **Internal** | SKU Review (carryover from prior week) | 1 | Weekly (folded forward) | `outputs\YYYY-MM-DD\` |
 
 **Two zero-rename principles to keep in mind:**
 
-1. **Brand subfolders** — every per-brand source has a brand subfolder (`MTB/`, `NFMD/`, `SS/`, `LUMOS/`). Drop the file in the right brand folder; **don't rename**.
+1. **Brand subfolders** — every per-brand source has a brand subfolder (`MTB/`, `NFMD/`, `SS/`). Drop the file in the right brand folder; **don't rename**. *(`LUMOS/` subfolder is legacy — dropped 2026-06-10; LUMOS consolidated into MTB at ShipBob.)*
 2. **Column-based auto-classification** — the scripts auto-detect each report by its column headers. The original filename can be `inventory (3).xlsx` for all we care.
 
 After every successful run, raw files are auto-archived to `reports\archive\<source>\YYYY-MM-DD\`.
@@ -198,10 +199,10 @@ To get a multi-month view of forecast accuracy (useful for trend analysis), you 
 - Next month, you pull the new current month — closed months stay untouched
 
 **Step 3 — Where to drop them**
-- All FvA files (backfill + weekly) go in: `reports\sostocked\[BRAND]\fva-history\`
+- Drop the raw download (`<UUID>-<5118|5109|5119>.xlsx`) into `Downloads\` and run the pipeline — the classifier **content-sniffs** the sheet name "Forecasted vs Actual", maps the trailing `-5118/-5109/-5119` to brand, **renames** the file to `FvA_{BRAND}_YYYY-MM-DD.xlsx`, and routes it to `reports\_data\sostocked\[BRAND]\fva-history\`. *(Auto-classify added 2026-06-10 — no more manual renaming required.)*
 - **One file per (brand × month)** — don't overwrite; let them accumulate
-- Suggested filename convention (so months are visually distinguishable): rename to `FvA_[BRAND]_YYYY-MM.xlsx` after download (e.g., `FvA_MTB_2026-01.xlsx`)
 - Pipeline picks up the most recent file per brand for the "Forecast Accuracy" sheet in the Weekly Forecast workbook
+- *Legacy:* historical files named `FvA_BRAND_YYYY-MM.xlsx` (from the manual-rename era) are still recognized and continue to work alongside the new auto-classified files
 
 ⚠ **Pipeline aggregation deferred (decision: 2026-05-21)**: `combine_forecast.py` reads ONE FvA file per brand at a time — the latest one. Multi-month aggregation across the `fva-history/` folder is **intentionally deferred** until we evaluate whether it actually drives a decision.
 
@@ -232,7 +233,7 @@ The script:
 
 ---
 
-# 2️⃣ Amazon Seller Central — 9 files (US: 2 reports × 3 brands + CA: 1 report × 3 brands)
+# 2️⃣ Amazon Seller Central — 8 files (US: 2 reports × 3 brands + CA: 1 report × 2 brands)
 
 ## The 2 reports
 
@@ -260,9 +261,11 @@ The script:
 | Marketplace | Login | Reports to pull | Files | Drop into |
 |---|---|---|---|---|
 | **US** (`sellercentral.amazon.com`) | US dashboard | AWD Inventory + FBA Inventory × 3 brands | **6** | `reports\seller-central\US\[BRAND]\` |
-| **CA** (`sellercentral.amazon.ca`) | CA dashboard | **FBA Inventory ONLY** × 3 brands (no AWD CA for MTB) | **3** | `reports\seller-central\CA\[BRAND]\` |
+| **CA** (`sellercentral.amazon.ca`) | CA dashboard | **FBA Inventory ONLY** × 2 brands — **MTB + NFMD only** (no AWD CA · SS hasn't launched on amazon.ca) | **2** | `reports\seller-central\CA\[BRAND]\` |
 
-**Total weekly: 9 Amazon Seller Central files** (was 12 before — the AWD CA pulls were assumed but MTB isn't enrolled in AWD CA).
+**Total weekly: 8 Amazon Seller Central files** (US AWD + FBA × 3 brands = 6 · CA FBA × MTB + NFMD = 2).
+
+⚠ **SS Amazon CA**: SS hasn't launched on amazon.ca yet. Any phantom/legacy SS data showing on the CA dashboard is **zeroed out by the pipeline** (`build_report.py` 2026-05-29 — all SS CA supply lives at Alliance staging). Don't waste time pulling SS CA FBA.
 
 ```
 reports\seller-central\
@@ -271,9 +274,9 @@ reports\seller-central\
 │   ├── NFMD\    ← 2 files
 │   └── SS\      ← 2 files
 └── CA\
-    ├── MTB\     ← 1 file: FBA Inv CSV (no AWD CA)
-    ├── NFMD\    ← 1 file
-    └── SS\      ← 1 file
+    ├── MTB\     ← 1 file: FBA Inv CSV
+    └── NFMD\    ← 1 file
+    # SS/ — not pulled (SS not launched on amazon.ca)
 ```
 
 **No renaming.** The script in `build_report.py` auto-classifies each CSV by column structure (AWD vs FBA) and tags the data with the marketplace based on which folder it's in (US or CA). The loader keys ASIN data by `(ASIN, marketplace)` so US and CA stock for the same ASIN stay separate.
@@ -283,16 +286,17 @@ reports\seller-central\
 
 ---
 
-# 3️⃣ ShipBob — 4 files (1 report × 4 brand logins)
+# 3️⃣ ShipBob — 3 files (1 report × 3 brand logins)
 
 ShipBob requires a separate login per brand. There's no master account.
 
 | Brand login | Maps to |
 |---|---|
-| **MTB** | Michael Todd Beauty — Shopify MTB (Valogix `SBGA-MT`) |
+| **MTB** | Michael Todd Beauty — Shopify MTB (Valogix `SBGA-MT`) · also holds ex-LUMOS SKUs as of 2026-06-10 |
 | **NFMD** | NasalFresh MD — DTC + part of Valogix `SBGA-SS-NFMD` |
 | **SS** | Spa Sciences — DTC + part of Valogix `SBGA-SS` |
-| **LUMOS** | Lumos product line — separate ShipBob account |
+
+⚠ **LUMOS dropped 2026-06-10** — LUMOS IPL ShipBob account was consolidated into the MTB ShipBob account (all LUMOS inventory now under MTB login; LUMOS account shows zeros). Don't pull LUMOS. If a LUMOS file accidentally hits Downloads, the classifier leaves it UNSORTED.
 
 ## How to pull (per login)
 
@@ -346,8 +350,10 @@ Pivoted single-row-per-SKU view with `Total On Hand` column. Pipeline accepts it
 ## Where to drop them
 
 ```
-reports\shipbob\MTB\     reports\shipbob\NFMD\     reports\shipbob\SS\     reports\shipbob\LUMOS\
+reports\shipbob\MTB\     reports\shipbob\NFMD\     reports\shipbob\SS\
 ```
+
+*(legacy `reports\shipbob\LUMOS\` folder retained as archive but no longer pulled)*
 
 **No renaming.** The original ShipBob filename (e.g., `inventory-export-blob_385579_639150688574617481.csv`) is fine — pipeline reads by columns, not filename.
 
@@ -358,8 +364,7 @@ After running `build_report.py`, you'll see one of these per brand:
 → ShipBob MTB (NEW format): inventory-export-blob_385579_*.csv
 → ShipBob NFMD (NEW format): inventory-export-blob_385954_*.csv
 → ShipBob SS (NEW format): inventory-export-blob_385953_*.csv
-→ ShipBob LUMOS (NEW format): inventory-export-blob_396348_*.csv
-→ ShipBob: NN SKUs across 4 brand files (4 new-fmt) · XXX,XXX sellable units
+→ ShipBob: NN SKUs across 3 brand files (3 new-fmt) · XXX,XXX sellable units
 ```
 
 If you see `(LEGACY)` instead of `(NEW format)`, you're still pulling the old export — switch to the new lot-level export path for better accuracy.
@@ -707,6 +712,57 @@ Without this data, the rebalance would flag the variance as "missing inventory."
 
 ---
 
+# 9️⃣d Alliance CA — Inventory on Hand (Hereford direct) — 1 file (weekly)
+
+Per Tommy 2026-06-10. Direct-from-warehouse inventory export for the **Alliance / Hereford** third-party warehouse — the CA staging facility that holds inventory destined for Amazon Canada. **Authoritative physical truth** — overrides SAP's ASG-MTB / ASG-NF / ASG-SS view, which lags until the buyer formally receives POs in SAP.
+
+## Why we pull this (separate from the SAP Inventory in Warehouse file)
+
+| Source | What it tells us | When it can be wrong |
+|---|---|---|
+| **SAP ASG-* warehouses** | What SAP thinks is at Alliance | Lags until buyer receives POs in SAP. Newly-arrived shipments don't show up until paperwork catches up. |
+| **Hereford "My Inventory on Hand"** | What Alliance physically has on the shelf right now | Almost never wrong — it's the warehouse's own report. |
+
+Same pattern as **ShipBob direct vs SAP SBGA-***: physical-warehouse report always wins over system-of-record. When both sources have a UPC, the pipeline uses Hereford and ignores the SAP ASG-* row for that UPC.
+
+## How to pull
+
+1. Sign into the Alliance warehouse portal
+2. Reports → **My Inventory on Hand** → Export
+3. Excel downloads as `My Inventory on Hand.xlsx` (or `Copy of My Inventory on Hand (N).xlsx` if you re-pull)
+4. Drop in Downloads → `sort_downloads.py` auto-routes to `reports\_data\alliance-ca\`
+
+**No renaming needed.** Both `My Inventory on Hand*.xlsx` and `Copy of My Inventory on Hand*.xlsx` match the classifier regex.
+
+## Columns the loader uses
+
+| Column | What it means | How pipeline uses it |
+|---|---|---|
+| **Item No** | UPC / SAP item number | Key for matching against Amazon CA item rows |
+| **Lot No** | Per-lot identifier (e.g. `LPN247102`, `NFMD01152026PB`) | Not used for math — multiple lot rows per UPC are summed |
+| **Description** | Item description | Used to derive brand when the Brand column is blank |
+| **Remaining Quantity** | Physical on-hand units in this lot | Summed across lots → total Alliance qty per UPC |
+| **Location Code** | Warehouse code (`HEREFORD`) | Informational |
+| **Brand** | Brand tag | Usually blank — pipeline derives from Description keywords |
+
+## Pipeline log to confirm
+
+After `build_report.py` runs you'll see:
+```
+→ Alliance CA (Hereford direct): NN UPCs · X,XXX units total · MTB: A · NFMD: B · SS: C · file: My Inventory on Hand 2026-MM-DD.xlsx
+→ Alliance CA combined: NN UPCs (X from Hereford direct · Y SAP-only fallback)
+```
+
+If you see only the SAP-only fallback line (no "Hereford direct" line), the file didn't classify — check `reports\_data\alliance-ca\` for the file.
+
+## Where it shows up in the report
+
+- **Amazon CA tab** → `ALLIANCE WH (CA INBOUND)` column reflects Hereford's count first
+- Days-of-Stock / stockout date math on CA rows uses the Hereford number as primary staging supply
+- Transfer recommendations (TRANSFER section on ✅ THIS WEEK) treat Hereford qty as ready-to-send-to-Amazon-CA
+
+---
+
 # 🔟 In-Transit Log — 1 file (when updated)
 
 Manually-maintained Excel tracking every container, truck, and air shipment in flight.
@@ -827,10 +883,9 @@ C:\Users\[YourName]\MTB-SupplyChain\
 │   │   ├── NFMD\
 │   │   └── SS\
 │   ├── shipbob\
-│   │   ├── MTB\         ← On Hand Summary (any name)
+│   │   ├── MTB\         ← Inventory Status export (any name)
 │   │   ├── NFMD\
-│   │   ├── SS\
-│   │   └── LUMOS\
+│   │   └── SS\          ← LUMOS dropped 2026-06-10 (consolidated into MTB)
 │   ├── walmart\
 │   │   ├── NFMD\        ← inventory.xlsx
 │   │   └── SS\

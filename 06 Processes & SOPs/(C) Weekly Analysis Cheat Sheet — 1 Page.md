@@ -2,11 +2,11 @@
 
 > Print this. Stick it next to your monitor. After 2-3 weeks you won't need the full SOP — just this.
 >
-> *Last updated: 2026-06-08 — reflects 5-section THIS WEEK tab, In Transit tab, PO Priority tab, days-first ranking, auto-classified Downloads workflow.*
+> *Last updated: 2026-06-10 — reflects 5-section THIS WEEK tab, In Transit tab, PO Priority tab, days-first ranking, auto-classified Downloads workflow. LUMOS dropped from ShipBob pull (consolidated into MTB at ShipBob). Alliance CA Inventory on Hand wired in (overrides SAP ASG-* for Amazon CA staging).*
 
 ---
 
-## ✅ Download checklist (~37 weekly files)
+## ✅ Download checklist (~38 weekly files)
 
 **Drop everything into `C:\Users\Tom Sapia\Downloads\`. No folder navigation needed.**
 `sort_downloads.py` (auto-runs first) classifies every recognized file and routes it to the right `reports/` subfolder.
@@ -15,18 +15,19 @@
 |---|---:|---|---|
 | **SoStocked** (Forecast + Inventory + FvA × 3 brands) | 9 | Weekly | Inventory must be "Breakdown by Warehouses" (~50 cols) — not "Current View" |
 | **Amazon Seller Central US** (FBA + AWD × 3 brands) | 6 | Weekly | FBA = full 97-col report from Reports → Fulfillment |
-| **Amazon Seller Central CA** (FBA × 3 brands) | 3 | Weekly | CA has no AWD program for MTB; FBA only |
-| **ShipBob** (Inventory Status → Export All Data) | 4 | Weekly | NEW format only — MTB, NFMD, SS, LUMOS |
+| **Amazon Seller Central CA** (FBA × 2 brands — MTB + NFMD) | 2 | Weekly | CA has no AWD program for MTB; FBA only · SS hasn't launched on amazon.ca yet (CA supply lives at Alliance staging) |
+| **ShipBob** (Inventory Status → Export All Data) | 3 | Weekly | NEW format only — MTB, NFMD, SS · LUMOS dropped 2026-06-10 (consolidated into MTB) |
 | **Walmart** (Marketplace + Inventory Health × 2 brands) | 4 | Weekly | NFMD + SS only |
 | **Floship** (Product Inventory export) | 1 | Weekly | |
 | **Valogix** (Forecast + Exceptions) | 2 | Weekly | Item-Location-History-Forecast + History Exception Report |
 | **SAP Open POs** (full export) | 1 | Weekly | |
 | **SAP Inventory in Warehouse** (all warehouses) | 1 | Weekly | Feeds 🔄 SAP↔SB Rebalance tab |
 | **SAP Inventory Transfer Requests** | 1 | Weekly | Pending inter-warehouse moves — adds XFER OUT/IN cols to 🔄 tab |
+| **Alliance CA — Inventory on Hand** (Hereford direct) | 1 | Weekly | Physical truth for CA staging — overrides SAP ASG-* (which lags PO receipt) |
 | **Sellerboard CA Dashboard** (× 3 brands) | 3 | Weekly | Set marketplace filter = `amazon.ca` · last 90 days |
 | **Sellerboard Sales by Product/Month** (× 3 brands) | 3 | **Monthly** | Max date range, marketplace ignored |
 | **In-Transit Log** (`IN TRANSIT LOG*.xlsx`) | 1 | Weekly | From SharePoint — get latest before running |
-| **Total weekly** | **~39** | | Plus 3 monthly Sellerboards |
+| **Total weekly** | **~38** | | Plus 3 monthly Sellerboards |
 
 **Optional / on-change-only:**
 - SAP `SAPABCCLASSIFICATION.xlsx` → only when ABC codes change
@@ -161,4 +162,4 @@ Same monthly cadence — all 3 channels (SB + Floship + Walmart) run together vi
 
 ---
 
-*Updated: 2026-06-08 · 1-page reference · See Step-by-Step SOP for first-time walkthrough*
+*Updated: 2026-06-10 · 1-page reference · See Step-by-Step SOP for first-time walkthrough*
