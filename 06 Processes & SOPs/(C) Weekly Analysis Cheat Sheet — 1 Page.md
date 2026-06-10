@@ -114,6 +114,14 @@ Auto-computed every Monday. Compares SAP claimed inventory at SB warehouses vs a
 
 ---
 
+## 🌏 SAP↔Floship Rebalance tab — international 3PL drift
+
+Same pattern as SAP↔SB, but for Floship (international 3PL). **Important scope:** SAP only tracks MTB at Floship (warehouse `FLO-MTB`); SS/NFMD inventory at Floship has no SAP counterpart and appears in the FLO-only list.
+
+**First Monday of each month:** run `python scripts/build_sap_floship_rebalance.py` standalone for the cleanup file.
+
+---
+
 ## 🇨🇦 Amazon CA-specific notes
 
 - Amazon CA has **FBA only** (no AWD program for MTB) — just 1 file per brand
