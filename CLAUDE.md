@@ -166,9 +166,21 @@ Three steps:
 ---
 
 ## Current Status
-**Last updated:** June 10, 2026
+**Last updated:** June 11, 2026
 
-**Recent work (Jun 5-10):**
+**Recent work (Jun 5-11):**
+- ✅ **SAP↔3PL rebalance tabs REMOVED from weekly report (Jun 11)** — 🔄 SAP↔SB, 🌏 SAP↔Floship, 🛒 SAP↔Walmart no longer build inside `weekly-report-*.xlsx`. Weekly report is now operational-planning only (19 tabs). Reconciliation lives ONLY in the standalone monthly file via `python scripts\build_sap_rebalance.py` → `outputs/YYYY-MM-DD/sap-rebalance-YYYY-MM-DD.xlsx` (11 tabs).
+- ✅ **Rebalance simplified (Jun 11)** — dropped XFER OUT / XFER IN columns + the 🔁 SAP Transfer Requests tab. INTERNAL TRANSFER column (ShipBob FC-to-FC moves) moved into col 7 of ⚠ SB Variances. ShipBob total now = Σ(Fulfillable) + Σ(Internal Transfer). ShipBob "Incoming" column (supplier-inbound, not at SB yet) explicitly excluded.
+- ✅ **SAP doc# fix (Jun 11)** — SAP Open POs export has two doc-number columns; the loader was reading the parent (#3118) instead of the line-level (#3206). Now uses `Document Number.1` (line-level) — affects every tab showing PO doc#s.
+- ✅ **DESCRIPTION_OVERRIDE + AMAZON_SKU_ALIAS expanded (Jun 11)** — per-UPC clean descriptions that survive SAP item-master refreshes. Documented for DELSENBRSH / 859886007708 (Soniclear Sensitive Brush Head, ASIN B01IHAQZXA).
+- ✅ **Weekly report UPC col now shows "UPC · ALIAS"** on THIS WEEK / PO Priority / In Transit — Ctrl+F finds items by either bare UPC or Amazon SKU.
+- ✅ **THIS WEEK NOTES column (col H)** carries forward across rebuilds (already-existing mechanism extended to THIS WEEK).
+- ✅ **WATCH_OVERRIDE_UPCS** — operator-managed list to route specific UPCs to WATCH instead of EXPEDITE on THIS WEEK (D-class phase-out items, etc.).
+- ✅ **ASG-* warehouses route to Amazon CA channel** — supplier POs landing at Alliance staging now appear on the Amazon CA tab's PO ARRIVES ON column with `[ASG-MTB/NF/SS]` warehouse tags.
+- ✅ **Walmart SB → WM TRANSFER column** (replaces PO ARRIVES ON on Walmart) — populated from SAP Inventory Transfer Requests filtered to `from=SBGA-*, to=WM-*`. STOCKOUT DATE / DAYS OF STOCK renamed to "WITH TRANSFER" + formula uses only the pending transfer qty (not full ShipBob NET pool).
+- ✅ **Per-tab tooltip overrides** for ShipBob / Walmart / TikTok / Floship Intl — non-Amazon tabs no longer show Amazon-flavored hover text.
+- ✅ **Hidden tabs:** Amazon AU + Amazon EU (right-click any tab to Unhide).
+- ✅ **Walmart phantom-row cleanup** — drops Valogix WM-SS rows for UPCs in the WFS NFMD file (eliminates duplicate STOCKOUT rows for NFMD products).
 - ✅ **Alliance CA Inventory on Hand (Hereford direct) wired in (Jun 10)** — new authoritative source for `alliance_wh_ca` column on the Amazon CA tab. Overrides SAP ASG-MTB / ASG-NF / ASG-SS (which lags until POs are formally received in SAP). Pattern matches ShipBob direct vs SAP SBGA. New loader `load_alliance_ca_onhand()` aggregates multi-lot rows; sort_downloads classifier rule `My Inventory on Hand*.xlsx` → `reports/_data/alliance-ca/`. First pull (2026-06-10): 21 UPCs / 12,152 units (MTB:9 · NFMD:7 · SS:5).
 - ✅ **LUMOS dropped from ShipBob pull (Jun 10)** — LUMOS IPL was operationally consolidated into MTB at ShipBob (LUMOS account now all zeros). Removed from `sort_downloads.py` group-ID map, all ShipBob loaders (`build_report.py`, `build_sap_sb_rebalance.py`, `build_deep_plan.py`, `build_inventory_audit.py`), and SOPs. Weekly pull is now 3 ShipBob files. "LUMOS" keyword in brand-fallback retained — LUMOS-branded SKUs classify as MTB.
 - ✅ **🏭 PO Priority tab** — vendor-ranked manufacturing list. Days-first ranking aligned with THIS WEEK ORDER section (Gap 1 + Gap 2 closed Jun 8).

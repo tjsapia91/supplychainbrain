@@ -2,7 +2,7 @@
 
 > Print this. Stick it next to your monitor. After 2-3 weeks you won't need the full SOP — just this.
 >
-> *Last updated: 2026-06-10 — reflects 5-section THIS WEEK tab, In Transit tab, PO Priority tab, days-first ranking, auto-classified Downloads workflow. LUMOS dropped from ShipBob pull (consolidated into MTB at ShipBob). Alliance CA Inventory on Hand wired in (overrides SAP ASG-* for Amazon CA staging).*
+> *Last updated: 2026-06-11 — 19-tab weekly report (rebalance tabs moved to standalone file). UPC col on THIS WEEK / PO Priority / In Transit shows "UPC · ALIAS" for Ctrl+F. Walmart SB→WM TRANSFER replaces PO ARRIVES ON. Amazon CA PO ARRIVES ON sourced from ASG-MTB/NF/SS routing. THIS WEEK NOTES col H carries forward.*
 
 ---
 
@@ -107,25 +107,30 @@ Copy a vendor's section into an email → send to the supplier → "manufacture 
 
 ---
 
-## 🔄 SAP↔SB Rebalance tab — inventory drift catcher
+## 🔄 SAP↔3PL Rebalance — STANDALONE FILE ONLY (Tommy 2026-06-11)
 
-Auto-computed every Monday. Compares SAP claimed inventory at SB warehouses vs actual ShipBob count. **Skim weekly** — only act if variances are flagged ⚠ (>50 units OR >5%).
+The SAP↔SB / SAP↔Floship / SAP↔Walmart reconciliation tabs were **removed from the weekly report** — they were noise on the operational dashboard. Reconciliation now lives ONLY in the standalone file:
 
-**First Monday of each month:** run `python scripts/build_sap_rebalance.py` standalone for the **combined SAP↔3PL** cleanup file (both ShipBob + Floship, 9 tabs in one workbook). Investigate every flagged variance. Update SAP to match physical OR escalate to the 3PL.
+```
+python scripts\build_sap_rebalance.py
+→ outputs/YYYY-MM-DD/sap-rebalance-YYYY-MM-DD.xlsx (11 tabs)
+```
 
----
+**Run cadence:** monthly (first Monday) for formal review. Run ad-hoc whenever you want a drift check.
 
-## 🌏 SAP↔Floship Rebalance tab — international 3PL drift
+**Tab structure (11 tabs):**
+- 📊 Summary · ⚠ SB Variances (with INTERNAL TRANSFER col) · 🟧 SB SAP-only · 🟦 SB-only · 🏭 SB Per-Warehouse
+- 🌏 FLO Variances · 🟧 FLO SAP-only · 🌏 FLO-only
+- 🛒 WM Variances · 🟧 WM SAP-only · 🛒 WM-only
 
-Same pattern as SAP↔SB, but for Floship (international 3PL). **Important scope:** SAP only tracks MTB at Floship (warehouse `FLO-MTB`); SS/NFMD inventory at Floship has no SAP counterpart and appears in the FLO-only list.
+**ShipBob total math (2026-06-11):** `Σ(Fulfillable) + Σ(Internal Transfer)` (ShipBob FC-to-FC moves are inventory we own; SAP can't see them). ShipBob "Incoming" column (supplier-inbound) is **not** included.
 
----
+**SAP-side scope by channel:**
+- **SB**: SAP warehouses `SBGA-MT/SS · SBGAMTQC · SBGASSQC · SBNV-MT/SS · SBNVMTQC · SBNVSSQC · SBPA-MT/SS · SBCA-MT`
+- **Floship**: SAP only tracks MTB (`FLO-MTB`); SS/NFMD at Floship appear in the FLO-only list (no SAP counterpart)
+- **Walmart**: `WM-SS` + `WM-NFMD`. MTB doesn't sell on Walmart so no `WM-MTB`.
 
-## 🛒 SAP↔Walmart Rebalance tab — marketplace drift
-
-Same pattern, but for Walmart Marketplace (SS + NFMD). **Important scope:** SAP tracks `WM-SS` and `WM-NFMD` warehouses. MTB doesn't sell on Walmart — so no `WM-MTB`. Extra columns: RES (reserved), INB (inbound), UNAV (unavailable/aged) so you see the full Walmart state, not just sellable.
-
-Same monthly cadence — all 3 channels (SB + Floship + Walmart) run together via `build_sap_rebalance.py`. Combined file = 12 tabs.
+**Threshold:** variance flagged ⚠ when `|Δ| > 50 units` OR `> 5% of SAP qty`.
 
 ---
 
@@ -162,4 +167,4 @@ Same monthly cadence — all 3 channels (SB + Floship + Walmart) run together vi
 
 ---
 
-*Updated: 2026-06-10 · 1-page reference · See Step-by-Step SOP for first-time walkthrough*
+*Updated: 2026-06-11 · 1-page reference · Rebalance lives in standalone monthly file now · See Step-by-Step SOP for first-time walkthrough*
