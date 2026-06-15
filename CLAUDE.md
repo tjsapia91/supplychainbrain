@@ -166,7 +166,17 @@ Three steps:
 ---
 
 ## Current Status
-**Last updated:** June 12, 2026
+**Last updated:** June 15, 2026
+
+**Recent work (Jun 15):**
+- ✅ **THIS WEEK ORDER section — 6 fixes shipped (Jun 15)** — operator-supplied fix brief implemented end-to-end. Touched `build_report.py`, `build_order_list.py`, `build_deep_plan.py`, `sort_downloads.py`.
+  - **FIX 0 — Stale-extract gate.** `build_report.py main()` now aborts with a clear message when `all_items < 150` OR forecast-bearing items < 50%. Refuses to overwrite the last good `weekly-report-*.xlsx`. Operator override: `set FORCE_BUILD=1`. Caught Jun 15's degraded 109-item JSON.
+  - **FIX 1 — Chronological sort.** ORDER rows now carry a real `stockout_date` (date object); both engine outputs (`build_order_list` Amazon-direct + SB PO Engine) are re-merged + re-sorted in `build_report` so the most urgent item appears at row 1. Previously sorted on the display string (`"Aug" < "Dec" < "Jul" < "Jun"`) — buried SonicSmooth Pink (stockout = today) at row 13.
+  - **FIX 2 — Phase-out / combo-kit guard.** New `PHASE_OUT_UPCS = {"850003115139"}` in `build_order_list.py` + keyword catch (`"phase out"`, `"combo kit"`). Applied in BOTH order engines. MIO Green+White Combo Kit no longer auto-orders 10,000 units — kits get assembled against retailer orders only.
+  - **FIX 3 — Interim warning.** New `SUPPLIER_LEAD_FLOOR = 140` constant. When current-pace stockout < lead time, ORDER row gets prepended: *"⚠ Stocks out before a new PO can land — expedite the open PO or transfer from ShipBob now."* Applied in both engines. Row still appears (next cycle still needs the PO) but timing problem is loud.
+  - **FIX 4 — Real unit cost (replaces hardcoded $12).** New `load_cost_lookup()` in `build_deep_plan.py` reads SAP Inventory Items Cost Report (`reports/_data/cost/`). Threaded through `run_workflow_for_sku()` via new `cost_lookup` kwarg. 361 UPCs now load real costs. Example impact: 811573031335 PO value $370K (was $1.16M — 65% overstated). `DEFAULT_UNIT_COST = 0.0` documented fallback. New classifier rule in `sort_downloads.py`.
+  - **FIX 5 — TikTok floor → named constant.** `TIKTOK_MONTHLY_FLOOR = 350` promoted from magic number in `compute_monthly_demand()` signature.
+  - **Doc:** Operator brief lives at `(brief in OneDrive)` — implemented per its acceptance checks.
 
 **Recent work (Jun 5-12):**
 - ✅ **SharePoint sync trimmed to weekly report only (Jun 12)** — `outputs/latest/` is a Windows Junction → `michaeltoddbeauty.com\Supply Chain - Documents\ANALYSIS WEEKLY INVENTORY REPORT` (OneDrive synced). Every pipeline script used to mirror outputs there, so the team's SharePoint folder filled with velocity-watch / order-list / rebalance / deep-plan / etc. Now ONLY `weekly-report-*.xlsx` is published. 10 scripts edited: `build_order_list`, `build_velocity_watch`, `build_deep_plan`, `build_sap_rebalance`, `build_sap_sb_rebalance`, `build_sap_floship_rebalance`, `build_inventory_audit`, `build_po_lead_time_audit`, `build_container_loading_priority`, `au_po_sizing`, plus the order-list mirror inside `build_report.py`. Dated archive `outputs/YYYY-MM-DD/` still holds everything locally for operator reference.
