@@ -169,6 +169,8 @@ Three steps:
 **Last updated:** June 16, 2026
 
 **Recent work (Jun 16):**
+- ✅ **Phase-out / kit exclusion extended to CA/UK/AU triage sections (Jun 16)** — operator caught that Pink (`859886007586`) was being flagged "needs Alliance replenishment" on the 🇨🇦 CANADA section even though it's a phase-out SKU (the ORDER section was already excluding it). Now the same `PHASE_OUT_UPCS` + combo-kit check applies in CA + UK + AU sections. Phase-out / kit rows render as `"DO NOT REPLENISH — phase-out"` or `"DO NOT REPLENISH — kit"`, muted styling, sorted to the bottom (mirrors ORDER's behavior). Remap flag (`⚠ SKU≠UPC`) also stamps when applicable. Verified Pink row in CA now reads: *"DO NOT REPLENISH — phase-out · Legacy/transition SKU — let it run down on Canada too; never auto-replenish."*
+
 - ✅ **Dedicated drop folder + input check shipped (Jun 16)** — two briefs (`DROP-FOLDER-for-Claudian.md` + `INPUT-CHECK-for-Claudian.md`) implemented end-to-end. Weekly run is now ONE fast command again.
   - **`sort_downloads.py` scans only `reports/_inbox/`** — replaced the previous `DEFAULT_INBOX` (`~/Downloads`) + `SECONDARY_INBOXES` (OneDrive Documents + Desktop) that caused 20+ min hangs scanning the whole SupplyChain1 project. `INBOX = os.path.join(BASE, "reports", "_inbox")` with `os.makedirs(INBOX, exist_ok=True)`. `include_secondary` kwarg kept as a silently-ignored no-op for backward compat. Marker files (`.`-prefix) and readme (`_`-prefix) skipped.
   - **Pre-flight sort re-enabled unconditionally** in `build_report.py`. The `SORT_DOWNLOADS=1` env-var gate is gone; the inbox sort runs every build (try/except so a bad file never blocks). New message: *"Pre-flight: filing reports/_inbox → reports/_data…"*.
