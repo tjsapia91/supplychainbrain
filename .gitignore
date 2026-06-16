@@ -38,5 +38,10 @@ erp_system/
 # Generated reports — copies of MTB-SupplyChain outputs, regenerated weekly
 outputs/
 
+# Windows directory junction → OneDrive\SupplyChain1\SupplyChainClaude
+# (operational briefs, deep-dives, runbooks). Files live in OneDrive; vault
+# gets a live mount via Junction. Don't commit copies of cloud-sync'd files.
+10 System/SupplyChainClaude/
+
 # Backup files — git history is the backup
 *.backup_*

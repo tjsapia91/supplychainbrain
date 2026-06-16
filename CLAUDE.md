@@ -269,6 +269,7 @@ All drop into `Downloads\` — `sort_downloads.py` routes them:
 - `06 Processes & SOPs/(C) Daily Morning Routine — SCM.md`
 - `06 Processes & SOPs/(C) ABC Classification Reference.md`
 - `10 System/(C) Master SupplyChainBrain — Architecture.md`
+- `10 System/(C) SupplyChainClaude — Index.md` — junction-mounted OneDrive workbench: operating principles, runbook, bug register, deep-dives, fix briefs
 - `07 AI Tools & Builds/(C) Forecast Accuracy & Buffer Sizing — Build Plan.md`
 
 ---
