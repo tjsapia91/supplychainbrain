@@ -166,7 +166,12 @@ Three steps:
 ---
 
 ## Current Status
-**Last updated:** June 15, 2026
+**Last updated:** June 16, 2026
+
+**Recent work (Jun 16):**
+- ✅ **MASTER-BUG-REGISTER sync — landed bugs marked, suggested fix order rewritten** — register at `10 System/SupplyChainClaude/Supply Chain Planning/MASTER-BUG-REGISTER.md` updated. Status truth: bugs A, B, C, 0, 1, 2, 3, 4, 5 all ✅ landed; bug E investigated (no code change). Pending: Bug 7 (now shipped — see below), Bug 6 (deferred per brief recommendation), Bug 8 (parked by operator), Bug 9 (parked).
+- ✅ **REFACTOR — `sku_model` wired into `build_report.py`** — operator brief `REFACTOR-sku-model-wiring-for-Claudian.md` implemented. `scripts/sku_model.py` (already built + validated) now drives ORDER + EXPEDITE + downstream tabs via injected `model_position`, `model_demand`, `model_days_cover`, `model_status`, `model_open_po`, `model_open_po_by_wh` fields. 680 per-SKU rows enriched per run. Catalog truth: **160 OVERSTOCK · 28 HEALTHY · 28 BELOW ROP · 20 TRUE STOCKOUT** of 236 SKUs. All 5 brief acceptance checks pass (811573031335 HOLD, 811573031342 HOLD, 850003115948 HOLD, MIO Combo Kit visible as DO NOT ORDER, SonicSmooth Pink in ORDER as true stockout). `_us_total_stock_available()` and `_compute_horizon_demand()` in `build_order_list.py` now prefer model values when injected, with legacy fallbacks intact. SB PO engine adds a third skip-guard: `model_status in (HEALTHY, OVERSTOCK)` → no fresh PO.
+- ✅ **Bug 7 — UNROUTED CRITICAL safety-net section** — new section at the TOP of the ✅ THIS WEEK tab. Scans `data["all_items"]` for any status containing CRITICAL or STOCKOUT; any item NOT routed to ORDER/EXPEDITE/TRANSFER/SUPPLY RISK/WATCH renders here with action "REVIEW MANUALLY". Today's run surfaces 22 unrouted critical items (CA stockouts + a few US edge-case SKUs like `860021001147AMZ-stickerless`). Console prints each one for traceability so the keying-logic gaps can be hunted down separately.
 
 **Recent work (Jun 15):**
 - ✅ **THIS WEEK ORDER section — brief v2 corrections shipped (Jun 15)** — operator updated the fix brief with two BUILD CORRECTIONS. Both shipped:
