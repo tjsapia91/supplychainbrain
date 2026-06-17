@@ -168,6 +168,9 @@ Three steps:
 ## Current Status
 **Last updated:** June 16, 2026
 
+**Recent work (Jun 17):**
+- ✅ **Shopify reserve bumped 30 → 90 days (Jun 17)** — `SHOPIFY_PROTECTION_DAYS` in build_report.py main + `SHOPIFY_SAFETY_DAYS` in deep_plan workflow both now `90`. ShipBob backup (`shipbob_emergency` NET) subtracts `shopify_velocity × 90` from the raw ShipBob on-hand before claiming units for Amazon transfer. Tooltips on Amazon US + ShipBob tabs updated to reflect "90 days × Shopify daily velocity". Verified: *"ShipBob backup netted of Shopify 90-day reserve: 258 Amazon items adjusted"* in latest build.
+
 **Recent work (Jun 16):**
 - ✅ **Phase-out / kit exclusion extended to CA/UK/AU triage sections (Jun 16)** — operator caught that Pink (`859886007586`) was being flagged "needs Alliance replenishment" on the 🇨🇦 CANADA section even though it's a phase-out SKU (the ORDER section was already excluding it). Now the same `PHASE_OUT_UPCS` + combo-kit check applies in CA + UK + AU sections. Phase-out / kit rows render as `"DO NOT REPLENISH — phase-out"` or `"DO NOT REPLENISH — kit"`, muted styling, sorted to the bottom (mirrors ORDER's behavior). Remap flag (`⚠ SKU≠UPC`) also stamps when applicable. Verified Pink row in CA now reads: *"DO NOT REPLENISH — phase-out · Legacy/transition SKU — let it run down on Canada too; never auto-replenish."*
 
