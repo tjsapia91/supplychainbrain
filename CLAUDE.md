@@ -126,6 +126,7 @@ Three steps:
 - **`build_velocity_watch.py`** — Top-40 SKU velocity monitor (2-day cadence)
 - **`sort_downloads.py`** — auto-classifier (pre-flight)
 - **`build_shipment_tracking.py`** — shipment audit (containers/AWD/FBA)
+- **`build_inventory_reconciliation.py`** — SAP↔ShipBob recon (operator's `inventory-reconciliation.md` procedure). Per-warehouse blocks, SAP+ShipBob column groups, Difference/Total. Computes values directly (no #N/A cleanup). Negative-Committed validator. Standalone: `python scripts\build_inventory_reconciliation.py`
 
 ---
 
@@ -167,6 +168,9 @@ Three steps:
 
 ## Current Status
 **Last updated:** June 16, 2026
+
+**Recent work (Jun 22):**
+- ✅ **Inventory Reconciliation report shipped (Jun 22)** — new `build_inventory_reconciliation.py` implements the operator's `inventory-reconciliation.md` procedure (SAP ↔ ShipBob). Reproduces the manual `MTB-SB recon.xlsx` layout — per-warehouse blocks in the SAP "Inventory in Warehouse" structure, merged SAP group (In Stock/Committed/QC/Available) + ShipBob group (In Stock/Committed/Internal Transfer/Available) + Difference/Item Price/Total/Confirmed — but driven off the auto-filed pipeline exports. Formulas: SAP Available = In Stock − Committed; ShipBob Available = In Stock − Committed + Internal Transfer; Difference = SAP − ShipBob (positive = SAP has more). QC column pulled from SBGAMTQC/SBGASSQC blocks for the SBGA-MT/SS rows. ShipBob comparison columns only populate on ShipBob warehouses (SBGA-MT/SS/SS-NFMD); ASG/FLO/WM/TIKTOK render as SAP-side audit. **Two improvements over the manual file:** (1) computes values directly so there's no #N/A→0 cleanup step, (2) auto-flags negative-Committed SAP rows red + a note (procedure rule: must fix before trusting). First run: TRUE DIFFERENCE −97,677 units / −$234,260 (ShipBob has more than SAP) · 20 negative-Committed rows flagged (FLO-MTB + TIKTOKMT). Output: `outputs/YYYY-MM-DD/inventory-reconciliation-YYYY-MM-DD.xlsx`. **Note:** MTB-SupplyChain is now a local git repo (branch `master`, no remote) — script committed there.
 
 **Recent work (Jun 17):**
 - ✅ **Shopify reserve bumped 30 → 90 days (Jun 17)** — `SHOPIFY_PROTECTION_DAYS` in build_report.py main + `SHOPIFY_SAFETY_DAYS` in deep_plan workflow both now `90`. ShipBob backup (`shipbob_emergency` NET) subtracts `shopify_velocity × 90` from the raw ShipBob on-hand before claiming units for Amazon transfer. Tooltips on Amazon US + ShipBob tabs updated to reflect "90 days × Shopify daily velocity". Verified: *"ShipBob backup netted of Shopify 90-day reserve: 258 Amazon items adjusted"* in latest build.
