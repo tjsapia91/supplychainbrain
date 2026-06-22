@@ -104,14 +104,13 @@ This is operator discipline, not bureaucracy. If you don't update on the day, yo
 ---
 
 ## Weekly Workflow (Simplified)
-Three steps:
-1. **Download every report → `Downloads\`** (no manual sorting needed)
-2. **Run the pipeline:**
+1. **Drop every export → `reports\_inbox\`** (sorter files them automatically)
+2. **Run ONE command:**
    ```
    cd C:\Users\Tom Sapia\MTB-SupplyChain
-   python scripts\demand_planning.py
    python scripts\build_report.py
    ```
+   `build_report.py` now auto-runs `demand_planning.py` first (Tommy 2026-06-22), so the report always reads a fresh same-day JSON. If the input check flags stale/missing data it stops and writes a marker — just run the same command again to build on existing data (stamps the stale banner). Override `SKIP_DEMAND_PLAN=1` to rebuild off the existing JSON without re-pulling.
 3. **Open:** `outputs/latest/weekly-report-*.xlsx`
 
 `build_report.py` auto-classifies Downloads via `sort_downloads.py`, then chains: demand plan → report → velocity watch → order list → deep plan.
