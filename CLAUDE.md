@@ -56,19 +56,21 @@ SupplyChainBrain/
 ├── 01 Purchasing & Inventory/        (POs, reorder points)
 ├── 02 Vendors & Suppliers/           (profiles, lead times)
 ├── 03 3PL & Fulfillment/             (ShipBob, Floship, etc.)
-├── 04 Sales Channels/                (Amazon, Walmart, TikTok, Shopify)
-├── 05 International Expansion/
 ├── 06 Processes & SOPs/              (the good stuff)
 ├── 07 AI Tools & Builds/             (build plans, parked projects)
-├── 08 Key Metrics & Dashboards/
-├── 09 People & Relationships/
 ├── 10 System/                        (architecture, sync)
 ├── 11 Skills/                        (reusable scripts as MD)
 ├── 12 Attachments/
 ├── 13 Iteration Logs/
 ├── 14 Learning & Development/
-└── 15 Meetings & Decisions/          (incl. Daily Action Plans)
+├── 15 Meetings & Decisions/          (incl. Daily Action Plans)
+├── Projects/                         (active build projects)
+└── Weekly Report Explanation/        (per-tab documentation)
 ```
+> Folder cleanup (Tommy 2026-06-29): removed 5 empty scaffolding folders that
+> never got filled — `04 Sales Channels`, `05 International Expansion`,
+> `08 Key Metrics & Dashboards`, `09 People & Relationships`, `Templates`.
+> Recreate on demand if a real note needs one of those homes.
 
 ---
 
