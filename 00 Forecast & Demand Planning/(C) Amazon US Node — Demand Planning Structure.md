@@ -119,10 +119,11 @@ per brand: `MTB Planner · SS Planner · NFMD Planner · MTB/SS/NFMD Analysis`.
   - **Wave 1 — by Sep 2** (Prime Big Deal Days): cover Sep–Oct demand − AWD on hand.
   - **Wave 2 — by Oct 14** (holidays; Oct 14 = cutoff to have holiday product in
     AWD): cover **Nov–Jan** demand − AWD left after Wave 1. Covers through Jan 31.
-  - Current demand (now→Sep) depletes AWD first; each send **capped by ShipBob
-    net-available**; shortfall flagged **Short (UNIS/PO)**. Demand = SoStocked
-    weekly (T90 fallback). Columns: AWD now · ShipBob avail · Demand Sep–Oct ·
-    Demand Nov–Jan · Send by Sep 2 · Send by Oct 14 · Short.
+  - Each wave is a small waterfall — **pull UNIS first, then ShipBob** (net);
+    what's left = **Short (PO)** = genuine supplier gap. Current demand (now→Sep)
+    depletes AWD first. Demand = SoStocked weekly (T90 fallback). Columns: AWD now ·
+    UNIS avail · ShipBob avail · Demand Sep–Oct · Demand Nov–Jan · W1 ←UNIS · W1 ←SB
+    · W2 ←UNIS · W2 ←SB · Short (PO).
   - *Sep 2 / Oct 14 are AWD-arrival deadlines — ship from ShipBob earlier by the
     ShipBob→AWD transit time.*
 
