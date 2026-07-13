@@ -96,9 +96,12 @@ per brand: `MTB Planner · SS Planner · NFMD Planner · MTB/SS/NFMD Analysis`.
 - **Analysis tabs**: T7/30/60/90 units + per-day, trend, full position breakdown
   (incl. ShipBob gross / reserve / net), Days Cover, Proj Stockout.
 - **Coverage Map** (under each Planner tab): month-by-month color-coded heatmap.
-  - Monthly demand = **SoStocked "Forecasted Sales Monthly" (US)** — the *seasonal*
-    demand of record (separate from the planner's flat T90 velocity; SoStocked is
-    the only per-SKU monthly Amazon forecast, and it carries the Q4 ramp).
+  - Monthly demand = **SoStocked "Forecasted Sales Monthly"** where it exists,
+    **else T90 sell-through spread flat** (the `Demand src` column flags which).
+    SoStocked is the seasonal forecast (carries the Q4 ramp) but its coverage is
+    uneven — MTB ~25 SKUs, NFMD ~15, **SS only 2** (and SS labels the marketplace
+    `NAm`, not `US`). The T90 fallback ensures **no selling SKU shows falsely
+    "Covered"** (SS gained 52 fallback rows). Accepts marketplace `US`/`NAm`/`NA`.
   - Supply tiers: **Inventory (FBA+AWD) + UNIS + Open PO**.
   - Colors (live conditional formatting — Tommy's 4 rules, cumulative demand vs tiers):
     🟢 covered by Inv+UNIS · 🟠 stockout month (PO exists) · 🟩 covered by PO if it
