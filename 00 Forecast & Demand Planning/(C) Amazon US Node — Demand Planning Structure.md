@@ -98,10 +98,13 @@ per brand: `MTB Planner · SS Planner · NFMD Planner · MTB/SS/NFMD Analysis`.
 - **Coverage Map** (under each Planner tab): month-by-month color-coded heatmap.
   - Monthly demand = **SoStocked "Forecasted Sales Monthly"** where it exists,
     **else T90 sell-through spread flat** (the `Demand src` column flags which).
-    SoStocked is the seasonal forecast (carries the Q4 ramp) but its coverage is
-    uneven — MTB ~25 SKUs, NFMD ~15, **SS only 2** (and SS labels the marketplace
-    `NAm`, not `US`). The T90 fallback ensures **no selling SKU shows falsely
-    "Covered"** (SS gained 52 fallback rows). Accepts marketplace `US`/`NAm`/`NA`.
+    SoStocked is the seasonal forecast (carries the Q4 ramp). Coverage (full
+    exports): MTB ~25 SKUs, NFMD ~15, SS ~61. Marketplace labels vary — MTB/NFMD
+    use `US`, SS uses `NAm` / `US+MX` — so the loader accepts any label starting
+    `US` (incl. `US+MX`) or `NAm`/`NA`, and keeps the **largest-total row per UPC**
+    (a few UPCs appear on multiple region rows — dedupe avoids double-count).
+    T90 fallback covers any SKU SoStocked misses, so **nothing shows falsely
+    "Covered."**
   - Supply tiers: **Inventory (FBA+AWD) + UNIS + Open PO**.
   - Colors (live conditional formatting — Tommy's 4 rules, cumulative demand vs tiers):
     🟢 covered by Inv+UNIS · 🟠 stockout month (PO exists) · 🟩 covered by PO if it
