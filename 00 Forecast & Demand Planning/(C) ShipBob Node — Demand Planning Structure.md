@@ -165,6 +165,13 @@ SS Analysis · NFMD Analysis`.
   · **quarterly demand blocks Q1–Q4 (this yr + next) + FY totals** (Valogix
   Shopify+TikTok units; Walmart stays in the DAV columns) · brand **TOTAL row**.
 
+**Coverage Map** (under each Planner tab): month-by-month color-coded heatmap
+(Jul→Feb), same design as the Amazon node. Monthly demand = Valogix monthly
+(Shopify+TikTok) + Walmart spread. Supply tiers = **On Hand → +Open PO** (ShipBob
+is supplier-fed — no AWD/UNIS). Live conditional formatting: 🟢 covered by On Hand
+· 🟠 stockout month (PO exists) · 🟩 covered by PO if it lands · 🔴 no PO left.
+Plus a **Run Out (incl PO)** column.
+
 Brand split: MTB = ShipBob 385579 · Valogix SBGA-MT + TIKTOKMT ·
 SS = 385953 · SBGA-SS + TIKTOKSS (SS items) + Walmart ·
 NFMD = 385954 · SBGA-SS + TIKTOKSS (NFMD items) + Walmart.
