@@ -106,7 +106,11 @@ per brand: `MTB Planner · SS Planner · NFMD Planner · MTB/SS/NFMD Analysis`.
   - Colors (live conditional formatting — Tommy's 4 rules, cumulative demand vs tiers):
     🟢 covered by Inv+UNIS · 🟠 stockout month (PO exists) · 🟩 covered by PO if it
     lands this period · 🔴 blown through everything, no PO left.
-  - **Run Out (incl PO)** = first month cumulative demand > Inv+UNIS+PO (else "Covered").
+  - **Run Out (incl PO)** = the exact date stock crosses Inv+UNIS+PO, computed by
+    walking the **SoStocked WEEKLY forecast** (55 weeks) and interpolating within
+    the crossout week — so it pins the stockout to the week, seasonally. Falls back
+    to T90-flat (`today + supply/DAV`) when no SoStocked weekly. "Covered" if it
+    holds past the map horizon.
 
 ```
 python scripts\build_amazon_us_planner.py
