@@ -16,9 +16,20 @@ author: Claudian (with Tommy)
 ---
 
 ## 1. Scope
-- **Amazon US only** (not CA/UK/AU/EU — no item-level velocity/stock there yet).
-- Per brand: **MTB · SS · NFMD** (separate Seller Central logins).
+- **Amazon US only.** Per brand: **MTB · SS · NFMD** (separate Seller Central logins).
 - Amazon is its **own node** — kept out of the ShipBob plan and vice-versa.
+
+> **ARCHITECTURE RULE (Tommy 2026-07-13): every Amazon marketplace is its OWN
+> node / planner. Never merge them** — each is supplied by different 3PLs, with
+> different lead times and waterfalls:
+> | Amazon node | Supplied by |
+> |---|---|
+> | **US** | AWD + UNIS + ShipBob (US) |
+> | **CA** | Alliance (CA staging) |
+> | **UK / AU / EU** | Floship / international 3PLs |
+>
+> Naming convention: `build_amazon_us_planner.py`, `build_amazon_ca_planner.py`, …
+> (CA/UK/AU/EU deferred — no item-level velocity/stock wired yet.)
 
 ---
 
@@ -86,8 +97,8 @@ per brand: `MTB Planner · SS Planner · NFMD Planner · MTB/SS/NFMD Analysis`.
   (incl. ShipBob gross / reserve / net), Days Cover, Proj Stockout.
 
 ```
-python scripts\build_amazon_planner.py
-→ outputs/YYYY-MM-DD/amazon-planner-YYYY-MM-DD.xlsx
+python scripts\build_amazon_us_planner.py
+→ outputs/YYYY-MM-DD/amazon-us-planner-YYYY-MM-DD.xlsx
 ```
 
 ---
