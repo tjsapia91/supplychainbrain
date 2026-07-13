@@ -124,6 +124,8 @@ per brand: `MTB Planner · SS Planner · NFMD Planner · MTB/SS/NFMD Analysis`.
     depletes AWD first. Demand = SoStocked weekly (T90 fallback). Columns: AWD now ·
     UNIS avail · ShipBob avail · Demand Sep–Oct · Demand Nov–Jan · W1 ←UNIS · W1 ←SB
     · W2 ←UNIS · W2 ←SB · Short (PO).
+  - **HAZMAT excluded** (`sku_rules.HAZMAT`, e.g. Hair Spray) — Amazon AWD does not
+    store hazmat; those items ship **UNIS/ShipBob → FBA direct** (see FBA plan).
   - *Sep 2 / Oct 14 are AWD-arrival deadlines — ship from ShipBob earlier by the
     ShipBob→AWD transit time.*
 - **FBA Send Plan** (under each Planner tab): the downstream leg — how much to
@@ -131,9 +133,11 @@ per brand: `MTB Planner · SS Planner · NFMD Planner · MTB/SS/NFMD Analysis`.
   - **Wave 1 — by Sep 16** (Prime), **Wave 2 — by Oct 28** (holidays → Jan).
     Optimized-split dates (most sellers); minimal-split is a week earlier
     (Sep 9 / Oct 21).
-  - Source = **AWD** (FBA's bulk reserve). "Short (AWD short)" = AWD can't cover →
-    restock AWD via the AWD Send Plan / PO. Columns: FBA now · AWD avail · Demand
-    Sep–Oct · Demand Nov–Jan · Send by Sep 16 · Send by Oct 28 · Short.
+  - Source = **AWD** for normal items (FBA's bulk reserve); **HAZMAT sources
+    UNIS→ShipBob direct** (bypasses AWD). `Source` column flags which. "Short (PO)" =
+    the source can't cover → restock AWD via the AWD Send Plan / supplier PO. Columns:
+    FBA now · AWD avail · UNIS avail · ShipBob avail · Demand Sep–Oct · Demand Nov–Jan
+    · Send by Sep 16 · Send by Oct 28 · Short (PO) · Source.
   - **Pipeline chain:** UNIS/ShipBob → AWD (AWD Send Plan) → FBA (FBA Send Plan).
     FBA Short uses *current* AWD, so it overstates for SKUs the AWD plan will
     restock (e.g. Hair Spray) — read the two plans together.
