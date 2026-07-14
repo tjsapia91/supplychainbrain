@@ -52,7 +52,7 @@ FBA report:
 ## 3. Position — where the inventory sits
 | Node | Source | Role |
 |---|---|---|
-| **FBA** = available + inbound-shipped | Seller Central FBA report | the sell point |
+| **FBA** = available + **in-transit** | FBA report (avail) + **Outbound Shipment Data** report (in-transit = open shipments' Confirmed−Received) | the sell point |
 | **AWD** = available + inbound | AWD inventory report | Amazon's reserve warehouse |
 | **UNIS** = cases × units-per-carton | UNIS WMS export (Alessandro) | **primary refill provider** |
 | **ShipBob** = on-hand − channel reserve | ShipBob export (per-brand blob) | transitional — **sunset 2027** |
@@ -192,7 +192,8 @@ New UNIS SKUs missing a pack are logged at build time (`⚠ UNIS case-pack MISSI
 ## 8. Inputs to drop (`reports/_data`)
 | Input | Path | Feeds |
 |---|---|---|
-| Seller Central FBA report ×3 | `seller-central/US/{brand}/*.csv` | demand + FBA position |
+| Seller Central FBA report ×3 | `seller-central/US/{brand}/*.csv` | demand + FBA available |
+| Outbound Shipment Data ×3 | `seller-central/US/{brand}/*.xlsx` (tab "Outbound Shipment Data") | FBA in-transit (open shipments); confirms AWD→FBA is Amazon-Auto |
 | AWD inventory report ×3 | `seller-central/US/{brand}/AWD-inventory-report*.csv` | AWD position |
 | UNIS WMS export | `unis/*.xlsx` (Alessandro; `Available` in CASES) | UNIS position |
 | ShipBob export ×3 | `shipbob/**/*<blob>*.csv` | ShipBob net (via ShipBob node) |
