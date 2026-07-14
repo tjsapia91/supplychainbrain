@@ -99,8 +99,10 @@ per brand: `MTB Planner · SS Planner · NFMD Planner · MTB/SS/NFMD Analysis`.
   same for FBA. DAV = SoStocked forward 90-day (T90 fallback). Hazmat: Send→AWD =
   "—" (ships UNIS/ShipBob → FBA direct). This is the "how many units to send into
   AWD, then into FBA, given the DOS I want to hold at each" answer.
-- **Analysis tabs**: T7/30/60/90 units + per-day, trend, full position breakdown
-  (incl. ShipBob gross / reserve / net), Days Cover, Proj Stockout.
+- **Analysis tabs**: demand (T30/day, T90/day, trend) + **position broken out per
+  node — FBA and AWD each as Available / In-Transit / Total** (grouped under FBA
+  and AWD bands), UNIS, ShipBob net, Amazon Pos (= Total FBA + Total AWD), Days
+  Cover, Proj Stockout. In-Transit = open shipments to that node.
 - **Coverage Map** (under each Planner tab): month-by-month color-coded heatmap.
   - Monthly demand = **SoStocked "Forecasted Sales Monthly"** where it exists,
     **else T90 sell-through spread flat** (the `Demand src` column flags which).
