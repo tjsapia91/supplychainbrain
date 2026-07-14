@@ -218,7 +218,7 @@ New UNIS SKUs missing a pack are logged at build time (`⚠ UNIS case-pack MISSI
 | UNIS WMS export | `unis/*.xlsx` (Alessandro; `Available` in CASES) | UNIS position |
 | ShipBob export ×3 | `shipbob/**/*<blob>*.csv` | ShipBob net (via ShipBob node) |
 | SoStocked projected-forecast ×3 | `sostocked/{brand}/projected-forecast-model-*.xlsx` | coverage-map monthly demand ("Forecasted Sales Monthly", US) |
-| SAP Open POs | `sap-open-pos/*.xlsx` | Map Open-PO tier — **filtered to Amazon-US: `AMZN-*` + UNIS US `UNSC`/`UNCA`** (intl `AMZ-*`, ShipBob, Alliance excluded) |
+| SAP Open POs | `sap-open-pos/*.xlsx` | Map Open-PO tier — **filtered to Amazon-US: `AMZN-*` + UNIS US `UNSC`/`UNCA` + ShipBob `SBGA-*` (transitional until UNIS fully set up)** (intl `AMZ-*`, ShipBob, Alliance excluded) |
 
 ---
 
