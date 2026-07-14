@@ -93,6 +93,12 @@ per brand: `MTB Planner · SS Planner · NFMD Planner · MTB/SS/NFMD Analysis`.
   (FBA/AWD/UNIS/ShipBob-net) → Days Cover → Proj Stockout → **FBA need →
   ①AWD ②UNIS ③ShipBob ④PO** waterfall → Action. Editable cells: FBA target,
   total target, Include-ShipBob toggle.
+- **Send tabs** (`{brand} Send` — its own clean tab, DOS-driven): two editable
+  cells — **FBA DOS** (default 60) and **AWD DOS** (default 120). Per SKU, live
+  formulas: `AWD target = DAV × AWD_DOS → Send → AWD = max(0, target − AWD now)`;
+  same for FBA. DAV = SoStocked forward 90-day (T90 fallback). Hazmat: Send→AWD =
+  "—" (ships UNIS/ShipBob → FBA direct). This is the "how many units to send into
+  AWD, then into FBA, given the DOS I want to hold at each" answer.
 - **Analysis tabs**: T7/30/60/90 units + per-day, trend, full position breakdown
   (incl. ShipBob gross / reserve / net), Days Cover, Proj Stockout.
 - **Coverage Map** (under each Planner tab): month-by-month color-coded heatmap.
