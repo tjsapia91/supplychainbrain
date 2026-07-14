@@ -86,8 +86,24 @@ FBA need = MAX(0, DAV × FBA_target − FBA position)
 ---
 
 ## 5. Output — the workbook
-Standalone, operator-triggered. **ONE workbook, SIX tabs** — Planner + Analysis
-per brand: `MTB Planner · SS Planner · NFMD Planner · MTB/SS/NFMD Analysis`.
+Standalone, operator-triggered. **THREE clean tabs per brand** (Tommy 2026-07-14,
+"keep it simple"): the dense combined Planner/waterfall was retired.
+
+| Tab | Purpose | Cadence |
+|---|---|---|
+| **{brand} Send** | DOS-driven: FBA DOS (60) + AWD DOS (120) → Send → AWD, Send → FBA per SKU | daily/weekly |
+| **{brand} Analysis** | position — FBA & AWD each Available / In-Transit / Total, UNIS, ShipBob, Amazon Pos, Days Cover, Proj Stockout | daily/weekly |
+| **{brand} Map** | coverage heatmap (matches the 07-09 AMZ-Demand file): Jul→Feb monthly colored 🟢🟠🟩🔴, Total, Inventory (FBA+AWD), UNIS, Open PO, exact **Run Out** date | seasonal / peak prep |
+
+The Map is the **date-driven analysis** — it shows month-by-month whether you're
+covered through the Prime/Black-Friday/holiday window. The Send tab gives the
+quantities; the Map shows the timing/coverage.
+
+*(Retired: the waterfall + explicit AWD/FBA deadline-wave send sections. Sizing
+lives on the Send tab; coverage/timing on the Map. `build_planner()` remains in
+the script marked RETIRED — safe to delete.)*
+
+<details><summary>Retired Planner-tab detail (for reference)</summary>
 
 - **Planner tabs** (interactive): demand (DAV + T30 trend) → position
   (FBA/AWD/UNIS/ShipBob-net) → Days Cover → Proj Stockout → **FBA need →
@@ -150,9 +166,11 @@ per brand: `MTB Planner · SS Planner · NFMD Planner · MTB/SS/NFMD Analysis`.
     FBA Short uses *current* AWD, so it overstates for SKUs the AWD plan will
     restock (e.g. Hair Spray) — read the two plans together.
 
+</details>
+
 ```
 python scripts\build_amazon_us_planner.py
-→ outputs/YYYY-MM-DD/amazon-us-planner-YYYY-MM-DD.xlsx
+→ outputs/YYYY-MM-DD/amazon-us-planner-YYYY-MM-DD.xlsx   (tabs: Send · Analysis · Map ×3 brands)
 ```
 
 ---
