@@ -209,8 +209,15 @@ New UNIS SKUs missing a pack are logged at build time (`⚠ UNIS case-pack MISSI
 
 ---
 
-## 8. Inputs to drop (`reports/_data`)
-| Input | Path | Feeds |
+## 8. Inputs to drop (all into `reports/_inbox` — auto-routed)
+> **One-folder drop.** Drop every file below into `reports/_inbox`; running the
+> planner first calls `sort_amazon_inbox()` which files each to the right
+> `reports/_data/…` folder automatically (FBA/AWD by columns+brand, SoStocked by
+> the 5118/5119/5109 filename ID, Outbound Shipment Data by MSKU brand, **Container
+> Plan by its "US POs" sheet, SAP Open POs by the "Remaining Open Quantity" +
+> "Warehouse Code" header**). Landing folders shown below for reference.
+
+| Input | Lands in | Feeds |
 |---|---|---|
 | Seller Central FBA report ×3 | `seller-central/US/{brand}/*.csv` | demand + FBA available |
 | Outbound Shipment Data ×3 | `seller-central/US/{brand}/*.xlsx` (tab "Outbound Shipment Data") | FBA in-transit (open shipments); confirms AWD→FBA is Amazon-Auto |
