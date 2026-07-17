@@ -17,7 +17,7 @@ author: Claudian (with Tommy)
 
 ```
 python scripts\build_floship_book.py
-→ outputs/YYYY-MM-DD/floship-book-YYYY-MM-DD.xlsx
+→ outputs/YYYY-MM-DD/floship-planner-YYYY-MM-DD.xlsx
 ```
 
 ## Sheets
