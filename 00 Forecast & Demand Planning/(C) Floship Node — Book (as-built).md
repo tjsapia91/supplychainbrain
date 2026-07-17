@@ -10,9 +10,10 @@ author: Claudian (with Tommy)
 # Floship Node — Book (as-built)
 
 > **What this is.** The as-built spec for `build_floship_book.py` — it reproduces
-> Tommy's hand-built `BookFloship.xlsx` **as-is** (same 3 sheets, live formulas),
-> auto-generated from the raw Floship exports. Floship is MTB's **international**
-> 3PL (CN/HK). MTB-only, single view — no brand split.
+> Tommy's hand-built `BookFloship.xlsx` **as-is** (same 3 sheets), auto-generated
+> from the raw Floship exports. Values are **hardwired/precomputed** so the data
+> shows immediately (no Excel recalc needed). Floship is MTB's **international** 3PL
+> (CN/HK). MTB-only, single view — no brand split.
 
 ```
 python scripts\build_floship_book.py
@@ -41,7 +42,12 @@ python scripts\build_floship_book.py
 
 ## Notes / decisions
 
-- **Live formulas** (openpyxl writes, doesn't calculate — open in Excel to recalc).
+- **Hardwired values** (computed in Python, written as static values) — the book
+  shows data immediately. *(Switched from live formulas: openpyxl can't write cached
+  results, so the 30k-row SUMIFS pivot displayed blank until a manual Excel recalc.
+  Precomputing fixes that — Tommy 2026-07-17.)* Trade-off: `Target coverage (days)`
+  (`H26`, default 60) and `Incoming` are shown but no longer reflow on edit — rerun
+  to change, or ask to make just those cells live.
 - **On Hand = Shenzhen only** (`Floship(CN)-Shenzhen`) — matches BookFloship; the HK
   warehouses are near-empty. De-duped via `AVERAGEIFS` (inventory export has Base
   Item + Master carton rows per SKU).
