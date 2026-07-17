@@ -36,7 +36,11 @@ python scripts\build_floship_book.py
      complete months**, last partial month excluded) · **Need for Coverage** =
      `ROUNDUP(avg×12/365 × target-days, 0)` · **Incoming (in transit)** *(manual,
      yellow)* · **Order Qty** = `MAX(0, Need − Available − Incoming)`.
-   - **Target coverage (days)** is an editable input at **`H26`** (default **60**).
+   - **Target coverage = 90 days** (Tommy 2026-07-17; `H26`). `Need` is hardwired at
+     90d; **Order Qty** is a live formula, so typing an in-transit qty into the
+     yellow **Incoming** cell updates the suggested buy. Rerun to change the 90d
+     target. Aligning to 90d fixed the old gap where "Low" items (2–3 mo coverage)
+     suggested **0** because the buy target was only 60 days.
 3. **`floship Inventory`** — raw Floship inventory export (CN-Shenzhen /
    HK-YuenLong / HK-KwaiChung on-hand, Reserved, quarantine, dims, etc.).
 
@@ -45,9 +49,9 @@ python scripts\build_floship_book.py
 - **Hardwired values** (computed in Python, written as static values) — the book
   shows data immediately. *(Switched from live formulas: openpyxl can't write cached
   results, so the 30k-row SUMIFS pivot displayed blank until a manual Excel recalc.
-  Precomputing fixes that — Tommy 2026-07-17.)* Trade-off: `Target coverage (days)`
-  (`H26`, default 60) and `Incoming` are shown but no longer reflow on edit — rerun
-  to change, or ask to make just those cells live.
+  Precomputing fixes that — Tommy 2026-07-17.)* Only **Order Qty** stays a (simple)
+  live formula off the value cells + editable `Incoming` (displays on open). Target
+  coverage (`H26`=90) is a value — rerun to change it.
 - **On Hand = Shenzhen only** (`Floship(CN)-Shenzhen`) — matches BookFloship; the HK
   warehouses are near-empty. De-duped via `AVERAGEIFS` (inventory export has Base
   Item + Master carton rows per SKU).
