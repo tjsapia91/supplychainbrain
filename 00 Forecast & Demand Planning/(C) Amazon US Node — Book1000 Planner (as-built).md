@@ -118,8 +118,27 @@ carried inventory is visible.
 - **Verify in Excel:** openpyxl can't calculate, so always open the file once to
   confirm the recalc is clean.
 
-## 7. Inputs (drop into `reports/_inbox`; auto-routed)
+## 7. Inputs — drop all into `reports/_inbox` (auto-routed by CONTENT)
 
-Seller Central FBA ×3 · AWD ×3 · SoStocked ×3 · Outbound Shipment Data ×3 ·
-UNIS export · SAP Open POs · Container Plan · ShipBob ×3. (Item master +
-amazon-sku-mapping live in `reports/item-master/`.)
+Running the planner first calls `sort_amazon_inbox()`, which files every dropped
+file by its **columns/sheets** (not filename — downloads need not be labelled) and
+detects brand by product names (FBA/AWD/ShipBob) or UPC-prefix (SoStocked). It
+replaces the prior file of the same type/brand so loaders never double-count.
+
+**15 weekly files:**
+
+| Report | Count | Detected by | Filed to |
+|---|:--:|---|---|
+| FBA Inventory | 3 | `asin`+`available`+`sku` (not AWD) | `seller-central/US/{brand}/` |
+| AWD Inventory | 3 | `Available in AWD (units)` | `seller-central/US/{brand}/AWD-*` |
+| SoStocked Projected Forecast | 3 | sheet `Forecasted Sales Monthly` | `sostocked/{brand}/` |
+| ShipBob Inventory | 3 | `Fulfillable`+`Fulfillment Center` | `shipbob/{brand}/` |
+| SAP Open POs | 1 | `Remaining Open Quantity`+`Warehouse Code` | `sap-open-pos/` |
+| UNIS Inventory Status | 1 | `data` sheet w/ `UPC Code`+`Available` | `unis/` |
+| Container Plan | 1 | sheet w/ `UPC`+`Destination`+`Load Date` | `container-plan/` |
+
+**Reference (only when they change), in `reports/item-master/`:**
+`amazon-sku-mapping.xlsx` (ASIN↔SKU↔UPC) · `item_master.xlsx` (descriptions/BAse).
+
+**Not used:** Outbound Shipment Data, Sellerboard, Walmart, Valogix. Unrecognized
+files are left in `_inbox` with a note in the console log.
