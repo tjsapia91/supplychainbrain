@@ -35,9 +35,10 @@ Supplier (ocean ~140d) → Alliance CA (ASG-*) → (~60d transfer) → Amazon CA
 |---|---|---|
 | ASIN / SKU / Desc | identity — short (item-master) description | FBA listing + item master + DESCRIPTION_OVERRIDE |
 | Demand (D–K) | monthly = CA FBA `units-shipped-t90 ÷ 90` × days-in-month, shaped by the matching **US SoStocked seasonality** curve (flat where no US match) | CA FBA export |
-| On Hand (✎) | CA FBA `available` + `inbound` (live at Amazon CA); excludes pending-removal | CA FBA export |
+| On Hand (✎) | CA FBA `available + inbound-working + Reserved Staging + Reserved FC Processing` (units physically at the CA FC; matches the US planner). Excludes pending-removal and `inbound-shipped`. | CA FBA export |
+| Inbound → FBA (projection) | FBA `inbound-shipped` — units shipped to FBA, **in transit, not yet received**. Shown separately; NOT in On Hand, NOT credited to coverage (so a stuck/unreceived load stays visible). | CA FBA export |
 | Incoming (PO → CA) | supplier Open POs to `ASG-*`, phased at staging-ETA **+60d** (sellable-on-CA) | SAP Open POs |
-| Alliance CA (projection) | `ASG-*` on hand (In Stock − Committed) — the **send-in reservoir** | SAP Inventory in Warehouse |
+| Alliance CA (projection) | Alliance/Hereford **direct** on-hand — read via a style-safe reader; **Remaining Quantity is in CASES → × case-pack** (`CS-24` → ×24). The **send-in reservoir**. Falls back to SAP ASG-* In Stock−Committed if the direct export is absent. | Alliance "My Inventory on Hand" export |
 | Send-in-to-cover thru {mo} | units to **transfer from Alliance → Amazon CA** to avoid stockout | computed |
 
 **Key model choices** (match the US planner):
