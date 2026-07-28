@@ -319,6 +319,7 @@ All drop into `Downloads\` — `sort_downloads.py` routes them:
 
 **Total:** ~36 files/week (LUMOS ShipBob dropped 2026-06-10; Alliance CA Inventory on Hand added 2026-06-10).
 > **Correction (Tommy 2026-07-27):** SS **is** live on amazon.ca — the CA/SS FBA export has 74 active listings with real velocity (e.g. SIMA Dermaplaning ~3,496 u/mo). The prior "SS not on amazon.ca" note was stale. SS CA velocity comes from the CA FBA export (t90), not Sellerboard CA (SS still has no Sellerboard `canada/` folder). The Amazon CA planner covers all 3 brands.
+> **Scope of the CA planner (Tommy 2026-07-28):** the CA FBA export is intentionally SHORT (only a handful of listings per brand) — those are the ONLY SKUs currently fulfilled from the Canada-dedicated warehouse (Alliance). Every other Amazon.ca listing is fulfilled from **US** inventory, so it lives in the US planner, NOT the CA/Alliance replen plan. A small CA row count is CORRECT, not a filtered/partial export — do NOT flag it. The list grows automatically as more SKUs move to Canada-only fulfillment (they appear in the CA FBA export → planner picks them up).
 
 ---
 
