@@ -41,7 +41,7 @@ Supplier (ocean ~45d) → Alliance CA (ASG-*) → (~25d transfer) → Amazon CA 
 | Column | What it is | Source |
 |---|---|---|
 | ASIN / SKU / Desc | identity — short (item-master) description | FBA listing + item master + DESCRIPTION_OVERRIDE |
-| Demand (D–K) | monthly = CA FBA `units-shipped-t90 ÷ 90` × days-in-month, shaped by the matching **US SoStocked seasonality** curve (flat where no US match) | CA FBA export |
+| Demand (D–K) | **makeshift CA forecast** (BookFloship → `Canada Forecast` tab, per-SKU monthly units) where the SKU has one — stopgap until a solid CA forecast lands (Tommy 2026-07-28); **else** CA FBA `units-shipped-t90 ÷ 90` × days-in-month shaped by the matching **US SoStocked seasonality** curve | `reports/_data/ca-forecast/` (BookFloship) + CA FBA export |
 | On Hand (✎) | CA FBA `available + inbound-working + Reserved Staging + Reserved FC Processing` (units physically at the CA FC; matches the US planner). Excludes pending-removal and `inbound-shipped`. | CA FBA export |
 | Inbound → FBA (projection) | FBA `inbound-shipped` — units shipped to FBA, **in transit, not yet received**. Shown separately; NOT in On Hand, NOT credited to coverage (so a stuck/unreceived load stays visible). | CA FBA export |
 | Incoming (PO → CA) | supplier Open POs to `ASG-*`. **Two dates:** arrival at Alliance = container-plan **Load + 45d** (concrete) if booked, else **Ship-By Date + 45d** (estimated), else Original Due Date; then **sellable on Amazon CA = Alliance arrival + 25d** transfer. Container plan overrides the open PO once a container books. | SAP Open POs + Container Plan |
@@ -70,6 +70,7 @@ Supplier (ocean ~45d) → Alliance CA (ASG-*) → (~25d transfer) → Amazon CA 
 - CA FBA exports → `seller-central/CA/{MTB,NFMD,SS}/` (content-sniffed by `marketplace=CA`).
 - SAP Inventory in Warehouse → `reports/_data/sap-inventory/` (ASG-* staging).
 - SAP Open POs → `reports/_data/sap-open-pos/` (supplier POs to ASG-*).
+- **CA forecast (BookFloship)** → `reports/_data/ca-forecast/` (filename `BookFloship*` **or** any workbook with a `Canada Forecast` tab; sorter routes it early, before the content sniffers). Drop the workbook in `_inbox` each week; the loader reads the newest and pulls the `YYYY-MM` columns for the planner horizon.
 
 ## Constants
 `STAGING_TO_CA_DAYS=25` (Alliance→Amazon transfer, Tommy 2026-07-28; was 60) · `TRANSIT_DAYS=45` (ocean) · `READY_TO_LOAD_DAYS=10` · `RECEIVING_LAG_DAYS=14` · `N_MONTHS=8` · `CA_STAGING_WH = ASG-MTB/ASG-NF/ASG-SS`.
@@ -82,6 +83,8 @@ Supplier (ocean ~45d) → Alliance CA (ASG-*) → (~25d transfer) → Amazon CA 
 - Layout lives once in `replen_layout.py` — change it there, all three update.
 
 ## Notes / gotchas
+- **Makeshift forecast is SKU-scoped.** The BookFloship forecast lists MTB SonicSmooth/MicroSmooth/Soniclear SKUs; only the ~6 of them that are actually CA-fulfilled (in the CA FBA export) appear on the MTB tab with forecast demand. Forecast SKUs NOT in the CA FBA export are US-fulfilled → US planner, not here. Replace the workbook with a real forecast later and the loader picks it up automatically.
+- **Brand tabs are per-brand.** A UPC shows on a brand tab only if it's in that brand's CA FBA export or has an open PO to that brand's `ASG-*`. Global Alliance staging is the reservoir value only — it no longer adds a UPC to all three tabs (fixed Tommy 2026-07-28; the forecast had made that duplication show real demand on the wrong tabs).
 - **Short CA export is correct.** Only CA-fulfilled SKUs (from Alliance) appear — the rest of Amazon.ca is fulfilled from US inventory and planned by the US planner. Don't treat a small row count as a partial/filtered export (Tommy 2026-07-28).
 - **All 3 brands.** SS **is** live on amazon.ca (real velocity, e.g. SIMA ~3,496 u/mo); CA velocity comes from the CA FBA export, not Sellerboard CA.
 - **No CA forward forecast** (SoStocked is US-only) → demand is trailing velocity shaped by the US seasonal curve. Watch for a ramp lagging.
