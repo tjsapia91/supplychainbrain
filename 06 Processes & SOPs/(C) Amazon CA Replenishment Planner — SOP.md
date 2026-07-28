@@ -49,7 +49,7 @@ Supplier (ocean ~45d) → Alliance CA (ASG-*) → (~25d transfer) → Amazon CA 
 | Units needed (A / B) | **two editable coverage-target columns** — type a horizon in days (default 90 / 180); each shows the resolved future date + units to **transfer from Alliance → Amazon CA** to avoid stockout through that date | computed |
 
 **Key model choices** (match the US planner):
-- Only **Active & class A–D** SKUs show on the brand tabs; the rest go to the **Excluded** tab with a reason.
+- Only **Active & class A–E** SKUs show on the brand tabs; the rest go to the **Excluded** tab with a reason. **CA is one class wider than US/ShipBob** (which are A–D) — Canada's catalog is tiny, so every CA-fulfilled SKU incl. class E is worth eyes on (Tommy 2026-07-28; e.g. 850003115283 SIMA Pink Target, class E, 804u at Alliance). Controlled by `CA_ALLOWED_CLASSES` in `build_amazon_ca_replen.py`.
 - Alliance staging is a **send-in reservoir**, NOT auto-credited into the coverage balance (it needs the 25d transfer). Coverage = On Hand + incoming POs − demand. The Units-needed number tells you how much to move in; compare it to the Alliance-CA reservoir column.
 - **Next Arrival shows the Alliance landing date** (when product physically arrives); coverage/stockout math credits it 25 days later (sellable on Amazon CA). Hover the Next Arrival cell for both dates per PO.
 
