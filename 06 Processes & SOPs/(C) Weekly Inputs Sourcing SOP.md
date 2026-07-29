@@ -8,6 +8,28 @@
 
 ---
 
+## 🆕 2026-07-29 Updates (master-files reorg + ShipBob forecast/report changes)
+
+**Master files (single source of truth) — `MTB-SupplyChain\reports\master\`.** Breaking the intake files out into one authoritative, overwrite-on-update file each (drop a fresh copy → it replaces the old; no dated pileup). Migrated so far:
+
+- **Container Plan → `reports\master\container-plan.xlsx`.** The planners read **ONLY the `US POs` and `International POs` tabs** — every other tab (per-container manifests, Floship, UK, staging sheets) is ignored. Drop the workbook in `_inbox`; the build routes it to the master automatically.
+- **In-Transit Log → `reports\master\in-transit-log.xlsx`** (the full ~40MB SharePoint log). Reads **all transport tabs** (WATER / INTL-WATER / TRUCK / AIR). **IN-TRANSIT RULE: a row is still in transit only when column V "QTY RECEIVED" is EMPTY** — a received qty means it's landed (dropped, so it isn't double-counted with on-hand). This is the *most exact* arrival date (WHSE DELV → ETA at Port → Date Sailed+45) and outranks the container plan. Parse is disk-cached (keyed by file mod-time) so the big file is only streamed once per new drop.
+- **Still on the legacy path (not yet broken out):** Open POs (`_data\sap-open-pos\`). Item Master + Amazon SKU Mapping stay in `reports\item-master\`.
+
+**Valogix forecast — export the FULL raw (history + forecast), always.** The current-month **actual units sold lives in column AC** (the last HISTORY month, just before "History Total"). The converter now preserves it as a `CurMonthActual` column. **Rule (SVP-driven, July blade spike):** if this-month actuals exceed the current-month forecast, the **actual takes over** as that month's demand on the ShipBob report and a **🚩 "check rolling forecast"** flag appears on the row. If a forecast-only / narrow Valogix export ever comes through, the forecast still works but this actual-override flag goes dormant — so **always pull the full export**.
+
+**ShipBob report (`shipbob-replen-*.xlsx`) rendering changes:**
+- Descriptions come from **ShipBob's own Inventory Name → SAP item master (UPC = truth)**, NOT amazon-sku-mapping (which had scrambled color labels, e.g. MIO Green shown as "Mint").
+- **Supplier column removed.**
+- **"Send-In Plan" tab renamed → "Vendor Order Plan"** (ShipBob is supplier-fed; the action is placing/expediting a vendor PO).
+- **Phase-out WITH stock** now renders on the brand tab marked "PHASE-OUT — sell through, DO NOT REPLENISH" (demand zeroed); drops to Excluded once stock = 0. (`E` class = phase-out.)
+- **Commingled green:** `850003115139-1` = true green; base `850003115139` = green/white mix (excluded from on-hand, flagged).
+- Coverage map: **elapsed half-month buckets are blanked** so the projection starts at the run date; inventory-projection column gaps removed.
+
+*(Full commit-by-commit log lives in `supplychainbrain\CLAUDE.md` Current Status.)*
+
+---
+
 ## 📋 At a glance — 12 source systems, 34 weekly files (+2 occasional)
 
 | # | Source | What | Files | Frequency | Drop into |

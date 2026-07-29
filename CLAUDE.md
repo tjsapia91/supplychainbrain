@@ -168,7 +168,19 @@ This is operator discipline, not bureaucracy. If you don't update on the day, yo
 ---
 
 ## Current Status
-**Last updated:** July 27, 2026
+**Last updated:** July 29, 2026
+
+**Recent work (Jul 29) — master-files reorg + ShipBob/US planner refinements (MTB-SupplyChain commits `8552c4d`→`bbccfdc`):**
+- ✅ **Master-files reorg started (Option B — separate master files).** New `reports/master/` folder = one authoritative, overwrite-on-update file each. Migrated:
+  - **Container Plan → `reports/master/container-plan.xlsx`.** New `AP.load_container_plan()` reads **ONLY the `US POs` + `International POs` tabs** (all other tabs ignored). All 3 active readers (US/CA/ShipBob) rewired to it; reference tabs show the two tabs; sorter routes a dropped Container Plan → the master. Old `_data/container-plan/` pile deleted.
+  - **In-Transit Log → `reports/master/in-transit-log.xlsx`** (~40MB). `load_in_transit_eta` rewritten: reads **all transport tabs** (WATER/INTL-WATER/TRUCK/AIR, not just the active sheet), **col V "QTY RECEIVED" EMPTY = still in transit** (Tommy's rule), disk-cached by mtime (80s→instant). In-Transit reference tab dropped (too big to embed). Old `reports/in-transit/` pile deleted.
+  - **Remaining:** Open POs → master (last one). Item Master + amazon-sku-mapping stay in `reports/item-master/`.
+- ✅ **ShipBob forecast — current-month actual override + rolling-forecast flag (SVP-driven, July blade spike).** Valogix col AC (current-month actual units sold, last history col) now preserved through `valogix_convert` as a `CurMonthActual` column. If this-month actuals > current-month forecast → actual takes over as that month's demand + **🚩 "check rolling forecast"** on the row. Skips phase-outs. **REQUIRES the full raw Valogix export (history+forecast).** 24 A-D items flagged (811573031335 SonicSmooth Clear: 23,855 actual vs low forecast).
+- ✅ **ShipBob descriptions from item master / ShipBob's own Inventory Name, NOT amazon-sku-mapping** (fixed scrambled color labels — MIO Green was showing "Mint"). `build_desc_map` now sources SAP item-master `Item Description` first (UPC = truth). Supplier column removed. "Send-In Plan" tab → **"Vendor Order Plan"**.
+- ✅ **Phase-out WITH stock now renders on the brand tab** ("sell through, DO NOT REPLENISH", demand zeroed) instead of hiding in Excluded; drops off at 0 stock. `E` class = phase-out. Removed 850003115139 (MIO Green, class A) + 850026141184 (PRIMA, class C) from PHASE_OUT; added `SHIPBOB_TRUE_SOURCE` (850003115139-1 = true green vs base = green/white mix, excluded from on-hand).
+- ✅ **US planner: AWD Inventory Ledger ("tortuga") wired in** — `reports/_data/awd-ledger/` (per-brand). Ledger Ending Balance = authoritative AWD on-hand; AWD→FBA departures/day drives the FBA-thin flag (moving vs stalled). New **FBA-only DOS column** + "FBA thin but AWD full — watch AWD→FBA transfer" flag (`FBA_THIN_DAYS=30`). Send-in PO comments show destination (UNIS/Amazon) + exclude ShipBob-bound; fixed foreign (EU/AU/UK) POs leaking into US arrivals; added **"Runs out (no PO)" column**.
+- ✅ **Coverage map: elapsed half-month buckets blanked** (projection starts at the run date, not a stale past bucket) + inventory-projection column gaps removed (Actions cols pack after the reservoir zone). ABC_OVERRIDE 850003115283 (SIMA Pink w/Bonus) E→A. `explain_sku.py` enriched.
+- 📋 **SVP action items (2026-07-29)** captured at `[[15 Meetings & Decisions/(C) SVP Action Items — 2026-07-29.md]]` (blade shortage: Eunice→ShipBob transfer, 30k PO with Harry, pull Sept container to Aug, send SB position, weekly blade/Pro+/hair-spray forecast reviews).
 
 **Recent work (Jul 27):**
 - ✅ **Planner refinements — CA / Floship / inbound visibility (Jul 27, later)** —
