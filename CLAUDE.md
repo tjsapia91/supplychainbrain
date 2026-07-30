@@ -302,6 +302,7 @@ This is operator discipline, not bureaucracy. If you don't update on the day, yo
 ---
 
 ## Parked Build Plans (`07 AI Tools & Builds/`)
+- **Email Brief & PO Tracker** — Outlook (MS365 connector, authorized) → daily prioritized brief + task list + self-updating PO tracker (stage machine off the 8-step PO workflow; stuck-PO flags). SPEC done 2026-07-30, Phases 1-2 POC'd; awaiting parameter sign-off (scope/cadence/vendors/escalation). ET timezone. Read-only.
 - Forecast Accuracy & Buffer Sizing — 5 phases
 - AWD-to-FBA Shipment Pipeline
 - SAP Open POs Integration
