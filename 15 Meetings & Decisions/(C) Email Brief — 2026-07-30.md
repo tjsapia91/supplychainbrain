@@ -1,55 +1,46 @@
 ---
 type: email-brief
 date: 2026-07-30
-source: Outlook (tom@michaeltoddbeauty.com)
-scope: last 48h — reviewed 25 most-recent of 158 messages (rest are automated EDI / daily reports)
+generated: 2026-07-30 ~9:35 AM ET (refresh — supersedes the earlier run)
+source: Outlook (tom@michaeltoddbeauty.com), last 24h — reviewed 25 most-recent of 85 (rest automated)
 status: open
 ---
 
-# 📬 Email Brief — 2026-07-30
+# 📬 Email Brief — 2026-07-30 (9:35 AM ET)
 
-**The theme:** blade shortage is now a multi-party fire drill (Harry / Alliance / UNIS), and **Lil called an all-day inventory review tomorrow** to map ETA-per-order before **Augusto leaves**. Everything below ladders up to those two things.
+**Theme:** the blade fire drill is **moving** — the UNIS release blocker cleared, Alliance stock is ready for 1 PM pickup, and Harry locked a ship split. Meanwhile **Donna set up the "Augusto – Review" meeting** (the all-day inventory review before Augusto leaves) — that's today's #1.
 
 ---
 
 ## 🔴 CRITICAL — today
 
-- [ ] **Lil — ALL-DAY inventory review TOMORROW.** *(lil@ · "Re: Tom One-on-One", 7/30)*
-  Thorough review of **all inventory**; needs **ETA + timeline for every order on every item**, and all answers out of **Augusto before he leaves**.
-  → **Prep now:** this is exactly what the ShipBob report + Container-Plan / In-Transit masters produce. Pull the latest position + arrival timeline into one view for the meeting. Line up the Augusto knowledge-transfer questions.
+- [ ] **"Augusto – Review" meeting — Donna sent the Teams invite** *(donna@, 9:33 AM, HIGH)*
+  The all-day inventory review before Augusto leaves. **Prep the ETA-per-order timeline** (Container-Plan + In-Transit masters + ShipBob report) and the Augusto knowledge-transfer questions.
 
-- [ ] **UNIS can't release the blade delivery orders — BLOCKER.** *(michelle.topete@unisco.com · "RE: DN-2051712 / DN-2051703 – Sonicsmooth Blades", 7/29)*
-  Orders were entered in **EA** but inventory was received in **CS** (UoM mismatch) — she **cannot release** until the DNs are edited.
-  → Get **Augusto** to fix the DN units (EA→CS) so UNIS releases. **This is blocking the blade move (SVP action #1).**
+- [x] **UNIS blade-release blocker — CLEARED** *(augusto@ → Michelle/UNIS, 9:04 AM)* ✅
+  Augusto edited the DN orders (EA→CS), so UNIS can now release DN-2051712 / DN-2051703. *(This was CRITICAL this morning — resolved.)* → Confirm UNIS actually releases.
 
-- [ ] **Alliance (Hereford): only 4 boxes of blade kit `850003115078` on hand — "kindly advise."** *(logistics.on@alliancesolutiongroup.com · "RE: New Shipment – FBA19KD79XVD", 7/29)*
-  → Reply with disposition. Confirms the blade position is thin — reinforces the SVP bridge-transfer urgency.
+- [ ] **Alliance blade stock ready ~1 PM — request pickup** *(logistics.on@alliancesolutiongroup, 9:19 AM)*
+  Hereford: ready this afternoon, **request pickup after 1:00 PM**. Augusto sent corrected labels (discard yesterday's). SKUs incl. 860021001178 (4 boxes/48u) + blade kit 850003115078. → Line up the carrier pickup after 1 PM.
 
-## 🟠 HIGH — this week (blade PO chain + freight)
+## 🟠 THIS WEEK
 
-- [ ] **Harry confirmed blade ship split: 3,000 pcs Aug 8 + 5,250 pcs Aug 15** (`811573031335`). *(harryzhan@nb-zeyu.com, HIGH, 7/30)*
-  → Acknowledge; **reconcile against the 30,000-unit blade PO** the SVP asked you to place — this looks like only 8,250. Confirm the balance.
+- [ ] **Harry needs EU-order batch codes** *(harryzhan@, 9:17 AM, HIGH, attachment)*
+  EU order = all new-print boxes; Harry wants the batch codes shared with Juan. Only the Xylitol salt has stock (old batch **NFMD03152026X**). → Coordinate batch codes with Juan for the EU order.
 
-- [ ] **Harry sent the PI for PPO 3276 (replacement kit)** — attachment. *(harryzhan@nb-zeyu.com, HIGH, 7/30)*
-  → Review the proforma invoice; approve/deposit to release production.
+- [ ] **PO 3276 (SonicSmooth Blades) — with approvers** *(Tom → Donna/Lilia/SC, 8:46 AM)*
+  Sent for approval & signature. → Await Lilia/Donna approval → Michael signature → send signed copy to Harry. **Reconcile qty vs the SVP's 30k** (Harry's committed 3,000 Aug 8 + 5,250 Aug 15 = 8,250).
 
-- [ ] **Pitt Ohio can deliver PRO 5056401114 TOMORROW — needs warehouse name + address.** *(dmetzger@pittohio.com, 7/30)*
-  → Reply with the destination warehouse + verified address to lock the delivery.
+- [ ] **Pitt Ohio delivers PRO 5056401114 tomorrow — needs warehouse name + address** *(dmetzger@pittohio, 8:36 AM)*
+  → Reply with the destination warehouse + verified address.
 
 ## 🟡 MEDIUM
 
-- [ ] **CVS / SPA-860 EDI PO changes** — batch of ~10 change requests incl. **cancellations** (PO 6682921, 0626546). *(edisupport@ecom-specialist.com, 7/30)*
-  → Skim for the cancellations; confirm the EDI team has them handled.
-
-- [ ] **Hair Identifier Spray (`811573031410`) artwork — vendor says design files are missing, needs resend.** *(salesassistant2@latop.com.cn · "PPO 3236 / YC8441", 7/30)*
-  → Delegate to **Juan / marketing** to resend the file (you're cc'd, not primary).
+- [ ] **CVS / SPA EDI 860 changes** — routed to the EDI tracker; **2 cancellations** (6682921, 0626546) to verify. Elisa notes she processed the 860 and next week's CVS orders come in with the **revised primary SKU**. → See [[01 Purchasing & Inventory/(C) EDI Retail Orders Tracker]].
+- [x] **Hair Identifier Spray artwork** — Juan resent the file to YAC/Gloria (missing-layer issue fixed) ✅ *(juan@, 9:21 AM)*.
 
 ## ⚪ FYI — no action
-
-- UNIS daily inventory reports ×2, Floship daily pending-fulfillment, TikTok weekly (automated — feed the pipeline).
-- Elisa: *"Connect Claude to ShipBob — new feature"* (internal FYI; relevant to our tooling).
-- Microsoft 365: 1 message in quarantine (review only if you're expecting something).
-- ShipBob marketing (bbarron@) — ignore.
+- ShipBob "Export of Inventory Report" ×3 (report-ready links), ShipBob marketing, UNIS daily inventory ×2, Floship daily pending, TikTok weekly, MS quarantine (1 held).
 
 ---
-*Auto-generated from Outlook. Reviewed the 25 most-recent of 158 in the window — the rest are automated EDI/report traffic. Say the word to go deeper.*
+*Filtered ~9 automated/robot messages · routed EDI (CVS 860 batch) to the EDI tracker. Reviewed 25 most-recent of 85 in the window — remainder is automation. Generated by /email-brief.*
