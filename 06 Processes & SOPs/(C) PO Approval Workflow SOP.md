@@ -18,7 +18,7 @@ The full lifecycle from SAP entry to a live, signed PO with the supplier. Drives
 | **2** | **Send PO → Harry** | Tom → Harry | Email the PO to Harry. |
 | **3** | **Receive PI ← Harry** | Harry → Tom | Harry returns the Proforma Invoice. |
 | **4** | **Review / adjust** | Tom (↔ Harry) | Check the PI; if items/info need changing, ask Harry to revise. Loop until correct. |
-| **5** | **Run the PPO Validator** | Tom | Load the **PO + PI** into the validator tool and confirm they match. Tool: `C:\Users\Tom Sapia\OneDrive - michaeltoddbeauty.com\Desktop\Web Apps\PPO Validator.html` |
+| **5** | **Validate PO ↔ PI** | Tom | Confirm the PI matches the PO (item #s, qtys, master-carton qty, pairing, buyer/address). **In-brain:** drop both PDFs in `01 Purchasing & Inventory/_ppo-validate/` → run **`/ppo-validate <PO#>`**. *(The web app's PDF-merge step stays external if a combined file is needed.)* |
 | **6** | **Send to approvers** | Tom → Lilia, Donna, Supply Chain | Send the **PDF (PO + PI)** to Lilia, Donna, and Supply Chain. |
 | **7** | **Approve → Michael** | Lilia **or** Donna | Approver forwards the document to **Michael** (Tom attached/cc'd) for signature. |
 | **8** | **Signed → back to Harry** | Michael → Tom → Harry | Michael signs; Tom emails the **approved & signed** document back to Harry → **PO is LIVE**. |
