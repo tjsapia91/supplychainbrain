@@ -1,7 +1,8 @@
 ---
 type: batch-code-tracker
 system-of-record: Prizm ERP (Reports → Generated Reports → Batch Code Tracking → CSV)
-lookup-tool: OneDrive\Desktop\Web Apps\Batch Code Lookup.html (search the full Prizm export)
+data-in-vault: 01 Purchasing & Inventory/_batch-data/ (drop the Prizm CSV here)
+lookup: /batch-lookup <code | item# | UPC | PPO#>  (in-brain — no external app)
 source: Outlook batch-code threads (Harry / Augusto / Michael)
 last_scanned: 2026-07-30
 status: living
@@ -9,7 +10,9 @@ status: living
 
 # 🏷️ Batch Code Tracker
 
-Batch/expiration codes matter for **Amazon compliance** (and retail). Full per-lot dataset lives in **Prizm** — search it with the local **Batch Code Lookup** web app (drop the Prizm CSV; search by batch code / item # / PPO # / region). This note holds the **conventions** + the **active batch-code decisions** the routine pulls from email.
+Batch/expiration codes matter for **Amazon compliance** (and retail). **Everything lives in the brain** — no external web app to maintain:
+- **Full lot dataset** → drop the Prizm export in `_batch-data/`; search with **`/batch-lookup <code | item# | UPC | PPO#>`** (or just ask "look up batch …").
+- **Conventions + live decisions** → this note (below), kept current by `/email-brief`.
 
 ## Batch-code convention (locked w/ Harry, Augusto 2026-07-27)
 - **Format:** `PREFIX + MMYY` — e.g. **`RGS0726`** = Regular Salt, July 2026.
@@ -31,4 +34,4 @@ Batch/expiration codes matter for **Amazon compliance** (and retail). Full per-l
 | 7/27 | New salt batches (both) | `RGS` / `XYS` + MMYY | New prefixes in effect once produced |
 
 ---
-*Full lot-level data = Prizm export via the Batch Code Lookup web app. This note tracks the conventions + live decisions; the /email-brief routine surfaces batch-code coordination threads (Harry/Juan) and logs decisions here. (Tom 2026-07-30.)*
+*Full lot-level data = the Prizm export in `_batch-data/`, searched via `/batch-lookup` (in-brain, replaces the old web app). This note tracks conventions + live decisions; `/email-brief` surfaces batch-code threads (Harry/Juan) and logs decisions here. (Tom 2026-07-30.)*
