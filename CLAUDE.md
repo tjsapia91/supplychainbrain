@@ -168,7 +168,15 @@ This is operator discipline, not bureaucracy. If you don't update on the day, yo
 ---
 
 ## Current Status
-**Last updated:** July 29, 2026
+**Last updated:** July 30, 2026
+
+**Recent work (Jul 30) — Email/PO/EDI automation built on the Outlook (MS365) connector (vault-only; read-only):**
+- ✅ **`/email-brief` command shipped** (`.claude/commands/email-brief.md`) — scans Outlook last-24h + vendor/EDI threads, filters robots, produces a prioritized brief + refreshes the PO tracker + EDI tracker, auto-commits. Ran live end-to-end (caught the blade blocker clearing + Donna's "Augusto-Review" meeting). Runs on-demand; Obsidian-open auto-trigger deferred (no clean hook — one-tap command is the path).
+- ✅ **PO Approval Workflow SOP** (`06 Processes & SOPs`) — the real US 8-step process: SAP entry (delivery window = posting +40 prod +45 transit +40 receiving ≈125d, NO pricing/DDP) → PO→Harry → PI → adjust → **PPO Validator** (local web app) → Lilia(SVP)/Donna(Director)/SC → Michael(CEO) signs → signed copy→Harry = LIVE.
+- ✅ **PO Tracker** (`01 Purchasing & Inventory`) — vendor POs placed at their workflow stage from email traffic + stuck flags. Current: PPO 3263/3264/3267 LIVE; **3276 SonicSmooth Blades at stage ⑥ (with approvers)** — reconcile vs SVP's 30k (Harry committed 8,250).
+- ✅ **EDI Retail Orders Tracker** (`01 Purchasing & Inventory`) — parses `edisupport@ecom-specialist.com` 850/860 (CVS etc.) into the brain; cancellations float to the brief. (EDI = tracked, NOT filtered — it's how retail partners order.)
+- ✅ **Build plan** (`07 AI Tools & Builds`) — full spec + locked params: scope=everything-24h, vendors=Harry/YAC/Oxygen/Emily, org map Michael(CEO)/Lilia(SVP)/Donna(Dir)/Leo(CMO), assoc Augusto/Elisa, ET timezone.
+- 📋 **Email brief + SVP action list** live in `15 Meetings & Decisions`.
 
 **Recent work (Jul 29) — master-files reorg + ShipBob/US planner refinements (MTB-SupplyChain commits `8552c4d`→`bbccfdc`):**
 - ✅ **Master-files reorg started (Option B — separate master files).** New `reports/master/` folder = one authoritative, overwrite-on-update file each. Migrated:
