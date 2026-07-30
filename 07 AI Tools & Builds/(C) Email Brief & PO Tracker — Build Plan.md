@@ -38,7 +38,7 @@ Turn Tom's Outlook inbox into (A) a daily prioritized **brief + task list**, and
 | Leadership (escalate) | **Michael** — CEO (final PO signer) · **Lilia** — SVP · **Donna** — Director · **Leo** — CMO |
 | PO approvers | **Lilia** (SVP) + **Donna** (Director) — either approves |
 | Tom's associates | **Augusto** (Demand Planning) · **Elisa** |
-| Key vendors (PO-tracked) | **Harry Zhan** — Ningbo Zeyu · **YAC Chemicals** · **Emily** · **Oxygen** *(need each one's email address to wire up)* |
+| Key vendors (PO-tracked) | **Harry Zhan** — Ningbo Zeyu · `harryzhan@nb-zeyu.com` · **YAC Chemicals** · `marketing9@yacgp.com` + `salesassistant2@latop.com.cn` · **Oxygen** (Smile Severino, Oxygen Development) · `sseverino@oxygendevelopment.com` · **Emily** (BMC Beauty) · `sales@bmcbeauty.com` |
 
 > Note: the 7/29 "SVP recap" + the all-day inventory review both came from **Lilia (SVP)** via lil@michaeltoddbeauty.com.
 
@@ -88,5 +88,7 @@ Tom's machine isn't always on, so a fixed-time cron is unreliable. Chosen approa
 4. **Auto-exclude robots from the brief:** yes (counted, not deleted) ✅
 5. **Leadership/escalation:** Michael (CEO) · Lilia (SVP) · Donna (Director) · Leo (CMO); associates Augusto, Elisa ✅
 
-### Only thing still needed to build
-- **Email addresses for the 3 new vendors** — YAC Chemicals, Emily, Oxygen (Harry = harryzhan@nb-zeyu.com is known). Candidates seen in mail: `marketing9@yacgp.com`, `salesassistant2@latop.com.cn` (Hair Spray thread) — confirm which is YAC. Give me the addresses (or point me at a thread with each) and Phase 1 is ready to build.
+### Build-ready
+All parameters + vendor addresses locked (Tom 2026-07-30). Next step = build Phase 1: the
+`/email-brief` command (everything-24h, robot filter, EDI parse, prioritized brief) + the
+Obsidian-open trigger, then wire the 4-vendor PO tracker.
