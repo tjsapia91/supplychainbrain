@@ -1,0 +1,41 @@
+---
+type: edi-order-tracker
+source: EDI service — edisupport@ecom-specialist.com (→ supplychain@michaeltoddbeauty.com)
+last_scanned: 2026-07-30
+status: living
+---
+
+# 🛒 EDI Retail Orders Tracker
+
+How retail partners submit and adjust orders. Each EDI email = a retail PO or a change to one. Tracked in the brain (previously nearly lost in inbox noise). Companion to the local **MTB Tools** web-app suite.
+
+## EDI transaction types
+| Set | Meaning |
+|---|---|
+| **850** | New Purchase Order |
+| **860** | PO Change — with a *Transaction Set Purpose Code*: **STATUS UPDATE** (revision) or **CANCELLATION** |
+| 855 / 856 / 810 | Ack / ASN / Invoice (if/when they appear) |
+
+## Fields captured per EDI PO
+Retailer · Brand · **PO #** · Type (New / Change-update / Change-cancel) · PO date · **Delivery requested date** · Ship-to (store/DC code) · Buyer · Line items (Purchaser Item Code · UPC · description · qty in **cases** · pack · unit $ · line $) · change action (e.g. DELETE ITEM(S)).
+
+## Open EDI POs
+
+### CVS — SPA (2026-07-30 batch, 860 changes — 10 messages)
+| PO # | Type | PO date | Delivery req | Change detail |
+|---|---|---|---|---|
+| **4848476** | 860 · status update | 7/28 | 8/20 | DELETE 2 cs — MIO Microdermabrasion MT (UPC 860021001130, pack 12, $205.08/cs, line $410) |
+| **6682921** | 860 · **CANCELLATION** | 7/28 | — | ⚠ order cancelled — verify nothing already shipped/committed |
+| **0626546** | 860 · **CANCELLATION** | 7/28 | — | ⚠ order cancelled — verify |
+| 9494842 | 860 · status update | 7/28 | — | (parse line detail on next run) |
+| 8353116 | 860 · status update | 7/28 | — | (parse line detail) |
+| 9038477 | 860 · status update | 7/28 | — | (parse line detail) |
+| 3825067 | 860 · status update | 7/28 | — | (parse line detail) |
+| 5081927 | 860 · status update | 7/28 | — | (parse line detail) |
+| 1661358 | 860 · status update | 7/28 | — | (parse line detail) |
+| 2501262 | 860 · status update | 7/28 | — | (parse line detail) |
+
+**Action:** confirm the 2 cancellations (6682921, 0626546) are handled; skim the status-update revised qtys.
+
+---
+*Auto-built from Outlook 2026-07-30 (sender edisupport@ecom-specialist.com). The email routine parses each 850/860 into this table — full line detail extracted when the run opens the body. Cancellations are always surfaced to the top; routine status-updates roll up as a batch.*

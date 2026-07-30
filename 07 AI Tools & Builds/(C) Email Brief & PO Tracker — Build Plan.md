@@ -20,6 +20,7 @@ Turn Tom's Outlook inbox into (A) a daily prioritized **brief + task list**, and
 ## What it produces
 1. **📬 Email Brief** — `15 Meetings & Decisions/(C) Email Brief — <date>.md`. A 1-line theme + a checkable, prioritized task list (🔴 critical / 🟠 this week / 🟡 medium / ⚪ FYI). Same format as the 7/30 POC.
 2. **📑 PO Tracker refresh** — updates `01 Purchasing & Inventory/(C) PO Tracker — *.md`: each PO's stage + next action, and STUCK flags.
+3. **🛒 EDI Retail Orders refresh** — updates `01 Purchasing & Inventory/(C) EDI Retail Orders Tracker.md`: parses each EDI 850/860 (retailer, PO#, type, delivery date, line items); surfaces cancellations, rolls up routine status-updates.
 
 ## Scope & filters (LOCKED 2026-07-30)
 | Parameter | Setting |
@@ -27,7 +28,8 @@ Turn Tom's Outlook inbox into (A) a daily prioritized **brief + task list**, and
 | Brief scope | **EVERYTHING** in the last 24h (all mail, not just unread/flagged) — paginate past the 25/page cap |
 | PO-tracker window | Last **120 days**, per vendor |
 | Mailbox | Own inbox + Sent Items (both — sent mail is where POs + approvals originate) |
-| **Auto-exclude (noise)** | Filter the robots out of the brief (still counted, never deleted): `wisesys@unisco.com`, `noreply@floship.com`, `sellersupport@shop.tiktok.com`, ShipBob marketing, `edisupport@ecom-specialist.com` (EDI — summarize count, surface only cancellations), `quarantine@messaging.microsoft.com`. Confirmed OK to filter (Tom 2026-07-30). |
+| **Auto-exclude (noise)** | Filter the robots out of the brief (still counted, never deleted): `wisesys@unisco.com`, `noreply@floship.com`, `sellersupport@shop.tiktok.com`, ShipBob marketing, `quarantine@messaging.microsoft.com`. Confirmed OK to filter (Tom 2026-07-30). |
+| **EDI — TRACK, don't exclude** | `edisupport@ecom-specialist.com` = retail POs/changes (how partners order). Parse each 850/860 into the **[[01 Purchasing & Inventory/(C) EDI Retail Orders Tracker]]** (retailer · PO# · type · delivery date · line items). **Cancellations float to the brief; routine status-updates roll up as a batch.** (Tom 2026-07-30) |
 | Escalate to top | Leadership + key vendors float up — see People below |
 
 ## People (org map — LOCKED 2026-07-30)
