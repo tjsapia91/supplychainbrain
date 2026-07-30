@@ -34,3 +34,9 @@ Look in `01 Purchasing & Inventory/_ppo-validate/` for a PO PDF and a PI PDF who
 ## Verdict + report
 - **FAIL** if any ❌ · **REVIEW** if any ⚠ (no ❌) · **PASS** if all ✅.
 - Print the verdict at top, then the grouped check list (errors first). Lead with any qty/MC/pairing mismatch — those block sending to approvers.
+
+## Merge (in-brain)
+Unless the verdict is **FAIL**, merge the PO + PI into one packet for the approvers (step 6):
+`py -3 "01 Purchasing & Inventory/_ppo-validate/_merge.py" "<PO.pdf>" "<PI.pdf>" "01 Purchasing & Inventory/_ppo-validate/PPO$ARGUMENTS-PO-PI.pdf"`
+(uses PyMuPDF — already installed; PO first, then PI). Report the merged file path. On FAIL, skip the merge and tell Tom to fix the mismatch first.
+
