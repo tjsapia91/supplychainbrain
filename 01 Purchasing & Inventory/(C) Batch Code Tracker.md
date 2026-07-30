@@ -14,7 +14,9 @@ Batch/expiration codes matter for **Amazon compliance** (and retail). Full per-l
 ## Batch-code convention (locked w/ Harry, Augusto 2026-07-27)
 - **Format:** `PREFIX + MMYY` — e.g. **`RGS0726`** = Regular Salt, July 2026.
 - **Salt prefixes:** Regular Salt = **`RGS`** · Xylitol Salt = **`XYS`** (use on all future salt batches).
-- **Legacy format still in the wild:** `NFMD03152026X` (NasalFresh + date + `X` for Xylitol) — used until that old stock is used up.
+- **Legacy codes still in the wild — BOTH salts** stay on their OLD codes until a **new batch is produced** (then switch to the `RGS`/`XYS` format + 5-yr exp):
+  - Xylitol salt legacy = `NFMD03152026X` (NasalFresh + date + `X`).
+  - Regular salt legacy = *(fill in — same NFMD+date format, no `X` suffix; confirm exact code)*.
 - Example codes seen in Prizm: `NAC0426`, etc. (item prefix + MMYY).
 
 ## Expiration policy
@@ -24,9 +26,9 @@ Batch/expiration codes matter for **Amazon compliance** (and retail). Full per-l
 | Date | Item / order | Batch code | Status / action |
 |---|---|---|---|
 | 7/30 | **EU order** (all boxes = **new print**) | new codes needed | 🟠 Harry needs the batch codes **shared with Juan** for the new-print boxes |
-| 7/30 | **Xylitol salt** (has stock) | `NFMD03152026X` (old) | Uses the **old** code until stock is used up, then → `XYS` + 5-yr exp |
-| 7/27 | Next Regular Salt batches | `RGS` + MMYY | New prefix in effect going forward |
-| 7/27 | Next Xylitol Salt batches | `XYS` + MMYY | New prefix in effect going forward |
+| 7/30 | **Regular salt** (current stock) | legacy code *(confirm)* | Stays on legacy until the **next batch** → then `RGS` + MMYY + 5-yr exp |
+| 7/30 | **Xylitol salt** (current stock) | `NFMD03152026X` (legacy) | Stays on legacy until the **next batch** → then `XYS` + MMYY + 5-yr exp |
+| 7/27 | New salt batches (both) | `RGS` / `XYS` + MMYY | New prefixes in effect once produced |
 
 ---
 *Full lot-level data = Prizm export via the Batch Code Lookup web app. This note tracks the conventions + live decisions; the /email-brief routine surfaces batch-code coordination threads (Harry/Juan) and logs decisions here. (Tom 2026-07-30.)*
