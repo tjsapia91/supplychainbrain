@@ -18,8 +18,8 @@ Living tracker of POs, built from sent + received email. **Stage** follows the
 | **3264** | SPA | US / UNIS / CA (`PPO3264-SPA-US-UNIS-CA.pdf`) | **⑧ LIVE** — signed copy sent to Harry 7/27 | Confirm production/ship schedule |
 | **3267** | NFMD | US / UNIS / CA (`PPO3267-NFMD-US-UNIS-CA.pdf`) | **⑧ LIVE** — signed copy sent to Harry 7/27 (revised PI 3267) | Confirm production/ship schedule |
 | **3273** | MTB | Floship — SonicSmooth handles + replacement (barcodes sent 7/27) | ② PO→Harry (7/27) — PI/approval status unconfirmed | Confirm PI + that it ran through approval |
-| **3276** | — | Replacement kit | **③ PI received 7/30** (attachment) | 🟠 **Review PI → adjust if needed → run PPO Validator → send to Lilia/Donna/SC** |
-| **Blade PO** | MTB | SonicSmooth Blades `811573031335` — **30,000u to place (SVP)** | ⓪ not in SAP yet | 🔴 **Enter the 30k PO in SAP (step 1)** then send to Harry. Harry's confirmed only **3,000u Aug 8 + 5,250u Aug 15** (8,250) — cover the balance + push earlier |
+| **3276** | MTB | **SonicSmooth Blades `811573031335`** (a.k.a. replacement kit) | **⑥ WITH APPROVERS** — PI received, validated + merged, PO+PI sent to Lilia/Donna/SC **7/30 AM** "ready for approval and signature" | ⏳ Await Lilia/Donna approve → Michael sign → then send signed copy to Harry (step 8) |
+| **Blade 30k?** | MTB | SonicSmooth Blades `811573031335` — SVP asked for **30,000u** | ❓ reconcile | **Is PO 3276 the SVP's 30k blade PO, or separate?** Harry's confirmed only **3,000u Aug 8 + 5,250u Aug 15** (8,250). Verify 3276's qty vs the 30k ask — if short, place the balance |
 
 ## Open threads / notes
 - **Blade shortage is the priority** (SVP 7/29 + Lil's all-day review). Augusto asked Harry to load blades earlier than the existing **10k (22nd) + 15k (29th)** schedule; Harry countered **3,000 Aug 8 + 5,250 Aug 15**. Reconcile all of this into ONE blade timeline for the meeting.
