@@ -21,14 +21,24 @@ Turn Tom's Outlook inbox into (A) a daily prioritized **brief + task list**, and
 1. **📬 Email Brief** — `15 Meetings & Decisions/(C) Email Brief — <date>.md`. A 1-line theme + a checkable, prioritized task list (🔴 critical / 🟠 this week / 🟡 medium / ⚪ FYI). Same format as the 7/30 POC.
 2. **📑 PO Tracker refresh** — updates `01 Purchasing & Inventory/(C) PO Tracker — *.md`: each PO's stage + next action, and STUCK flags.
 
-## Scope & filters (parameters — defaults, confirm)
-| Parameter | Default | Confirm? |
-|---|---|---|
-| Brief window | Unread + flagged, last **24h** | |
-| PO-tracker window | Last **120 days**, per vendor | |
-| Mailbox | Own inbox + Sent Items (both — sent mail is where POs + approvals originate) | |
-| **Auto-exclude (noise)** | automated senders unless they contain action keywords: `wisesys@unisco.com`, `noreply@floship.com`, `sellersupport@shop.tiktok.com`, ShipBob marketing, `edisupport@ecom-specialist.com` (EDI — summarize count, surface only cancellations), `quarantine@messaging.microsoft.com` | |
-| Escalate to top | Leadership (Michael/CEO, Lil, Director/SVP) + key vendors (Harry) float up | |
+## Scope & filters (LOCKED 2026-07-30)
+| Parameter | Setting |
+|---|---|
+| Brief scope | **EVERYTHING** in the last 24h (all mail, not just unread/flagged) — paginate past the 25/page cap |
+| PO-tracker window | Last **120 days**, per vendor |
+| Mailbox | Own inbox + Sent Items (both — sent mail is where POs + approvals originate) |
+| **Auto-exclude (noise)** | Filter the robots out of the brief (still counted, never deleted): `wisesys@unisco.com`, `noreply@floship.com`, `sellersupport@shop.tiktok.com`, ShipBob marketing, `edisupport@ecom-specialist.com` (EDI — summarize count, surface only cancellations), `quarantine@messaging.microsoft.com`. Confirmed OK to filter (Tom 2026-07-30). |
+| Escalate to top | Leadership + key vendors float up — see People below |
+
+## People (org map — LOCKED 2026-07-30)
+| Tier | Who |
+|---|---|
+| Leadership (escalate) | **Michael** — CEO (final PO signer) · **Lilia** — SVP · **Donna** — Director · **Leo** — CMO |
+| PO approvers | **Lilia** (SVP) + **Donna** (Director) — either approves |
+| Tom's associates | **Augusto** (Demand Planning) · **Elisa** |
+| Key vendors (PO-tracked) | **Harry Zhan** — Ningbo Zeyu · **YAC Chemicals** · **Emily** · **Oxygen** *(need each one's email address to wire up)* |
+
+> Note: the 7/29 "SVP recap" + the all-day inventory review both came from **Lilia (SVP)** via lil@michaeltoddbeauty.com.
 
 ## Prioritization logic (Tom's rules)
 `supply risk / stockout → PO / reorder → expedite / transfer → approvals & meetings → FYI`, then bump anything from leadership or a key vendor. Extract the concrete ask from each actionable email (who/what/when).
@@ -47,9 +57,11 @@ Maps email events → the [[06 Processes & SOPs/(C) PO Approval Workflow SOP]] s
 
 **STUCK flags:** PI received > 2 business days but not yet sent to approvers · with approvers > 3 days, no approval · signed but not yet sent to Harry · PPO number referenced with no PI after N days.
 
-## Cadence / how it runs
-- **On-demand:** a Claude Code command `/email-brief` (and/or `/po-tracker`).
-- **Scheduled (optional):** a routine every morning **7:00 AM ET** so the brief is waiting. (Uses the `schedule` skill / cron.)
+## Cadence / how it runs (LOCKED 2026-07-30)
+Tom's machine isn't always on, so a fixed-time cron is unreliable. Chosen approach:
+- **Run automatically when Tom opens Obsidian** (startup trigger) → the brief regenerates each time he sits down, no dependence on the machine being on at a set hour.
+- **Plus on-demand** `/email-brief` (and `/po-tracker`) anytime.
+- *(Not used: fixed cloud cron — a cloud agent could read Outlook with the machine off but can't write to the local vault. Revisit only if the vault moves fully to a synced/cloud store.)*
 
 ## Privacy & safety (hard rules)
 - **Read-only.** Never send, reply, delete, move, or flag an email without Tom explicitly asking.
@@ -67,9 +79,12 @@ Maps email events → the [[06 Processes & SOPs/(C) PO Approval Workflow SOP]] s
 3. **Schedule** — 7 AM ET morning run.
 4. **Refine** — multi-vendor PO tracking; optional PDF qty/$ extraction; fold PO↔PI check into the existing **PPO Validator** web app.
 
-## Open decisions to lock before build
-1. Brief scope — unread+flagged 24h, or all last-24h, or key-people-only?
-2. Cadence — on-demand only, or add the 7 AM ET schedule?
-3. Vendors to PO-track beyond Harry?
-4. Confirm the auto-exclude sender list above.
-5. Who exactly are "leadership" for escalation (Michael = CEO; is Lil the Director or SVP)?
+## Decisions — LOCKED 2026-07-30
+1. **Scope:** everything, last 24h ✅
+2. **Cadence:** run on Obsidian-open + on-demand `/email-brief` (no fixed cron — machine not always on) ✅
+3. **Vendors:** Harry (Ningbo Zeyu), YAC Chemicals, Emily, Oxygen ✅
+4. **Auto-exclude robots from the brief:** yes (counted, not deleted) ✅
+5. **Leadership/escalation:** Michael (CEO) · Lilia (SVP) · Donna (Director) · Leo (CMO); associates Augusto, Elisa ✅
+
+### Only thing still needed to build
+- **Email addresses for the 3 new vendors** — YAC Chemicals, Emily, Oxygen (Harry = harryzhan@nb-zeyu.com is known). Candidates seen in mail: `marketing9@yacgp.com`, `salesassistant2@latop.com.cn` (Hair Spray thread) — confirm which is YAC. Give me the addresses (or point me at a thread with each) and Phase 1 is ready to build.
