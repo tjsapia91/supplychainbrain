@@ -168,7 +168,11 @@ This is operator discipline, not bureaucracy. If you don't update on the day, yo
 ---
 
 ## Current Status
-**Last updated:** July 30, 2026
+**Last updated:** July 31, 2026
+
+**Recent work (Jul 31):**
+- ✅ **In-Transit Log now read LIVE from OneDrive-synced SharePoint — no manual download (MTB-SupplyChain `7de476b`).** The In-Transit Log lives in the supplychain SharePoint library (`Shared Documents/In Transit/Container's/IN TRANSIT LOG.xlsx`), already synced to disk via OneDrive at `~/michaeltoddbeauty.com/Supply Chain - Documents/In Transit/Container's/IN TRANSIT LOG.xlsx` (updates a couple×/day). `build_amazon_planner.load_in_transit_eta` now PREFERS that live path (`IN_TRANSIT_SYNCED`; override `IN_TRANSIT_SYNC_PATH` env), falling back to `reports/master` then legacy `reports/in-transit`. mtime cache re-reads on each OneDrive update. Kills the manual download→rename→drop step; verified 100 in-transit ETAs load from the synced file. (SharePoint reachable live via the authorized M365 connector — search/read/upload.)
+- ✅ **Email brief 7/31 + PO/EDI tracker refresh (vault `29fee6e`).** PO **3276 (30k SonicSmooth blades) SIGNED** by Michael 7/30 → covers ShipBob Dec; 3273 (Floship) shipping Sat→Mon; CA blades 1,500u booked ($7,935 DDU→Alliance); Oxygen Glow Facial Oil formula approved (pickup 8/7). Trackers updated (YAC 3236 / Oxygen / Emily-BMC sections added).
 
 **Recent work (Jul 30) — Email/PO/EDI automation built on the Outlook (MS365) connector (vault-only; read-only):**
 - ✅ **`/email-brief` command shipped** (`.claude/commands/email-brief.md`) — scans Outlook last-24h + vendor/EDI threads, filters robots, produces a prioritized brief + refreshes the PO tracker + EDI tracker, auto-commits. Ran live end-to-end (caught the blade blocker clearing + Donna's "Augusto-Review" meeting). Runs on-demand; Obsidian-open auto-trigger deferred (no clean hook — one-tap command is the path).
