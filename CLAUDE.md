@@ -383,3 +383,4 @@ All drop into `Downloads\` — `sort_downloads.py` routes them:
 - *"Pick up the forecast accuracy build plan"* — 5-phase plan
 - *"Pick up the AWD-to-FBA pipeline"* — shipment visibility build
 - *"Wire up the Inbound Shipment Items report"* — companion to In-Transit Log
+- *"Run the SPA ShipBob PO sizing"* — quarterly PO-sizing for all Spa items on ShipBob (`scripts/size_spa_pos.py`, 230d order-up-to). Plan/method: [[01 Purchasing & Inventory/(C) SPA ShipBob Quarterly PO Sizing.md]]
