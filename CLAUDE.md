@@ -384,3 +384,4 @@ All drop into `Downloads\` — `sort_downloads.py` routes them:
 - *"Pick up the AWD-to-FBA pipeline"* — shipment visibility build
 - *"Wire up the Inbound Shipment Items report"* — companion to In-Transit Log
 - *"Run the SPA ShipBob PO sizing"* — quarterly PO-sizing for all Spa items on ShipBob (`scripts/size_spa_pos.py`, 230d order-up-to). Plan/method: [[01 Purchasing & Inventory/(C) SPA ShipBob Quarterly PO Sizing.md]]
+- *"Build the blade arrival map"* (or *"arrival map for <UPC>"*) — chronological arrival-timeline report for a SKU: in-transit (shipped) + container-plan POs with status + Harry's col-Q dates + running supply (`scripts/build_blade_arrival_map.py`; default 811573031335 SonicSmooth blades). Publishes to the SUPPLY CHAIN ANALYSIS hub. Reads Harry's hand-entered container-plan dates (col Q) — NOT just the plan's Ready column.
