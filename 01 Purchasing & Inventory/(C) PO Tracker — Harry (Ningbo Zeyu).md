@@ -2,7 +2,7 @@
 type: po-tracker
 vendor: Ningbo Zeyu Industry & Trade (Harry Zhan · harryzhan@nb-zeyu.com)
 source: Outlook sent + received (tom@michaeltoddbeauty.com)
-last_scanned: 2026-07-31
+last_scanned: 2026-07-31 (PM)
 status: living
 ---
 
@@ -29,7 +29,10 @@ Living tracker of POs, built from sent + received email. **Stage** follows the
 | **3167** | Emily / BMC (Zhiwen) | (shipment issue thread) | received & counting at warehouse (Emily 7/31); Augusto out next wk → forwarder to route via supplychain@ | Confirm final count + delivery schedule |
 
 ## Open threads / notes
-- **Blade shortage is the priority** (SVP 7/29 + Lil's all-day review). **PO 3276 (30k) is now SIGNED/LIVE** — covers December. Near-term expedite: Michael **7/30** pushed Harry to add to a **~3,000-pc load on 8/1** ("we are VERY short"); Harry: "we will try… if we make more, we will load more." Harry's confirmed near-term = **3,000 Aug 8 + 5,250 Aug 15** (8,250). The Oct-4 containers **3221 + 3244** (25,050 each) load **8/20** — must sail on time.
+- **Blade shortage is the priority** (SVP 7/29 + Lil's all-day review). **PO 3276 (30k) is now SIGNED/LIVE** — covers December. Near-term expedite: Michael **7/30** pushed Harry to add to a **~3,000-pc load on 8/1** ("we are VERY short"); Harry: "we will try… if we make more, we will load more." Harry's confirmed near-term = **3,000 Aug 8 + 5,250 Aug 15** (8,250). The Oct-4 containers **3221 + 3244** (25,050 each) load **8/20** — must sail on time. **SS blade transfers DN-2051712 / DN-2051703 are being picked at Unis (7/31, Michelle Topete)** — confirm they ship.
+- **🔴 Batch-code sign-off (7/31) — blocks final PIs.** Harry updated all codes on the final PI: **3154 → new batch code (done, PI attached)**; **3152 still on old `0426` — Harry asks "do you need change?"**; **salt = `RGS0726`** (Harry pushed back on a floated `0826`); **device stays `0426`**. → Decide w/ Juan; details in [[01 Purchasing & Inventory/(C) Batch Code Tracker.md]].
+- **Container Plan updated (Augusto 7/31):** Ready Date col L = PO+45 (estimate); **Harry's ACTUAL ready dates in his notes, col Q.** Real load/sail dates still need booking.
+- **⚠ Augusto OOO all next week** — BMC/Emily 3167 delivery + all forwarder/quote traffic routes to **supplychain@** while he's out.
 - **Salt (NasalFresh) batch/expiry codes:** new prefix codes locked with Harry — Regular = **RGS**, Xylitol = **XYS** (per Augusto). Juan updating artwork.
 - PI quantities/prices for 3263/3264/3267/3276 live in the attached PDFs — say the word and I'll open them to fill exact qtys/$ into the table.
 
