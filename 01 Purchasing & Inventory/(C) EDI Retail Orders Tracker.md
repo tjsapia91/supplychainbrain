@@ -1,7 +1,7 @@
 ---
 type: edi-order-tracker
 source: EDI service — edisupport@ecom-specialist.com (→ supplychain@michaeltoddbeauty.com)
-last_scanned: 2026-07-30
+last_scanned: 2026-07-31
 status: living
 ---
 
@@ -36,6 +36,11 @@ Retailer · Brand · **PO #** · Type (New / Change-update / Change-cancel) · P
 | 2501262 | 860 · status update | 7/28 | — | (parse line detail) |
 
 **Action:** confirm the 2 cancellations (6682921, 0626546) are handled; skim the status-update revised qtys.
+
+### JCPenney — SPA (2026-07-30)
+| Doc | Type | Detail |
+|---|---|---|
+| — | **820 · remittance/payment** | Payment to MTB SPA: **$167.56 credit** via ACH (remittance information only). No order action — route to AR (`ar@michaeltoddbeauty.com` was CC'd). |
 
 ---
 *Auto-built from Outlook 2026-07-30 (sender edisupport@ecom-specialist.com). The email routine parses each 850/860 into this table — full line detail extracted when the run opens the body. Cancellations are always surfaced to the top; routine status-updates roll up as a batch.*
