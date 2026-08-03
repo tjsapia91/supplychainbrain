@@ -48,10 +48,19 @@ Retailer · Brand · **PO #** · Type (New / Change-update / Change-cancel) · P
 
 **Action:** confirm the 2 cancellations (6682921, 0626546) are handled; skim the status-update revised qtys.
 
-### JCPenney — SPA (2026-07-30)
+### JCPenney — SPA
+> ⚠ **JCP orders/returns come by DIRECT EMAIL (Victoria Ernst / Mary Ann Cederberg @jcp.com), NOT EDI.** Only JCP **820** (remittance) + **812** (credit/debit) flow through the EDI service. Log JCP POs here manually.
+
+**🟠 OPEN PO — MIO Green (852 green) · deliver 8/10/2026**
+- **Item:** `850003115139` MIO Green w/USB · **Qty 252** · **Deliver by 8/10/26** (Tom 8/3)
+- **Source:** direct email, tail of **DI 32186678 / RA #RA18667807232026** — JCP returned the original green PO (we'd said "no longer shipping green"), then re-issued (7/27 "300 of the green" → 7/31 "new PO for 248"). Current live qty per Tom = **252**.
+- **⚠ Must be TRUE GREEN**, not the commingled green/white (`850003115139` base = mix; `850003115139 - 1` = true green). JCP rejected the commingle before. The **de-kit WRO 388151795** (1,167u) is separating true green → that's the source.
+- **Coverage:** 252 « on-hand ~1,626 + 1,167 de-kit green → qty is fine. **Constraints: (1) confirm de-kit done / enough true green picked; (2) ship from ShipBob→JCP DC by ~8/6–8/7 to hit 8/10; (3) confirm sales/ops actually agreed to supply green again (don't re-trip the "no longer shipping green" issue).**
+
 | Doc | Type | Detail |
 |---|---|---|
-| — | **820 · remittance/payment** | Payment to MTB SPA: **$167.56 credit** via ACH (remittance information only). No order action — route to AR (`ar@michaeltoddbeauty.com` was CC'd). |
+| 2 msgs | **812 · credit/debit** | 7/09 + 6/22 off-invoice adjustments (JCP.com vendor #169623) → AR |
+| — | **820 · remittance/payment** | $167.56 (7/30) + $109.95 (7/23) ACH credits → AR |
 
 ---
 *Auto-built from Outlook 2026-07-30 (sender edisupport@ecom-specialist.com). The email routine parses each 850/860 into this table — full line detail extracted when the run opens the body. Cancellations are always surfaced to the top; routine status-updates roll up as a batch.*
