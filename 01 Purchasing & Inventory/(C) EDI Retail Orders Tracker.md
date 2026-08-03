@@ -1,7 +1,7 @@
 ---
 type: edi-order-tracker
 source: EDI service — edisupport@ecom-specialist.com (→ supplychain@michaeltoddbeauty.com)
-last_scanned: 2026-07-31
+last_scanned: 2026-08-03
 status: living
 ---
 
@@ -20,6 +20,17 @@ How retail partners submit and adjust orders. Each EDI email = a retail PO or a 
 Retailer · Brand · **PO #** · Type (New / Change-update / Change-cancel) · PO date · **Delivery requested date** · Ship-to (store/DC code) · Buyer · Line items (Purchaser Item Code · UPC · description · qty in **cases** · pack · unit $ · line $) · change action (e.g. DELETE ITEM(S)).
 
 ## Open EDI POs
+
+### CVS — SPA 830 Planning Schedule (FORECAST, 2026-08-02 — 3 msgs)
+| Doc | Vendor ID | Horizon | Detail |
+|---|---|---|---|
+| **830** ×3 | 40287 · 40867 · 36143 | **10/25/2026** | **Now the CVS forecast of record** — buyer Tristan Viens-Roderick (8/3): *"refer to your EDI 830 reports for forecasting."* Weekly planning qtys per DC. **⚠ Parse for AIVA (buyer item 732452) reset qty** — this is where the September door-restore demand shows up (830 = Planning Schedule With Release Capability). Earlier 7/26 batch had AIVA at ~180u (old 187-door state); check if the 8/2 batch reflects the 2,738-door reset. |
+
+### CVS — SPA 812 Credit/Debit Adjustments (2026-08-03)
+| Doc | Amount | Detail |
+|---|---|---|
+| 2655218WV | **$200.98 credit** | Off-invoice deduction vs 6/25 invoice → AR |
+| 2657148WV | **$200.98 credit** | Off-invoice deduction vs 6/26 invoice → AR |
 
 ### CVS — SPA (2026-07-30 batch, 860 changes — 10 messages)
 | PO # | Type | PO date | Delivery req | Change detail |
