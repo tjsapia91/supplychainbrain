@@ -29,6 +29,7 @@ grouped into **ABC sections** (all **A** SKUs first, then **C**, **D**, then **O
 | **Forecast** 🔵 | Monthly demand. *Editable.* |
 | **Starting** 🔵 (month 1) | On-hand at the start. Month 1 is *editable* (override on-hand "just in case"); later months = the prior month's Ending (formula). |
 | **PO (available)** 🔵 | Bankable supplier POs credited to the month they can cover. *Editable.* |
+| **Transfer in (UNIS)** *(Amazon only)* | UNIS staging drawn **automatically as needed** to keep Ending ≥ 0, capped at that SKU's UNIS pool. Not editable — it's a computed backstop (see rule 4). |
 | **Fly-in (edit)** 🔵 | Air-freight — **blank by default** (just-in-case, never auto-suggested). *Editable.* |
 | **Ending** | `= Starting + PO + Fly-in − Forecast`. Turns **light red** when negative. |
 | **Days of cover** | `= Ending ÷ daily demand`. |
@@ -66,8 +67,13 @@ cell never erases a saved note.
 3. **A PO covers the month it becomes available** (available part-way through a month still covers
    that month). End-of-month inventory is exact; an intra-month dip before a late-month availability
    isn't shown (standard monthly-sheet simplification).
-4. **Network model** (Tommy 2026-08-04):
-   - **UNIS → Amazon = a real, standing supply line** (e.g. Hair Spray). UNIS-warehouse POs count.
+4. **Amazon supply chain = FBA → AWD → UNIS** (Tommy 2026-08-04/05):
+   - **Starting = FBA + AWD** on-hand.
+   - **UNIS supplies Amazon *as needed* — when AWD is out, draw UNIS.** So the flow's
+     `Transfer in (UNIS)` row auto-draws whatever's needed to keep Ending ≥ 0, capped at that
+     SKU's UNIS pool, drawn down month by month. When the UNIS pool empties, Ending goes red and
+     it becomes a fly-in decision. (Hair Spray, e.g., is fed entirely from UNIS.)
+   - **UNIS pool** is computed from the raw UNIS export automatically (see "UNIS inventory" below).
    - **ShipBob → Amazon = pinch/as-needed only** — *never* auto-counted as Amazon supply.
    - **UNIS is also a transload point to ShipBob** — some UNIS-staged inventory is ShipBob-bound.
 5. **Fly-in is the last resort.** Prefer expediting a PO through the pipeline so it lands in time;
@@ -86,6 +92,18 @@ cell never erases a saved note.
 | One-time PO reroute between channels | `build_amazon_planner.PO_REROUTE_TO_US` (auto-expiring) |
 
 ---
+
+## UNIS inventory (auto-computed from the raw export)
+
+The UNIS pool per SKU is computed automatically — **just drop the raw UNIS `data` export**
+(the one-row-per-LP file) into `reports/_inbox/` and rebuild. The loader reproduces the
+hand-built "Item Summary" method:
+
+> **UNIS eaches = Σ QTY (col J, treated as CASES regardless of UOM) per Item × item-master
+> master-carton pack (UPC Master Carton Quantity).**
+
+No manual Units/Case entry. Verified to tie out to the Item Summary tab (e.g. bundle 850038082352
+= 421 cases × 12 = 5,052; Hair Spray = 910 × 48 = 43,680). Code: `build_amazon_us_replen.load_us_reservoir`.
 
 ## Data it reads (must be current)
 
