@@ -24,7 +24,19 @@ Retailer · Brand · **PO #** · Type (New / Change-update / Change-cancel) · P
 ### CVS — SPA 830 Planning Schedule (FORECAST, 2026-08-02 — 3 msgs)
 | Doc | Vendor ID | Horizon | Detail |
 |---|---|---|---|
-| **830** ×3 | 40287 · 40867 · 36143 | **10/25/2026** | **Now the CVS forecast of record** — buyer Tristan Viens-Roderick (8/3): *"refer to your EDI 830 reports for forecasting."* Weekly planning qtys per DC. **⚠ Parse for AIVA (buyer item 732452) reset qty** — this is where the September door-restore demand shows up (830 = Planning Schedule With Release Capability). Earlier 7/26 batch had AIVA at ~180u (old 187-door state); check if the 8/2 batch reflects the 2,738-door reset. |
+| **830** ×3 | 40287 · 40867 · 36143 | **10/25/2026** | **Now the CVS forecast of record** — buyer Tristan Viens-Roderick (8/3): *"refer to your EDI 830 reports for forecasting."* Weekly planning qtys per DC. |
+
+**✅ AIVA (item 732452 / UPC 8500031156…) PARSED from the 8/2 830 (Tommy 2026-08-05):**
+
+| Qty | Week window | CVS DC |
+|---:|---|---|
+| 48 | 8/30–9/05 | N101 |
+| 36 | 9/13–9/19 | L101 |
+| 48 | 9/20–9/26 | N101 |
+| 24 | 10/18–10/24 | F101 |
+| **156 total** | through late Oct | N101 (96) · L101 (36) · F101 (24) |
+
+> **NOT the September door-restore** — the 8/2 830 forecasts only ~156u of AIVA (all "Planning"/flexible weekly), basically the same low state as the 7/26 batch, **not** a 2,738-door reset. The initial 4-WOS DC buildup (already bought) covered the door restore; the 830 is just the ongoing trickle. No large one-time AIVA fill owed via EDI.
 
 ### CVS — SPA 812 Credit/Debit Adjustments (2026-08-03)
 | Doc | Amount | Detail |
