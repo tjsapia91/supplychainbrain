@@ -22,7 +22,9 @@ across the next 8 months and — if not — the exact day it runs out and what t
 ## The card (one per SKU)
 
 Each SKU is its own **banded block** (dark title band = UPC · Description · **Class** · Notes),
-grouped into **ABC sections** (all **A** SKUs first, then **C**, **D**, then **Other/unclassified**).
+grouped into **ABC sections**: **Class A + D (phase-in)** together first, then **C**, then
+**Other/unclassified**. (Class D = phase-in SKUs, incorporated with A — Tommy 2026-08-05. D cards
+keep their real "Class D" label so phase-ins stay identifiable inside the A section.)
 
 | Row | Meaning |
 |---|---|

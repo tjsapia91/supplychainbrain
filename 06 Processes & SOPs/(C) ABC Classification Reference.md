@@ -20,6 +20,11 @@
 | **S** | Sales BOM | Combo packs, gift sets, sales BOMs — not single-SKU listings |
 | **Z** | Obsolete | Discontinued — no longer sold, write off remaining stock |
 
+> **Planning treatment (Tommy 2026-08-05):** **Class D (phase-in) SKUs are incorporated with
+> Class A** for planning and reporting — treat/prioritise them alongside A (they're new products
+> being ramped, so don't let them slip). The Monthly Inventory Flow groups them in a combined
+> **"CLASS A + D (phase-in)"** section, with each D card keeping its real class label.
+
 ---
 
 ## How items get classified
