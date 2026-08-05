@@ -29,7 +29,6 @@ grouped into **ABC sections** (all **A** SKUs first, then **C**, **D**, then **O
 | **Forecast** 🔵 | Monthly demand. *Editable.* |
 | **Starting** 🔵 (month 1) | On-hand at the start. Month 1 is *editable* (override on-hand "just in case"); later months = the prior month's Ending (formula). |
 | **PO (available)** 🔵 | Bankable supplier POs credited to the month they can cover. *Editable.* |
-| **Transfer in (UNIS)** *(Amazon only)* | UNIS staging drawn **automatically as needed** to keep Ending ≥ 0, capped at that SKU's UNIS pool. Not editable — it's a computed backstop (see rule 4). |
 | **Fly-in (edit)** 🔵 | Air-freight — **blank by default** (just-in-case, never auto-suggested). *Editable.* |
 | **Ending** | `= Starting + PO + Fly-in − Forecast`. Turns **light red** when negative. |
 | **Days of cover** | `= Ending ÷ daily demand`. |
@@ -69,11 +68,11 @@ cell never erases a saved note.
    isn't shown (standard monthly-sheet simplification).
 4. **Amazon supply chain = FBA → AWD → UNIS** (Tommy 2026-08-04/05):
    - **Starting = FBA + AWD** on-hand.
-   - **UNIS supplies Amazon *as needed* — when AWD is out, draw UNIS.** So the flow's
-     `Transfer in (UNIS)` row auto-draws whatever's needed to keep Ending ≥ 0, capped at that
-     SKU's UNIS pool, drawn down month by month. When the UNIS pool empties, Ending goes red and
-     it becomes a fly-in decision. (Hair Spray, e.g., is fed entirely from UNIS.)
-   - **UNIS pool** is computed from the raw UNIS export automatically (see "UNIS inventory" below).
+   - **UNIS qty is NOT counted as FBA stock** — the waterfall shows the true FBA/AWD position, so a
+     **negative Ending = how much to send in to FBA**. UNIS supplies Amazon *as needed* (when AWD
+     runs out you send in from UNIS), but it only counts once it's actually sent in.
+   - **UNIS availability is shown in the incoming box** (`UNIS staging · <qty>`) — the pool you draw
+     the send-in from. Its eaches are auto-computed from the raw export (see "UNIS inventory" below).
    - **ShipBob → Amazon = pinch/as-needed only** — *never* auto-counted as Amazon supply.
    - **UNIS is also a transload point to ShipBob** — some UNIS-staged inventory is ShipBob-bound.
 5. **Fly-in is the last resort.** Prefer expediting a PO through the pipeline so it lands in time;
