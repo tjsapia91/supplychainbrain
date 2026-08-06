@@ -75,6 +75,12 @@ cell never erases a saved note.
      runs out you send in from UNIS), but it only counts once it's actually sent in.
    - **UNIS availability is shown in the incoming box** (`UNIS staging · <qty>`) — the pool you draw
      the send-in from. Its eaches are auto-computed from the raw export (see "UNIS inventory" below).
+   - **Two send-in lines in the box (Amazon only):**
+     - **`→ Suggest send-in (UNIS)`** (amber) = live suggestion = `MIN(UNIS avail, FBA shortfall)`.
+     - **`→ Your send-in (enter qty)`** (blue, editable) = **what-if input.** Type a send-in qty and
+       the whole waterfall recalcs — **Ending → Days of cover → Stockout date** all update live so you
+       can see *how long FBA will be good* for that amount. Credited to the current month; default 0 =
+       baseline unchanged. (Tommy 2026-08-06.)
    - **ShipBob → Amazon = pinch/as-needed only** — *never* auto-counted as Amazon supply.
    - **UNIS is also a transload point to ShipBob** — some UNIS-staged inventory is ShipBob-bound.
 5. **Fly-in is the last resort.** Prefer expediting a PO through the pipeline so it lands in time;
