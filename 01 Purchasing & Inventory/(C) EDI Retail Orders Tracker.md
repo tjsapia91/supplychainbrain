@@ -7,6 +7,8 @@ status: living
 
 # 🛒 EDI Retail Orders Tracker
 
+> 📈 **Forecast view:** [[01 Purchasing & Inventory/(C) EDI Forecast Report — by Retailer.md]] — per-retailer forecast (CVS 830 = 5,562u horizon) + week-over-week trend.
+
 How retail partners submit and adjust orders. Each EDI email = a retail PO or a change to one. Tracked in the brain (previously nearly lost in inbox noise). Companion to the local **MTB Tools** web-app suite.
 
 ## EDI transaction types
