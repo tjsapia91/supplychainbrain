@@ -71,9 +71,11 @@ cell never erases a saved note.
 4. **Amazon supply chain = PO → UNIS → send-in → FBA** (Tommy 2026-08-06 — the Amazon waterfall
    models this in full; ShipBob still has POs cover directly):
    - **Starting = FBA + AWD** on-hand.
-   - **A landed PO does NOT cover FBA.** Row **`PO → UNIS (arriving)`** (grey) shows POs **arriving at
-     UNIS = potential inventory** — visible so you can see the reservoir building, but **NOT** fed into
-     FBA coverage (Tommy 2026-08-06 — "we don't want POs counting into coverage").
+   - **🔒 SETTLED RULE — POs stay informational** (Tommy 2026-08-06, final call). Row
+     **`PO → UNIS (arriving)`** (grey) shows POs **arriving at UNIS = potential inventory** — visible so
+     you can see the reservoir building, but they are **NEVER** fed into FBA coverage. Coverage/stockout
+     is the honest physical floor; you count a PO only by physically bumping UNIS on-hand yourself. Do
+     not auto-count POs into the flow.
    - **`Send-in → FBA (auto)` is a min/max BATCH policy** (professional replenishment, Tommy 2026-08-06):
      send a batch **only when projected FBA drops below the reorder point**, then refill up to the
      order-up-to level. Draws **ONLY from physical UNIS on-hand** — so FBA stocks out when the physical
