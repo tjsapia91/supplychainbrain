@@ -71,19 +71,21 @@ cell never erases a saved note.
 4. **Amazon supply chain = PO → UNIS → send-in → FBA** (Tommy 2026-08-06 — the Amazon waterfall
    models this in full; ShipBob still has POs cover directly):
    - **Starting = FBA + AWD** on-hand.
-   - **A landed PO does NOT cover FBA.** Row **`PO → UNIS (not counted)`** is **display-only (grey)** —
-     it shows what's inbound to UNIS for visibility, but POs are **NOT** fed into coverage (Tommy
-     2026-08-06 — "we don't want POs counting into coverage"). If you want to count a landed PO, add it
-     to the physical UNIS on-hand yourself.
+   - **A landed PO does NOT cover FBA.** Row **`PO → UNIS (arriving)`** (grey) shows POs **arriving at
+     UNIS = potential inventory** — visible so you can see the reservoir building, but **NOT** fed into
+     FBA coverage (Tommy 2026-08-06 — "we don't want POs counting into coverage").
    - **`Send-in → FBA (auto)`** is what actually covers FBA. It **auto-sizes to a target days-of-cover**
      each month and draws **ONLY from physical UNIS on-hand** — so FBA stocks out when the physical
      UNIS pool (not future POs) can't cover it.
+   - **Two UNIS balance rows:**
+     - **`UNIS on-hand (covers)`** = physical pool − send-ins. **This is what drives coverage.**
+     - **`UNIS potential (+POs)`** (green italic, display) = physical + arriving POs − send-ins — the
+       upside position *if* the POs land. Informational only; does not change the stockout.
    - **`Target days cover (edit)`** = editable blue knob on each SKU's title band (default **60 days**).
      **Raise it → bigger send-in, UNIS draws down faster; lower it → smaller send-in.** This is the
      lever to size coverage up or down per SKU. Send-in / `UNIS pool left` / `Ending (FBA)` / Days of
      cover / Stockout all recalc live.
-   - **`UNIS pool left`** row = running reservoir = **prior pool − send-in** (starts at the physical UNIS
-     on-hand shown on the band, `UNIS start <qty>`; **POs are NOT added in** — display only; eaches
+   - Both UNIS rows start at the physical on-hand shown on the band (`UNIS start <qty>`; eaches
      auto-computed from the raw export — see "UNIS inventory" below).
    - **Ending (FBA) = Starting + Send-in + Fly-in − Forecast.**
    - **ShipBob → Amazon = pinch/as-needed only** — *never* auto-counted as Amazon supply.
