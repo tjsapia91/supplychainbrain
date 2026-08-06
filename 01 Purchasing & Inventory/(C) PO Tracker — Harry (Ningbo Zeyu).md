@@ -2,7 +2,7 @@
 type: po-tracker
 vendor: Ningbo Zeyu Industry & Trade (Harry Zhan · harryzhan@nb-zeyu.com)
 source: Outlook sent + received (tom@michaeltoddbeauty.com)
-last_scanned: 2026-08-03
+last_scanned: 2026-08-06
 status: living
 ---
 
@@ -25,11 +25,12 @@ Living tracker of POs, built from sent + received email. **Stage** follows the
 | PPO # | Vendor | Item | Stage | Next action |
 |---|---|---|---|---|
 | **3236** | YAC Chemicals (Gloria) | Hair Identifier Spray `YC8441` | ③/④ PI + **artwork revision** — Gloria **7/31** sent revised design; open Q: can artwork English-only vs color box 3-languages | Juan owns artwork; confirm language spec so YAC can finalize |
-| — | Oxygen (Severino) | Glow Facial Oil | **formula APPROVED** by Michael 7/30 (bulk sample OK'd) | Filling next week; **confirm pickup 8/7** (Michael asked) |
+| — | Oxygen (Severino) | Glow Facial Oil | **formula APPROVED** 7/30; **artwork/label LOCKED 8/5** (master-shipper label centered over old barcode; batch code in flap + color-box bottom) | **Confirm pickup 8/7** holds |
 | **3167** | Emily / BMC (Zhiwen) | (shipment issue thread) | received & counting at warehouse (Emily 7/31); Augusto out next wk → forwarder to route via supplychain@ | Confirm final count + delivery schedule |
 
 ## Open threads / notes
-- **🔴 BOAT DELAY (Harry 8/3):** the **Saturday container slipped to Tuesday-AM loading** (boat delayed). Harry will update all dates after it loads → **blade container ETAs shift ~3 days**; the arrival maps move once Harry updates. Harry also asked **OK to ship PART first** (proposal in an attached image) — needs Tom's yes/no.
+- **🚢 Container ONEU6390520 (the "4th Aug" container / CI 039) — SHIPPED, headed to UNIS (Harry 8/5).** DO issued (Harry + Nancy@siyang-china sent it); **seal # CNEB38651**; delivery = **UNIS (new warehouse — no truck needed)**. This is the Sat→Tue-delayed boat now moving. Donna is running drayage with UNIS (Steffany/Zach have the DO; UNIS now wants `cadrayage@unisco.com` + `csr.drayage@item.com` cc'd on all future DOs). → Track landing; no action on Tom.
+- **🔴 BOAT DELAY (Harry 8/3):** the **Saturday container slipped to Tuesday-AM loading** (boat delayed) — ✅ now shipped as ONEU6390520 above. Harry updating remaining blade-container dates after they load → **ETAs shift ~3 days**; arrival maps move once he updates. Harry also asked **OK to ship PART first** — still needs Tom's yes/no.
 - **✅ Container plan cols R/S wired for Harry (Tom 8/1):** col **R = qty sending** · col **S = confirmed date** · col **Q = notes** — Harry acknowledged 8/3. **Chase him to fill R/S** on the blade POs; the moment he does, every report firms up automatically. Still empty as of 8/3 AM.
 - **Blade shortage is the priority** (SVP 7/29 + Lil's all-day review). **PO 3276 (30k) is now SIGNED/LIVE** — covers December. Near-term expedite: Michael **7/30** pushed Harry to add to a **~3,000-pc load on 8/1** ("we are VERY short"); Harry: "we will try… if we make more, we will load more." Harry's confirmed near-term = **3,000 Aug 8 + 5,250 Aug 15** (8,250). The Oct-4 containers **3221 + 3244** (25,050 each) load **8/20** — must sail on time. **SS blade transfers DN-2051712 / DN-2051703 are being picked at Unis (7/31, Michelle Topete)** — confirm they ship.
 - **🔴 Batch-code sign-off (7/31) — blocks final PIs.** Harry updated all codes on the final PI: **3154 → new batch code (done, PI attached)**; **3152 still on old `0426` — Harry asks "do you need change?"**; **salt = `RGS0726`** (Harry pushed back on a floated `0826`); **device stays `0426`**. → Decide w/ Juan; details in [[01 Purchasing & Inventory/(C) Batch Code Tracker.md]].

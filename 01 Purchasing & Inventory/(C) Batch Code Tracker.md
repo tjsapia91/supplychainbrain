@@ -4,7 +4,7 @@ system-of-record: Prizm ERP (Reports → Generated Reports → Batch Code Tracki
 data-in-vault: 01 Purchasing & Inventory/_batch-data/ (drop the Prizm CSV here)
 lookup: /batch-lookup <code | item# | UPC | PPO#>  (in-brain — no external app)
 source: Outlook batch-code threads (Harry / Augusto / Michael)
-last_scanned: 2026-07-31
+last_scanned: 2026-08-06
 status: living
 ---
 
@@ -28,6 +28,8 @@ Batch/expiration codes matter for **Amazon compliance** (and retail). **Everythi
 ## Active batch-code items (from email)
 | Date | Item / order | Batch code | Status / action |
 |---|---|---|---|
+| **8/5** | **SonicSmooth Blades (item 1632)** — Signed PPOs | **`SBD0726`** | 🟡 **Juan asked "SBD0726?"** (confirming the code for the signed PPOs). `SBD` prefix = item **1632** (per the PPO Batch Code Map; `SBB` = 1489). July 2026 print. → Confirm to Juan. |
+| **8/5** | **Oxygen Glow Facial Oil** (color box + master shipper) | (Oxygen-assigned) | ✅ Placement locked w/ Michael: master-shipper label centered to cover old barcode; **batch code in the flap** + on the **color-box bottom**. |
 | **7/31** | **PO 3154** (final PI) | **new batch code** | ✅ Harry updated all codes on the final PI to the new code; PI attached — verify & sign |
 | **7/31** | **PO 3152** (MTB order) | still **`0426`** (old) | 🔴 **DECISION NEEDED** — Harry: *"still the old 0426, do you need change?"* (device stays 0426) |
 | **7/31** | **Salt bag** | **`RGS0726`** | 🔴 **CONFIRM** — Harry ordered bags at `RGS0726` (Juan's file, Tom confirmed 3 days ago); someone floated **`0826`** — Harry pushing back. Keep RGS0726 unless intended change |

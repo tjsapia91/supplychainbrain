@@ -1,7 +1,7 @@
 ---
 type: edi-order-tracker
 source: EDI service — edisupport@ecom-specialist.com (→ supplychain@michaeltoddbeauty.com)
-last_scanned: 2026-08-03
+last_scanned: 2026-08-06
 status: living
 ---
 
@@ -20,6 +20,26 @@ How retail partners submit and adjust orders. Each EDI email = a retail PO or a 
 Retailer · Brand · **PO #** · Type (New / Change-update / Change-cancel) · PO date · **Delivery requested date** · Ship-to (store/DC code) · Buyer · Line items (Purchaser Item Code · UPC · description · qty in **cases** · pack · unit $ · line $) · change action (e.g. DELETE ITEM(S)).
 
 ## Open EDI POs
+
+### 🔴 JCP.com — SPA (2026-08-04, 860 — REJECTION)
+| PO # | Contract | Type | PO date | Detail |
+|---|---|---|---|---|
+| **32461438** | **300136667765** | 860 · **REJECTION** | 7/31 | ⚠ JCP.com **rejected** the order (Dept 960, Internal Vendor 169623, rejected 8/3). **Find out why** — ask Sean Mullino / ecom-specialist. Separate from the direct-email JCP MIO Green 252u (logged 8/3); confirm the rejection doesn't also affect that. |
+
+### CVS — SPA (2026-08-04 → 08-06 batch, 860 changes)
+| PO # | Type | PO date | Change detail |
+|---|---|---|---|
+| **3786008** | 860 · **CANCELLATION** | 6/02 | ⚠ cancelled 8/5 — verify nothing shipped/committed |
+| **0623974** | 860 · **CANCELLATION** | 7/21 | ⚠ cancelled 8/4 — verify |
+| **1658759** | 860 · **CANCELLATION** | 7/21 | ⚠ cancelled 8/4 — verify |
+| 5084950 · 2507268 · 7549216 · 3830025 · 8359965 · 1664069 · 0629052 · 9041769 | 860 · status update | 8/04 | Routine revisions (8 msgs, 8/6) — parse line detail on demand |
+| 1661358 · 8338911 · 9035173 · 3825067 · 8353116 · 3819926 | 860 · status update | 7/14–7/28 | Routine revisions (8/4 batch) |
+| 7533026 | 860 · **COMPLETION** | 7/07 | order completed/fulfilled |
+
+### JCP — SPA (2026-08-04, 812 Credit/Debit)
+| Doc | Amount | Detail |
+|---|---|---|
+| 7127644-COMP | **$10 debit** | Apply-on-account adjustment → AR |
 
 ### CVS — SPA 830 Planning Schedule (FORECAST, 2026-08-02 — 3 msgs)
 | Doc | Vendor ID | Horizon | Detail |
