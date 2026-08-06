@@ -71,18 +71,20 @@ cell never erases a saved note.
 4. **Amazon supply chain = PO → UNIS → send-in → FBA** (Tommy 2026-08-06 — the Amazon waterfall
    models this in full; ShipBob still has POs cover directly):
    - **Starting = FBA + AWD** on-hand.
-   - **A landed PO does NOT cover FBA directly — it lands at UNIS** and builds the pool. Row
-     **`PO → UNIS (edit)`** carries the counted POs into the reservoir, not into FBA.
+   - **A landed PO does NOT cover FBA.** Row **`PO → UNIS (not counted)`** is **display-only (grey)** —
+     it shows what's inbound to UNIS for visibility, but POs are **NOT** fed into coverage (Tommy
+     2026-08-06 — "we don't want POs counting into coverage"). If you want to count a landed PO, add it
+     to the physical UNIS on-hand yourself.
    - **`Send-in → FBA (auto)`** is what actually covers FBA. It **auto-sizes to a target days-of-cover**
-     each month and is **capped by the UNIS pool** — so FBA stocks out only when UNIS (fed by POs)
-     can't cover it anymore.
+     each month and draws **ONLY from physical UNIS on-hand** — so FBA stocks out when the physical
+     UNIS pool (not future POs) can't cover it.
    - **`Target days cover (edit)`** = editable blue knob on each SKU's title band (default **60 days**).
      **Raise it → bigger send-in, UNIS draws down faster; lower it → smaller send-in.** This is the
      lever to size coverage up or down per SKU. Send-in / `UNIS pool left` / `Ending (FBA)` / Days of
      cover / Stockout all recalc live.
-   - **`UNIS pool left`** row = running reservoir = prior pool + PO→UNIS − send-in (starts at the UNIS
-     on-hand shown on the band, `UNIS start <qty>`; eaches auto-computed from the raw export — see
-     "UNIS inventory" below).
+   - **`UNIS pool left`** row = running reservoir = **prior pool − send-in** (starts at the physical UNIS
+     on-hand shown on the band, `UNIS start <qty>`; **POs are NOT added in** — display only; eaches
+     auto-computed from the raw export — see "UNIS inventory" below).
    - **Ending (FBA) = Starting + Send-in + Fly-in − Forecast.**
    - **ShipBob → Amazon = pinch/as-needed only** — *never* auto-counted as Amazon supply.
    - **UNIS is also a transload point to ShipBob** — some UNIS-staged inventory is ShipBob-bound.
