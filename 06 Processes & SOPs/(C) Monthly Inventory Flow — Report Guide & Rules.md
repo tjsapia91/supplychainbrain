@@ -74,19 +74,20 @@ cell never erases a saved note.
    - **A landed PO does NOT cover FBA.** Row **`PO → UNIS (arriving)`** (grey) shows POs **arriving at
      UNIS = potential inventory** — visible so you can see the reservoir building, but **NOT** fed into
      FBA coverage (Tommy 2026-08-06 — "we don't want POs counting into coverage").
-   - **`Send-in → FBA (auto)`** is what actually covers FBA. It **auto-sizes to a target days-of-cover**
-     each month and draws **ONLY from physical UNIS on-hand** — so FBA stocks out when the physical
-     UNIS pool (not future POs) can't cover it.
-   - **Two UNIS balance rows:**
-     - **`UNIS on-hand (covers)`** = physical pool − send-ins. **This is what drives coverage.**
-     - **`UNIS potential (+POs)`** (green italic, display) = physical + arriving POs − send-ins — the
-       upside position *if* the POs land. Informational only; does not change the stockout.
-   - **`Target days cover (edit)`** = editable blue knob on each SKU's title band (default **60 days**).
-     **Raise it → bigger send-in, UNIS draws down faster; lower it → smaller send-in.** This is the
-     lever to size coverage up or down per SKU. Send-in / `UNIS pool left` / `Ending (FBA)` / Days of
-     cover / Stockout all recalc live.
-   - Both UNIS rows start at the physical on-hand shown on the band (`UNIS start <qty>`; eaches
-     auto-computed from the raw export — see "UNIS inventory" below).
+   - **`Send-in → FBA (auto)` is a min/max BATCH policy** (professional replenishment, Tommy 2026-08-06):
+     send a batch **only when projected FBA drops below the reorder point**, then refill up to the
+     order-up-to level. Draws **ONLY from physical UNIS on-hand** — so FBA stocks out when the physical
+     UNIS pool (not future POs) can't cover it. Result = **lumpy** sends (months of 0), not a monthly
+     top-up.
+   - **Two editable knobs on each SKU's title band:**
+     - **`Reorder ≤ (d)`** = reorder point in days (default **30**) — the trigger. Set it ≥ the send-in
+       lead time (UNIS→FBA transfer + Amazon receiving ≈ 2–3 wks) + safety.
+     - **`Up-to (d)`** = order-up-to days (default **90**) — the batch size. FBA peaks here right after a
+       send; averages ~60d with a 30d reorder. **Frequency:** the wider the gap between up-to and
+       reorder, the lumpier / less frequent the sends.
+   - **`UNIS on-hand (covers)`** = physical pool − send-ins; starts at the on-hand shown on the band
+     (`UNIS start <qty>`; eaches auto-computed from the raw export — see "UNIS inventory" below). POs are
+     shown in `PO → UNIS (arriving)` for visibility but are NOT added to this pool.
    - **Ending (FBA) = Starting + Send-in + Fly-in − Forecast.**
    - **ShipBob → Amazon = pinch/as-needed only** — *never* auto-counted as Amazon supply.
    - **UNIS is also a transload point to ShipBob** — some UNIS-staged inventory is ShipBob-bound.
@@ -100,7 +101,7 @@ cell never erases a saved note.
 | Want to change… | Where |
 |---|---|
 | Receiving lag (2.5 weeks) | `RECEIVING_DAYS` in `build_monthly_flow.py` |
-| Default send-in target days-of-cover (60d) | `DEFAULT_TARGET_DOC` in `build_monthly_flow.py` (or edit the per-SKU knob on the band) |
+| Default order-up-to days (90d) / reorder point (30d) | `DEFAULT_TARGET_DOC` / `DEFAULT_TRIGGER_DOC` in `build_monthly_flow.py` (or edit the per-SKU knobs on the band) |
 | A SKU's UPC / listing mapping | `sku_rules.ALIAS` (e.g. `B0CQKK2YCK → 811573031090` = MTBLavendar) |
 | Mark a SKU obsolete / phase-out | add its UPC to `sku_rules.PHASE_OUT` |
 | ABC class override | `sku_rules` ABC override / item master |
