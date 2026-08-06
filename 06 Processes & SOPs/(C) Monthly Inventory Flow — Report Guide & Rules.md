@@ -68,19 +68,22 @@ cell never erases a saved note.
 3. **A PO covers the month it becomes available** (available part-way through a month still covers
    that month). End-of-month inventory is exact; an intra-month dip before a late-month availability
    isn't shown (standard monthly-sheet simplification).
-4. **Amazon supply chain = FBA → AWD → UNIS** (Tommy 2026-08-04/05):
+4. **Amazon supply chain = PO → UNIS → send-in → FBA** (Tommy 2026-08-06 — the Amazon waterfall
+   models this in full; ShipBob still has POs cover directly):
    - **Starting = FBA + AWD** on-hand.
-   - **UNIS qty is NOT counted as FBA stock** — the waterfall shows the true FBA/AWD position, so a
-     **negative Ending = how much to send in to FBA**. UNIS supplies Amazon *as needed* (when AWD
-     runs out you send in from UNIS), but it only counts once it's actually sent in.
-   - **UNIS availability is shown in the incoming box** (`UNIS staging · <qty>`) — the pool you draw
-     the send-in from. Its eaches are auto-computed from the raw export (see "UNIS inventory" below).
-   - **Two send-in lines in the box (Amazon only):**
-     - **`→ Suggest send-in (UNIS)`** (amber) = live suggestion = `MIN(UNIS avail, FBA shortfall)`.
-     - **`→ Your send-in (enter qty)`** (blue, editable) = **what-if input.** Type a send-in qty and
-       the whole waterfall recalcs — **Ending → Days of cover → Stockout date** all update live so you
-       can see *how long FBA will be good* for that amount. Credited to the current month; default 0 =
-       baseline unchanged. (Tommy 2026-08-06.)
+   - **A landed PO does NOT cover FBA directly — it lands at UNIS** and builds the pool. Row
+     **`PO → UNIS (edit)`** carries the counted POs into the reservoir, not into FBA.
+   - **`Send-in → FBA (auto)`** is what actually covers FBA. It **auto-sizes to a target days-of-cover**
+     each month and is **capped by the UNIS pool** — so FBA stocks out only when UNIS (fed by POs)
+     can't cover it anymore.
+   - **`Target days cover (edit)`** = editable blue knob on each SKU's title band (default **60 days**).
+     **Raise it → bigger send-in, UNIS draws down faster; lower it → smaller send-in.** This is the
+     lever to size coverage up or down per SKU. Send-in / `UNIS pool left` / `Ending (FBA)` / Days of
+     cover / Stockout all recalc live.
+   - **`UNIS pool left`** row = running reservoir = prior pool + PO→UNIS − send-in (starts at the UNIS
+     on-hand shown on the band, `UNIS start <qty>`; eaches auto-computed from the raw export — see
+     "UNIS inventory" below).
+   - **Ending (FBA) = Starting + Send-in + Fly-in − Forecast.**
    - **ShipBob → Amazon = pinch/as-needed only** — *never* auto-counted as Amazon supply.
    - **UNIS is also a transload point to ShipBob** — some UNIS-staged inventory is ShipBob-bound.
 5. **Fly-in is the last resort.** Prefer expediting a PO through the pipeline so it lands in time;
@@ -93,6 +96,7 @@ cell never erases a saved note.
 | Want to change… | Where |
 |---|---|
 | Receiving lag (2.5 weeks) | `RECEIVING_DAYS` in `build_monthly_flow.py` |
+| Default send-in target days-of-cover (60d) | `DEFAULT_TARGET_DOC` in `build_monthly_flow.py` (or edit the per-SKU knob on the band) |
 | A SKU's UPC / listing mapping | `sku_rules.ALIAS` (e.g. `B0CQKK2YCK → 811573031090` = MTBLavendar) |
 | Mark a SKU obsolete / phase-out | add its UPC to `sku_rules.PHASE_OUT` |
 | ABC class override | `sku_rules` ABC override / item master |
