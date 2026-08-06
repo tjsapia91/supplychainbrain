@@ -71,11 +71,12 @@ cell never erases a saved note.
 4. **Amazon supply chain = PO → UNIS → send-in → FBA** (Tommy 2026-08-06 — the Amazon waterfall
    models this in full; ShipBob still has POs cover directly):
    - **Starting = FBA + AWD** on-hand.
-   - **🔒 SETTLED RULE — POs stay informational** (Tommy 2026-08-06, final call). Row
-     **`PO → UNIS (arriving)`** (grey) shows POs **arriving at UNIS = potential inventory** — visible so
-     you can see the reservoir building, but they are **NEVER** fed into FBA coverage. Coverage/stockout
-     is the honest physical floor; you count a PO only by physically bumping UNIS on-hand yourself. Do
-     not auto-count POs into the flow.
+   - **🔒 SETTLED RULE — a PO becomes UNIS stock once it LANDS** (Tommy 2026-08-06, final call). Row
+     **`PO → UNIS (arriving)`** (grey) shows POs arriving at UNIS. A PO is **informational while in
+     transit** (it does NOT cover FBA early or go straight to FBA), but on its **arrival month it joins
+     the UNIS on-hand pool** and the send-in can then draw on it. So `UNIS on-hand = prior on-hand +
+     POs landed this month − send-in`. The stockout reflects real supply: FBA is covered as landed POs
+     feed the send-in, and stocks out only when the UNIS pool (incl. landed POs) truly runs dry.
    - **`Send-in → FBA (auto)` is a min/max BATCH policy** (professional replenishment, Tommy 2026-08-06):
      send a batch **only when projected FBA drops below the reorder point**, then refill up to the
      order-up-to level. Draws **ONLY from physical UNIS on-hand** — so FBA stocks out when the physical
@@ -87,9 +88,9 @@ cell never erases a saved note.
      - **`Up-to (d)`** = order-up-to days (default **90**) — the batch size. FBA peaks here right after a
        send; averages ~60d with a 30d reorder. **Frequency:** the wider the gap between up-to and
        reorder, the lumpier / less frequent the sends.
-   - **`UNIS on-hand (covers)`** = physical pool − send-ins; starts at the on-hand shown on the band
-     (`UNIS start <qty>`; eaches auto-computed from the raw export — see "UNIS inventory" below). POs are
-     shown in `PO → UNIS (arriving)` for visibility but are NOT added to this pool.
+   - **`UNIS on-hand (covers)`** = prior on-hand **+ POs landed this month** − send-ins; starts at the
+     on-hand shown on the band (`UNIS start <qty>`; eaches auto-computed from the raw export — see "UNIS
+     inventory" below). This pool is what the send-in draws from.
    - **Ending (FBA) = Starting + Send-in + Fly-in − Forecast.**
    - **ShipBob → Amazon = pinch/as-needed only** — *never* auto-counted as Amazon supply.
    - **UNIS is also a transload point to ShipBob** — some UNIS-staged inventory is ShipBob-bound.
