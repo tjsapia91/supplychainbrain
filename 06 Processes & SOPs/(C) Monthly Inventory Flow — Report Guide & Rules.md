@@ -68,16 +68,14 @@ cell never erases a saved note.
 3. **A PO covers the month it becomes available** (available part-way through a month still covers
    that month). End-of-month inventory is exact; an intra-month dip before a late-month availability
    isn't shown (standard monthly-sheet simplification).
-4. **Amazon supply chain = demand → FBA ← AWD ← UNIS** (Tommy 2026-08-06 — full cascade modeled;
-   ShipBob still has POs cover directly):
-   - **The cascade:** demand hits FBA. **AWD auto-replenishes FBA FIRST** (`AWD → FBA` row =
-     `MIN(AWD on-hand, FBA top-up need)`). **UNIS send-in covers only what AWD can't** (`UNIS → FBA` =
-     `MAX(0, need − AWD→FBA)`, capped by UNIS on-hand). So FBA is fed AWD-first, UNIS-second, and stocks
-     out only when FBA **and** AWD **and** UNIS are all dry. SKUs with no AWD just show AWD = 0 and go
-     FBA ← UNIS.
-   - **Rows:** Forecast · FBA start · AWD → FBA · UNIS → FBA (send-in) · Fly-in · **Ending (FBA)** ·
-     **Days of cover** · AWD on-hand · UNIS on-hand · PO → UNIS (arriving) · Stockout date.
-   - **FBA start = FBA only** (AWD is its own row now, not lumped in).
+4. **Amazon supply chain = FBA+AWD (one pool) ← UNIS send-in** (Tommy 2026-08-06; ShipBob has POs cover
+   directly):
+   - **FBA + AWD counted TOGETHER.** AWD **auto-replenishes FBA** (Amazon does it), so the two behave as
+     one Amazon pool — combining them is the intended simplification ("keep it simple"). Demand depletes
+     the combined pool; **UNIS send-in tops it up** on the min/max trigger, so it effectively kicks in
+     as AWD runs down.
+   - **Rows:** Forecast · **Starting FBA+AWD (edit)** · PO → UNIS (arriving) · UNIS → FBA (send-in) ·
+     Fly-in · **Ending (FBA+AWD)** · UNIS on-hand · **Days of cover** · Stockout date.
    - **Status tag per SKU** (on the title band, col 3) — at-a-glance triage from the TOTAL position
      (FBA + AWD + UNIS + landed POs) vs demand & lead time: **🟢 HEALTHY** (covered) · **🟡 SEND-IN
      NEEDED** (FBA+AWD alone run out, UNIS covers — you have a send-in to do) · **🟠 ORDER SOON** (total
